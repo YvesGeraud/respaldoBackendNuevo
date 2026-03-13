@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { ZodError, type ZodIssue } from 'zod';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
-//import multer from 'multer'; // Descomentamos esto cuando instalemos multer
+import multer from 'multer'; // Descomentamos esto cuando instalemos multer
 import { Prisma } from '@/generated/prisma/client';
 import { AppError, type CodigoError } from '@/utils/errores.utils';
 import { responder } from '@/utils/respuestas.utils';
@@ -105,17 +105,17 @@ export function errorMiddleware(
   }
 
   // 4 — Errores de Multer (subida de archivos) descomentamos cuando pongamos multer
-  /*if (err instanceof multer.MulterError) {
+  if (err instanceof multer.MulterError) {
     const mensajesMulter: Record<string, string> = {
-      LIMIT_FILE_SIZE:  'El archivo supera el tamaño máximo permitido',
+      LIMIT_FILE_SIZE: 'El archivo supera el tamaño máximo permitido',
       LIMIT_FILE_COUNT: 'Se enviaron demasiados archivos',
-      LIMIT_FIELD_KEY:  'Nombre del campo demasiado largo',
+      LIMIT_FIELD_KEY: 'Nombre del campo demasiado largo',
       LIMIT_UNEXPECTED_FILE: 'Campo de archivo inesperado — usa el campo "archivo"',
     };
     const mensaje = mensajesMulter[err.code] ?? `Error al subir el archivo: ${err.message}`;
     responder._error(res, StatusCodes.BAD_REQUEST, mensaje, 'VALIDATION_ERROR');
     return;
-  }*/
+  }
 
   // 4a — Token JWT expirado
   if (err instanceof TokenExpiredError) {

@@ -10,8 +10,8 @@ import { StatusCodes } from 'http-status-codes';
 import { config } from '@/config/servidor.config';
 import { errorMiddleware } from '@/middlewares/error.middlewares';
 import { morganStream } from '@/utils/logger.utils';
-//import { router } from '@/routes';
-//import { authRouter } from '@/routes/auth.route';
+import { router } from '@/routes';
+import { authRouter } from '@/routes/auth.route';
 
 // ── App ───────────────────────────────────────────────────────────────────────
 
@@ -84,10 +84,10 @@ app.get('/health', (_req, res) => {
 // Auth con rate limiting estricto (limitarAuth) — debe montarse ANTES de /api/v1
 // para que el rate limiter se aplique antes del router general
 
-//app.use('/api/v1/auth', limitarAuth, authRouter);
+app.use('/api/auth', limitarAuth, authRouter);
 
 // Resto de módulos centralizados en routes/index.ts
-//app.use('/api/v1', router);
+app.use('/api', router);
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
 
