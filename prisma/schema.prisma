@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────────────
+
+enum RolUsuario {
+  ADMIN
+  CAJERO
+  COCINERO
+
+  @@map("rol_usuario")
+}
+
+enum EstadoOrden {
+  PENDIENTE
+  EN_PROCESO
+  LISTO
+  ENTREGADO
+  CANCELADO
+
+  @@map("estado_orden")
+}
+
+enum EstadoReservacion {
+  PENDIENTE
+  CONFIRMADA
+  CANCELADA
+  COMPLETADA
+
+  @@map("estado_reservacion")
+}
+
+// ── Catálogos ─────────────────────────────────────────────────────────────────
+
+model ct_usuario {
+  id_usuario         Int        @id @default(autoincrement())
+  usuario            String     @unique @db.VarChar(100)
+  contrasena         String     @db.VarChar(255)
+  email              String?    @unique @db.VarChar(255)
+  nombre_completo    String     @db.VarChar(200)
+  rol                RolUsuario @default(CAJERO)
+  estado             Boolean    @default(true)
+  fecha_registro     DateTime   @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime?  @updatedAt @db.DateTime(6)
+
+  ordenes       dt_orden[]       @relation("UsuarioOrden")
+  reservaciones dt_reservacion[] @relation("UsuarioReservacion")
+
+  @@index([estado])
+  @@map("ct_usuario")
+}
+
+model ct_categoria {
+  id_categoria       Int           @id @default(autoincrement())
+  nombre             String        @unique @db.VarChar(100)
+  descripcion        String?       @db.VarChar(500)
+  estado             Boolean       @default(true)
+  fecha_registro     DateTime      @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime?     @updatedAt @db.DateTime(6)
+
+  platillos ct_platillo[]
+
+  @@index([estado])
+  @@map("ct_categoria")
+}
+
+model ct_platillo {
+  id_platillo        Int       @id @default(autoincrement())
+  id_categoria       Int
+  nombre             String    @db.VarChar(200)
+  descripcion        String?   @db.VarChar(500)
+  precio             Decimal   @db.Decimal(10, 2)
+  imagen_url         String?   @db.VarChar(500)
+  estado             Boolean   @default(true)
+  fecha_registro     DateTime  @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
+
+  categoria ct_categoria       @relation(fields: [id_categoria], references: [id_categoria])
+  detalles  dt_detalle_orden[]
+
+  // FK id_categoria ya tiene índice automático por la relación
+  @@index([estado])
+  @@index([id_categoria, estado])
+  @@map("ct_platillo")
+}
+
+// ── Transacciones ─────────────────────────────────────────────────────────────
+
+model dt_orden {
+  id_orden           Int         @id @default(autoincrement())
+  id_usuario         Int
+  id_mesa            Int?
+  estado             EstadoOrden @default(PENDIENTE)
+  total              Decimal     @db.Decimal(10, 2)
+  fecha_registro     DateTime    @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime?   @updatedAt @db.DateTime(6)
+
+  usuario  ct_usuario         @relation("UsuarioOrden", fields: [id_usuario], references: [id_usuario])
+  detalles dt_detalle_orden[]
+
+  // Consultas frecuentes: órdenes activas, órdenes por usuario, por mesa
+  @@index([estado])
+  @@index([id_usuario, estado])
+  @@index([id_mesa, estado])
+  @@map("dt_orden")
+}
+
+model dt_detalle_orden {
+  id_detalle         Int     @id @default(autoincrement())
+  id_orden           Int
+  id_platillo        Int
+  cantidad           Int
+  precio_unitario    Decimal @db.Decimal(10, 2)
+  subtotal           Decimal @db.Decimal(10, 2)
+
+  orden    dt_orden    @relation(fields: [id_orden], references: [id_orden])
+  platillo ct_platillo @relation(fields: [id_platillo], references: [id_platillo])
+
+  // FK id_orden e id_platillo ya tienen índices automáticos por las relaciones
+  @@map("dt_detalle_orden")
+}
+
+model dt_reservacion {
+  id_reservacion     Int               @id @default(autoincrement())
+  id_usuario         Int
+  nombre_cliente     String            @db.VarChar(200)
+  fecha              DateTime          @db.DateTime(6)
+  num_personas       Int
+  estado             EstadoReservacion @default(PENDIENTE)
+  notas              String?           @db.VarChar(500)
+  fecha_registro     DateTime          @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime?         @updatedAt @db.DateTime(6)
+
+  usuario ct_usuario @relation("UsuarioReservacion", fields: [id_usuario], references: [id_usuario])
+
+  // Consultas frecuentes: reservaciones del día, pendientes
+  @@index([estado])
+  @@index([fecha, estado])
+  @@map("dt_reservacion")
+}
