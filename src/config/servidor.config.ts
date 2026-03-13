@@ -35,12 +35,18 @@ function unoDe<T extends string>(nombre: string, permitidos: readonly T[], porDe
     return porDefecto;
   }
   if (!permitidos.includes(raw as T)) {
-    throw new Error(`Variable de entorno ${nombre} inválida. Permitidos: ${permitidos.join(', ')}. Recibido: "${raw}"`);
+    throw new Error(
+      `Variable de entorno ${nombre} inválida. Permitidos: ${permitidos.join(', ')}. Recibido: "${raw}"`,
+    );
   }
   return raw as T;
 }
 
-const nodeEnv = unoDe<NodeEnv>('NODE_ENV', ['development', 'test', 'production'] as const, 'development');
+const nodeEnv = unoDe<NodeEnv>(
+  'NODE_ENV',
+  ['development', 'test', 'production'] as const,
+  'development',
+);
 
 export const config = {
   nodeEnv,

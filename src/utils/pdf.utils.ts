@@ -10,25 +10,25 @@ type Doc = InstanceType<typeof PDFDocument>;
 export interface ColumnaPDF {
   encabezado: string;
   /** Nombre de la propiedad en el objeto fila */
-  propiedad:  string;
+  propiedad: string;
   /** Fracción del ancho total (0–1). Si se omite, se distribuye el espacio restante */
-  ancho?:     number;
-  alinear?:   'left' | 'center' | 'right';
+  ancho?: number;
+  alinear?: 'left' | 'center' | 'right';
 }
 
 export interface OpcionesTabla {
-  colorEncabezado?:  string;   // default: '#1a3c5e'
-  colorFilaAlterna?: string;   // default: '#f0f4f8'
-  colorTexto?:       string;   // default: '#333333'
-  alturaFilaMin?:    number;   // altura mínima de fila en pts. default: 22
-  paddingVertical?:  number;   // espacio interno arriba/abajo. default: 6
+  colorEncabezado?: string; // default: '#1a3c5e'
+  colorFilaAlterna?: string; // default: '#f0f4f8'
+  colorTexto?: string; // default: '#333333'
+  alturaFilaMin?: number; // altura mínima de fila en pts. default: 22
+  paddingVertical?: number; // espacio interno arriba/abajo. default: 6
 }
 
 export interface OpcionesDocumento {
-  titulo:     string;
+  titulo: string;
   subtitulo?: string;
-  autor?:     string;
-  margen?:    number;   // default: 50
+  autor?: string;
+  margen?: number; // default: 50
 }
 
 // ── Documento ─────────────────────────────────────────────────────────────────
@@ -39,12 +39,12 @@ export interface OpcionesDocumento {
  */
 export function crearDocumento(opciones: OpcionesDocumento): Doc {
   return new PDFDocument({
-    size:        'A4',
-    margin:      opciones.margen ?? 50,
+    size: 'A4',
+    margin: opciones.margen ?? 50,
     bufferPages: true,
     info: {
-      Title:   opciones.titulo,
-      Author:  opciones.autor ?? 'Sistema de Restaurante Escolar',
+      Title: opciones.titulo,
+      Author: opciones.autor ?? 'Sistema de Restaurante Escolar',
       Creator: 'Sistema de Restaurante Escolar',
     },
   });
@@ -58,12 +58,7 @@ export function crearDocumento(opciones: OpcionesDocumento): Doc {
  *
  * @param descargar - true: descarga el archivo | false: lo muestra en el navegador
  */
-export function enviarPDF(
-  res:           Response,
-  doc:           Doc,
-  nombreArchivo: string,
-  descargar = true,
-): void {
+export function enviarPDF(res: Response, doc: Doc, nombreArchivo: string, descargar = true): void {
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(
     'Content-Disposition',
@@ -78,18 +73,10 @@ export function enviarPDF(
  * Encabezado estándar: título + subtítulo + línea divisoria.
  */
 export function escribirEncabezado(doc: Doc, titulo: string, subtitulo?: string): void {
-  doc
-    .fontSize(18)
-    .font('Helvetica-Bold')
-    .fillColor('#1a3c5e')
-    .text(titulo, { align: 'center' });
+  doc.fontSize(18).font('Helvetica-Bold').fillColor('#1a3c5e').text(titulo, { align: 'center' });
 
   if (subtitulo) {
-    doc
-      .fontSize(11)
-      .font('Helvetica')
-      .fillColor('#666666')
-      .text(subtitulo, { align: 'center' });
+    doc.fontSize(11).font('Helvetica').fillColor('#666666').text(subtitulo, { align: 'center' });
   }
 
   doc
@@ -110,9 +97,9 @@ export function escribirEncabezado(doc: Doc, titulo: string, subtitulo?: string)
  * escribirCampo(doc, 'Total', '$245.00', { colorValor: '#2e7d32', negrita: true });
  */
 export function escribirCampo(
-  doc:      Doc,
+  doc: Doc,
   etiqueta: string,
-  valor:    string,
+  valor: string,
   opciones: { colorValor?: string; negrita?: boolean } = {},
 ): void {
   doc
@@ -134,22 +121,22 @@ export function escribirCampo(
  * - Salto de página automático con encabezado repetido
  */
 export function escribirTabla<T extends Record<string, unknown>>(
-  doc:      Doc,
+  doc: Doc,
   columnas: ColumnaPDF[],
-  filas:    T[],
+  filas: T[],
   opciones: OpcionesTabla = {},
 ): void {
   const {
-    colorEncabezado  = '#1a3c5e',
+    colorEncabezado = '#1a3c5e',
     colorFilaAlterna = '#f0f4f8',
-    colorTexto       = '#333333',
-    alturaFilaMin    = 22,
-    paddingVertical  = 6,
+    colorTexto = '#333333',
+    alturaFilaMin = 22,
+    paddingVertical = 6,
   } = opciones;
 
-  const xInicio    = doc.page.margins.left;
+  const xInicio = doc.page.margins.left;
   const anchoTotal = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const anchos     = calcularAnchos(columnas, anchoTotal);
+  const anchos = calcularAnchos(columnas, anchoTotal);
 
   // ── Función interna para dibujar el encabezado de la tabla ──
   const dibujarEncabezado = () => {
@@ -162,8 +149,8 @@ export function escribirTabla<T extends Record<string, unknown>>(
     let x = xInicio;
     columnas.forEach((col, i) => {
       doc.text(col.encabezado, x + 5, y + paddingVertical + 2, {
-        width:     anchos[i]! - 10,
-        align:     col.alinear ?? 'left',
+        width: anchos[i]! - 10,
+        align: col.alinear ?? 'left',
         lineBreak: false,
       });
       x += anchos[i]!;
@@ -212,11 +199,11 @@ export function escribirTabla<T extends Record<string, unknown>>(
     let x = xInicio;
     columnas.forEach((col, i) => {
       doc.text(textos[i]!, x + 5, yFila + paddingVertical, {
-        width:     anchos[i]! - 10,
-        height:    alturaReal - paddingVertical * 2, // limita el área de texto
-        align:     col.alinear ?? 'left',
-        lineBreak: true,  // permite salto de línea dentro de la celda
-        ellipsis:  true,  // si aun así no cabe, añade "…" al final
+        width: anchos[i]! - 10,
+        height: alturaReal - paddingVertical * 2, // limita el área de texto
+        align: col.alinear ?? 'left',
+        lineBreak: true, // permite salto de línea dentro de la celda
+        ellipsis: true, // si aun así no cabe, añade "…" al final
       });
       x += anchos[i]!;
     });
@@ -248,21 +235,21 @@ export function escribirNumeroDePaginas(doc: Doc): void {
     doc.switchToPage(rango.start + i);
 
     const margenIzq = doc.page.margins.left;
-    const ancho     = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+    const ancho = doc.page.width - doc.page.margins.left - doc.page.margins.right;
     // Escribe dentro del margen inferior (entre fin del contenido y borde físico)
     const y = doc.page.height - doc.page.margins.bottom + 12;
 
     doc
-      .save()                   // preserva estado: posición, fuente, color
+      .save() // preserva estado: posición, fuente, color
       .fontSize(8)
       .font('Helvetica')
       .fillColor('#999999')
       .text(`Página ${i + 1} de ${total}`, margenIzq, y, {
-        align:     'right',
-        width:     ancho,
-        lineBreak: false,       // impide que se cree una nueva página accidentalmente
+        align: 'right',
+        width: ancho,
+        lineBreak: false, // impide que se cree una nueva página accidentalmente
       })
-      .restore();               // restaura el estado del documento
+      .restore(); // restaura el estado del documento
   }
 }
 
@@ -273,9 +260,9 @@ export function escribirNumeroDePaginas(doc: Doc): void {
  * Las columnas con `ancho` definido (0–1) se respetan; el resto se reparte a partes iguales.
  */
 function calcularAnchos(columnas: ColumnaPDF[], anchoTotal: number): number[] {
-  const usados   = columnas.reduce((s, c) => s + (c.ancho ?? 0), 0);
+  const usados = columnas.reduce((s, c) => s + (c.ancho ?? 0), 0);
   const sinAncho = columnas.filter((c) => c.ancho === undefined).length;
-  const resto    = sinAncho > 0 ? (anchoTotal * (1 - usados)) / sinAncho : 0;
+  const resto = sinAncho > 0 ? (anchoTotal * (1 - usados)) / sinAncho : 0;
   return columnas.map((c) => (c.ancho !== undefined ? c.ancho * anchoTotal : resto));
 }
 
@@ -284,10 +271,10 @@ function calcularAnchos(columnas: ColumnaPDF[], anchoTotal: number): number[] {
  * que mide exactamente cómo PDFKit va a renderizar el texto (respeta word-wrap).
  */
 function calcularAlturaFila(
-  doc:             Doc,
-  textos:          string[],
-  anchos:          number[],
-  alturaMinima:    number,
+  doc: Doc,
+  textos: string[],
+  anchos: number[],
+  alturaMinima: number,
   paddingVertical: number,
 ): number {
   const alturaMaxCelda = textos.reduce((max, texto, i) => {

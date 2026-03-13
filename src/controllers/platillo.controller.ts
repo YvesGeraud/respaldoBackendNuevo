@@ -53,9 +53,13 @@ class PlatilloController {
    * el cliente decide si reintentar los errores usando el campo `errores[]`.
    */
   async crearLote(req: Request, res: Response): Promise<void> {
-    const datos   = req.body as CrearPlatillosLoteDTO;
+    const datos = req.body as CrearPlatillosLoteDTO;
     const resultado = await platilloService.crearMuchos(datos);
-    responder.creado(res, resultado, `Lote procesado: ${resultado.exitosos}/${resultado.procesados} creados`);
+    responder.creado(
+      res,
+      resultado,
+      `Lote procesado: ${resultado.exitosos}/${resultado.procesados} creados`,
+    );
   }
 }
 

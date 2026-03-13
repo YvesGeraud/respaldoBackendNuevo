@@ -6,16 +6,16 @@
  * para que el cliente sepa exactamente qué se procesó y qué no.
  */
 export interface ResultadoBatch<TError = unknown> {
-  procesados:  number;
-  exitosos:    number;
-  fallidos:    number;
-  errores:     ErrorBatch<TError>[];
+  procesados: number;
+  exitosos: number;
+  fallidos: number;
+  errores: ErrorBatch<TError>[];
 }
 
 export interface ErrorBatch<T = unknown> {
-  indice: number;   // posición del item en el array original
-  error:  string;
-  dato?:  T;        // el item que falló (útil para reintentar)
+  indice: number; // posición del item en el array original
+  error: string;
+  dato?: T; // el item que falló (útil para reintentar)
 }
 
 export interface OpcionesBatch {
@@ -51,8 +51,8 @@ export async function procesarEnLotes<TInput, TOutput>(
 ): Promise<ResultadoBatch<TInput> & { resultados: TOutput[] }> {
   const { tamanioLote = 100, detenerEnError = false } = opciones;
 
-  const resultados: TOutput[]          = [];
-  const errores:    ErrorBatch<TInput>[] = [];
+  const resultados: TOutput[] = [];
+  const errores: ErrorBatch<TInput>[] = [];
   let exitosos = 0;
 
   // Procesamos lote por lote en secuencia para no saturar el pool de conexiones.
@@ -69,7 +69,7 @@ export async function procesarEnLotes<TInput, TOutput>(
       lote.forEach((dato, j) => {
         errores.push({
           indice: i + j,
-          error:  err instanceof Error ? err.message : String(err),
+          error: err instanceof Error ? err.message : String(err),
           dato,
         });
       });
@@ -81,7 +81,7 @@ export async function procesarEnLotes<TInput, TOutput>(
   return {
     procesados: items.length,
     exitosos,
-    fallidos:   errores.length,
+    fallidos: errores.length,
     errores,
     resultados,
   };
@@ -104,7 +104,9 @@ export async function procesarEnLotes<TInput, TOutput>(
  * );
  */
 export async function insertarEnLotes<TData>(
-  modelo: { createMany: (args: { data: TData[]; skipDuplicates?: boolean }) => Promise<{ count: number }> },
+  modelo: {
+    createMany: (args: { data: TData[]; skipDuplicates?: boolean }) => Promise<{ count: number }>;
+  },
   datos: TData[],
   opciones: OpcionesBatch & { skipDuplicates?: boolean } = {},
 ): Promise<ResultadoBatch> {
@@ -121,9 +123,9 @@ export async function insertarEnLotes<TData>(
 
   return {
     procesados: resultado.procesados,
-    exitosos:   totalInsertados,
-    fallidos:   resultado.fallidos,
-    errores:    resultado.errores,
+    exitosos: totalInsertados,
+    fallidos: resultado.fallidos,
+    errores: resultado.errores,
   };
 }
 

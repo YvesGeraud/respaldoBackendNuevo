@@ -9,7 +9,6 @@ import { StatusCodes } from 'http-status-codes';
 
 import { config } from '@/config/servidor.config';
 import { errorMiddleware } from '@/middlewares/error.middlewares';
-import { morganStream } from '@/utils/logger.utils';
 import { router } from '@/routes';
 import { authRouter } from '@/routes/auth.route';
 

@@ -4,25 +4,25 @@ import type { Response } from 'express';
 // ExcelJS exporta Workbook/Worksheet como tipos y como valores.
 // Usamos las instancias directamente; los tipos los inferimos de ellas.
 type Libro = ExcelJS.Workbook;
-type Hoja  = ExcelJS.Worksheet;
+type Hoja = ExcelJS.Worksheet;
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 export interface ColumnaExcel {
   encabezado: string;
   /** Nombre de la propiedad en el objeto fila */
-  propiedad:  string;
+  propiedad: string;
   /**
    * Ancho en caracteres. Si se omite se calcula automáticamente según el contenido.
    * Rango útil: 10–60 caracteres.
    */
-  ancho?:    number;
+  ancho?: number;
   /**
    * Formato numérico de Excel (numFmt).
    * Ejemplos: '"$"#,##0.00'  |  'DD/MM/YYYY'  |  '0.00%'
    */
-  formato?:  string;
-  alinear?:  'left' | 'center' | 'right';
+  formato?: string;
+  alinear?: 'left' | 'center' | 'right';
 }
 
 export interface OpcionesHoja {
@@ -30,16 +30,16 @@ export interface OpcionesHoja {
    * Texto que se muestra en A1 como fila de título fusionada y destacada.
    * Si se omite, la primera fila es directamente el encabezado de columnas.
    */
-  titulo?:             string;
-  subtitulo?:          string;
+  titulo?: string;
+  subtitulo?: string;
   /** Congela la fila de encabezados para que siempre sea visible al hacer scroll. Default: true */
   congelarEncabezado?: boolean;
   /** Agrega auto-filtro a la fila de encabezados. Default: true */
-  autoFiltro?:         boolean;
+  autoFiltro?: boolean;
   /** Color de fondo del encabezado en hex sin #. Default: '1a3c5e' */
-  colorEncabezado?:    string;
+  colorEncabezado?: string;
   /** Color de fondo de filas alternas en hex sin #. Default: 'f0f4f8' */
-  colorFilaAlterna?:   string;
+  colorFilaAlterna?: string;
 }
 
 // ── Libro ─────────────────────────────────────────────────────────────────────
@@ -49,11 +49,11 @@ export interface OpcionesHoja {
  * Un libro puede contener múltiples hojas (agregarHoja).
  */
 export function crearLibro(): Libro {
-  const libro        = new ExcelJS.Workbook();
-  libro.creator      = 'Sistema de Restaurante Escolar';
+  const libro = new ExcelJS.Workbook();
+  libro.creator = 'Sistema de Restaurante Escolar';
   libro.lastModifiedBy = 'Sistema de Restaurante Escolar';
-  libro.created      = new Date();
-  libro.modified     = new Date();
+  libro.created = new Date();
+  libro.modified = new Date();
   return libro;
 }
 
@@ -74,8 +74,8 @@ export function crearLibro(): Libro {
  * await enviarExcel(res, libro, 'reporte-2026-03');
  */
 export async function enviarExcel(
-  res:           Response,
-  libro:         Libro,
+  res: Response,
+  libro: Libro,
   nombreArchivo: string,
   descargar = true,
 ): Promise<void> {
@@ -112,19 +112,19 @@ export async function enviarExcel(
  * ], platillos, { titulo: 'Catálogo de Platillos' });
  */
 export function agregarHoja<T extends Record<string, unknown>>(
-  libro:    Libro,
-  nombre:   string,
+  libro: Libro,
+  nombre: string,
   columnas: ColumnaExcel[],
-  datos:    T[],
+  datos: T[],
   opciones: OpcionesHoja = {},
 ): Hoja {
   const {
     titulo,
     subtitulo,
     congelarEncabezado = true,
-    autoFiltro         = true,
-    colorEncabezado    = '1a3c5e',
-    colorFilaAlterna   = 'f0f4f8',
+    autoFiltro = true,
+    colorEncabezado = '1a3c5e',
+    colorFilaAlterna = 'f0f4f8',
   } = opciones;
 
   const hoja = libro.addWorksheet(nombre, {
@@ -137,9 +137,9 @@ export function agregarHoja<T extends Record<string, unknown>>(
   // ── Fila de título ────────────────────────────────────────────────────────
   if (titulo) {
     hoja.mergeCells(filaActual, 1, filaActual, columnas.length);
-    const celda   = hoja.getCell(filaActual, 1);
-    celda.value   = titulo;
-    celda.font    = { bold: true, size: 14, color: { argb: 'FF' + colorEncabezado } };
+    const celda = hoja.getCell(filaActual, 1);
+    celda.value = titulo;
+    celda.font = { bold: true, size: 14, color: { argb: 'FF' + colorEncabezado } };
     celda.alignment = { horizontal: 'center', vertical: 'middle' };
     hoja.getRow(filaActual).height = 32;
     filaActual++;
@@ -148,9 +148,9 @@ export function agregarHoja<T extends Record<string, unknown>>(
   // ── Fila de subtítulo ─────────────────────────────────────────────────────
   if (subtitulo) {
     hoja.mergeCells(filaActual, 1, filaActual, columnas.length);
-    const celda   = hoja.getCell(filaActual, 1);
-    celda.value   = subtitulo;
-    celda.font    = { italic: true, size: 10, color: { argb: 'FF666666' } };
+    const celda = hoja.getCell(filaActual, 1);
+    celda.value = subtitulo;
+    celda.font = { italic: true, size: 10, color: { argb: 'FF666666' } };
     celda.alignment = { horizontal: 'center', vertical: 'middle' };
     hoja.getRow(filaActual).height = 20;
     filaActual++;
@@ -163,19 +163,19 @@ export function agregarHoja<T extends Record<string, unknown>>(
   rowEnc.height = 26;
 
   columnas.forEach((col, i) => {
-    const celda     = rowEnc.getCell(i + 1);
-    celda.value     = col.encabezado;
-    celda.font      = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
-    celda.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + colorEncabezado } };
+    const celda = rowEnc.getCell(i + 1);
+    celda.value = col.encabezado;
+    celda.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
+    celda.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + colorEncabezado } };
     celda.alignment = { horizontal: col.alinear ?? 'center', vertical: 'middle', wrapText: false };
-    celda.border    = { bottom: { style: 'medium', color: { argb: 'FF' + colorEncabezado } } };
+    celda.border = { bottom: { style: 'medium', color: { argb: 'FF' + colorEncabezado } } };
   });
 
   // ── Auto-filtro ───────────────────────────────────────────────────────────
   if (autoFiltro) {
     hoja.autoFilter = {
       from: { row: filaEncabezado, column: 1 },
-      to:   { row: filaEncabezado, column: columnas.length },
+      to: { row: filaEncabezado, column: columnas.length },
     };
   }
 
@@ -186,7 +186,7 @@ export function agregarHoja<T extends Record<string, unknown>>(
 
   // ── Filas de datos ────────────────────────────────────────────────────────
   datos.forEach((fila, idx) => {
-    const numFila  = filaEncabezado + 1 + idx;
+    const numFila = filaEncabezado + 1 + idx;
     const excelRow = hoja.getRow(numFila);
     const esAlterna = idx % 2 === 1;
 
@@ -196,12 +196,13 @@ export function agregarHoja<T extends Record<string, unknown>>(
       // Asignar valor directamente — ExcelJS maneja string, number, Date, boolean
       celda.value = (fila[col.propiedad] ?? null) as ExcelJS.CellValue;
 
-      if (col.formato)  celda.numFmt    = col.formato;
-      if (col.alinear)  celda.alignment = { horizontal: col.alinear, vertical: 'middle' };
+      if (col.formato) celda.numFmt = col.formato;
+      if (col.alinear) celda.alignment = { horizontal: col.alinear, vertical: 'middle' };
 
       if (esAlterna) {
         celda.fill = {
-          type: 'pattern', pattern: 'solid',
+          type: 'pattern',
+          pattern: 'solid',
           fgColor: { argb: 'FF' + colorFilaAlterna },
         };
       }
@@ -215,7 +216,7 @@ export function agregarHoja<T extends Record<string, unknown>>(
   // ── Anchos de columna ─────────────────────────────────────────────────────
   // Si no se especifica ancho, se calcula basado en el contenido más largo
   hoja.columns = columnas.map((col, i) => ({
-    key:   String(i + 1),
+    key: String(i + 1),
     width: col.ancho ?? calcularAncho(col, datos),
   }));
 
@@ -233,11 +234,11 @@ export function agregarHoja<T extends Record<string, unknown>>(
  * ]);
  */
 export function agregarPie(
-  hoja:          Hoja,
+  hoja: Hoja,
   totalColumnas: number,
   celdas: Array<{
-    col:      number;
-    texto:    string;
+    col: number;
+    texto: string;
     negrita?: boolean;
     cursiva?: boolean;
     alinear?: 'left' | 'center' | 'right';
@@ -245,7 +246,7 @@ export function agregarPie(
 ): void {
   // La fila siguiente a la última con datos
   const ultimaFila = hoja.lastRow?.number ?? 1;
-  const filaPie    = hoja.getRow(ultimaFila + 2); // dejamos una fila de espacio
+  const filaPie = hoja.getRow(ultimaFila + 2); // dejamos una fila de espacio
 
   // Separador visual
   for (let c = 1; c <= totalColumnas; c++) {
@@ -253,9 +254,14 @@ export function agregarPie(
   }
 
   celdas.forEach(({ col, texto, negrita, cursiva, alinear }) => {
-    const celda     = filaPie.getCell(col);
-    celda.value     = texto;
-    celda.font      = { bold: negrita ?? false, italic: cursiva ?? false, color: { argb: 'FF555555' }, size: 9 };
+    const celda = filaPie.getCell(col);
+    celda.value = texto;
+    celda.font = {
+      bold: negrita ?? false,
+      italic: cursiva ?? false,
+      color: { argb: 'FF555555' },
+      size: 9,
+    };
     celda.alignment = { horizontal: alinear ?? 'left' };
   });
 }
@@ -268,10 +274,7 @@ export function agregarPie(
  *   - El valor más largo en los datos
  * Resultado limitado entre 10 y 60 para evitar columnas absurdamente anchas.
  */
-function calcularAncho<T extends Record<string, unknown>>(
-  col:   ColumnaExcel,
-  datos: T[],
-): number {
+function calcularAncho<T extends Record<string, unknown>>(col: ColumnaExcel, datos: T[]): number {
   const anchoEncabezado = col.encabezado.length;
   const anchoMax = datos.reduce((max, fila) => {
     const val = String(fila[col.propiedad] ?? '');

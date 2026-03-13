@@ -127,10 +127,10 @@ class PlatilloService {
       prisma.ct_platillo,
       datos.map((d) => ({
         id_categoria: d.id_categoria,
-        nombre:       d.nombre,
-        descripcion:  d.descripcion,
-        precio:       d.precio,
-        imagen_url:   d.imagen_url,
+        nombre: d.nombre,
+        descripcion: d.descripcion,
+        precio: d.precio,
+        imagen_url: d.imagen_url,
       })),
       { tamanioLote: 50 },
     );

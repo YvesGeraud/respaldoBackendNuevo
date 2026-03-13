@@ -102,7 +102,7 @@ export const crearPlatillosLoteSchema = z.object({
 
 // ── Tipos inferidos ───────────────────────────────────────────────────────────
 
-export type CrearPlatilloDTO       = z.infer<typeof crearPlatilloSchema>['body'];
-export type ActualizarPlatilloDTO  = z.infer<typeof actualizarPlatilloSchema>['body'];
-export type FiltrosPlatillos       = z.infer<typeof filtrosPlatillosSchema>['query'];
-export type CrearPlatillosLoteDTO  = z.infer<typeof crearPlatillosLoteSchema>['body'];
+export type CrearPlatilloDTO = z.infer<typeof crearPlatilloSchema>['body'];
+export type ActualizarPlatilloDTO = z.infer<typeof actualizarPlatilloSchema>['body'];
+export type FiltrosPlatillos = z.infer<typeof filtrosPlatillosSchema>['query'];
+export type CrearPlatillosLoteDTO = z.infer<typeof crearPlatillosLoteSchema>['body'];

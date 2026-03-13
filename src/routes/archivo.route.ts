@@ -14,19 +14,19 @@ import { crearSubidor, TIPOS } from '@/utils/archivo.utils';
 
 const subidores: Record<string, ReturnType<typeof crearSubidor>> = {
   imagenes: crearSubidor({
-    destino:         'imagenes',
-    maxMB:           2,
-    tiposPermitidos: TIPOS.IMAGENES,       // jpeg, png, webp, gif
+    destino: 'imagenes',
+    maxMB: 2,
+    tiposPermitidos: TIPOS.IMAGENES, // jpeg, png, webp, gif
   }),
   documentos: crearSubidor({
-    destino:         'documentos',
-    maxMB:           10,
-    tiposPermitidos: TIPOS.DOCUMENTOS,     // pdf, txt, csv
+    destino: 'documentos',
+    maxMB: 10,
+    tiposPermitidos: TIPOS.DOCUMENTOS, // pdf, txt, csv
   }),
   excel: crearSubidor({
-    destino:         'excel',
-    maxMB:           5,
-    tiposPermitidos: TIPOS.EXCEL,          // xlsx
+    destino: 'excel',
+    maxMB: 5,
+    tiposPermitidos: TIPOS.EXCEL, // xlsx
   }),
 };
 
@@ -44,15 +44,15 @@ const subirSegunTipo = (
   res: import('express').Response,
   next: import('express').NextFunction,
 ) => {
-  const subtipo  = req.params['subtipo'] as string | undefined;
-  const subidor  = subidores[subtipo ?? ''];
+  const subtipo = req.params['subtipo'] as string | undefined;
+  const subidor = subidores[subtipo ?? ''];
 
   if (!subidor) {
     // Subtipo no soportado → 404 antes de tocar el disco
     res.status(404).json({
-      exito:   false,
+      exito: false,
       mensaje: `Tipo de archivo no soportado: ${subtipo}. Use: imagenes, documentos, excel`,
-      codigo:  'NOT_FOUND',
+      codigo: 'NOT_FOUND',
     });
     return;
   }

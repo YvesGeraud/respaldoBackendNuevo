@@ -8,22 +8,22 @@ import { ErrorNoEncontrado, ErrorNegocio } from '@/utils/errores.utils';
 // ── MIME types conocidos ──────────────────────────────────────────────────────
 
 const MIME_TYPES: Record<string, string> = {
-  '.jpg':  'image/jpeg',
+  '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.png':  'image/png',
-  '.gif':  'image/gif',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
   '.webp': 'image/webp',
-  '.pdf':  'application/pdf',
+  '.pdf': 'application/pdf',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  '.csv':  'text/csv',
-  '.txt':  'text/plain',
+  '.csv': 'text/csv',
+  '.txt': 'text/plain',
 };
 
 // Expresiones regulares reutilizables para tiposPermitidos
 export const TIPOS = {
-  IMAGENES:    /^image\/(jpeg|png|webp|gif)$/,
-  DOCUMENTOS:  /^(application\/pdf|text\/plain|text\/csv)$/,
-  EXCEL:       /^application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet$/,
+  IMAGENES: /^image\/(jpeg|png|webp|gif)$/,
+  DOCUMENTOS: /^(application\/pdf|text\/plain|text\/csv)$/,
+  EXCEL: /^application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet$/,
   /** Imágenes + PDF: útil para formularios con adjuntos */
   IMAGENES_PDF: /^(image\/(jpeg|png|webp)|application\/pdf)$/,
 } as const;
@@ -90,10 +90,10 @@ export interface OpcionesSubida {
  */
 export function crearSubidor(opciones: OpcionesSubida = {}) {
   const {
-    destino         = 'general',
-    maxMB           = 5,
+    destino = 'general',
+    maxMB = 5,
     tiposPermitidos = TIPOS.IMAGENES,
-    maxArchivos     = 1,
+    maxArchivos = 1,
   } = opciones;
 
   const dirDestino = path.join(UPLOADS_DIR, destino);
@@ -103,26 +103,24 @@ export function crearSubidor(opciones: OpcionesSubida = {}) {
 
   const storage: StorageEngine = multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, dirDestino),
-    filename:    (_req, file, cb) => {
-      const ext    = path.extname(file.originalname).toLowerCase();
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
       const nombre = crypto.randomBytes(16).toString('hex');
       cb(null, `${nombre}${ext}`);
     },
   });
 
-  const filtroMime = (
-    _req:  Request,
-    file:  Express.Multer.File,
-    cb:    FileFilterCallback,
-  ) => {
+  const filtroMime = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     if (tiposPermitidos.test(file.mimetype)) {
       cb(null, true);
     } else {
       // El error llega al error middleware global como cualquier otro AppError
-      cb(new ErrorNegocio(
-        `Tipo de archivo no permitido: ${file.mimetype}. ` +
-        `Se esperaba: ${tiposPermitidos.source}`,
-      ));
+      cb(
+        new ErrorNegocio(
+          `Tipo de archivo no permitido: ${file.mimetype}. ` +
+            `Se esperaba: ${tiposPermitidos.source}`,
+        ),
+      );
     }
   };
 
@@ -131,7 +129,7 @@ export function crearSubidor(opciones: OpcionesSubida = {}) {
     fileFilter: filtroMime,
     limits: {
       fileSize: maxMB * 1024 * 1024,
-      files:    maxArchivos,
+      files: maxArchivos,
     },
   });
 }
@@ -164,8 +162,8 @@ export function crearSubidor(opciones: OpcionesSubida = {}) {
  * }
  */
 export async function descargarArchivo(
-  res:             Response,
-  rutaArchivo:     string,
+  res: Response,
+  rutaArchivo: string,
   nombreDescarga?: string,
   descargar = true,
 ): Promise<void> {
@@ -177,14 +175,15 @@ export async function descargarArchivo(
     throw new ErrorNoEncontrado(`Archivo no encontrado: ${path.basename(rutaArchivo)}`);
   }
 
-  const stats    = await fs.promises.stat(rutaArchivo);
-  const ext      = path.extname(rutaArchivo).toLowerCase();
+  const stats = await fs.promises.stat(rutaArchivo);
+  const ext = path.extname(rutaArchivo).toLowerCase();
   const mimeType = MIME_TYPES[ext] ?? 'application/octet-stream';
-  const nombre   = nombreDescarga ?? path.basename(rutaArchivo);
+  const nombre = nombreDescarga ?? path.basename(rutaArchivo);
 
-  res.setHeader('Content-Type',        mimeType);
-  res.setHeader('Content-Length',      stats.size);
-  res.setHeader('Content-Disposition',
+  res.setHeader('Content-Type', mimeType);
+  res.setHeader('Content-Length', stats.size);
+  res.setHeader(
+    'Content-Disposition',
     `${descargar ? 'attachment' : 'inline'}; filename="${encodeURIComponent(nombre)}"`,
   );
 
@@ -204,9 +203,9 @@ export async function descargarArchivo(
 
 export interface ResultadoDeduplicacion {
   /** Ruta absoluta final del archivo (canónica basada en hash) */
-  ruta:      string;
+  ruta: string;
   /** SHA-256 del contenido del archivo en hexadecimal */
-  hash:      string;
+  hash: string;
   /** true si el archivo ya existía (misma imagen con distinto nombre) */
   duplicado: boolean;
 }
@@ -217,11 +216,11 @@ export interface ResultadoDeduplicacion {
  */
 export function calcularHashArchivo(rutaArchivo: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const hash   = crypto.createHash('sha256');
+    const hash = crypto.createHash('sha256');
     const stream = fs.createReadStream(rutaArchivo);
     stream.on('error', reject);
-    stream.on('data',  (chunk) => hash.update(chunk));
-    stream.on('end',   () => resolve(hash.digest('hex')));
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('end', () => resolve(hash.digest('hex')));
   });
 }
 
@@ -244,10 +243,10 @@ export function calcularHashArchivo(rutaArchivo: string): Promise<string> {
  */
 export async function deduplicarArchivo(
   rutaTemporal: string,
-  directorio:   string,
+  directorio: string,
 ): Promise<ResultadoDeduplicacion> {
-  const hash         = await calcularHashArchivo(rutaTemporal);
-  const ext          = path.extname(rutaTemporal).toLowerCase();
+  const hash = await calcularHashArchivo(rutaTemporal);
+  const ext = path.extname(rutaTemporal).toLowerCase();
   const rutaCanonica = path.join(directorio, `${hash}${ext}`);
 
   const yaExiste = await fs.promises

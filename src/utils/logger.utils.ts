@@ -8,9 +8,9 @@ const { combine, timestamp, errors, colorize, printf, json } = winston.format;
 // Colores por nivel — sobreescribe los defaults de Winston para mejor visibilidad
 winston.addColors({
   error: 'bold red',
-  warn:  'bold yellow',
-  info:  'bold cyan',
-  http:  'magenta',
+  warn: 'bold yellow',
+  info: 'bold cyan',
+  http: 'magenta',
   debug: 'gray',
 });
 
@@ -46,11 +46,7 @@ const formatoConsolaDesarrollo = combine(
  * Compatible con ELK Stack, Datadog, GCP Logging, etc.
  * No usa colorize — los códigos ANSI se ven mal en archivos y en algunos agregadores.
  */
-const formatoJSON = combine(
-  timestamp(),
-  errors({ stack: true }),
-  json(),
-);
+const formatoJSON = combine(timestamp(), errors({ stack: true }), json());
 
 // ── Transportes ───────────────────────────────────────────────────────────────
 
@@ -63,35 +59,35 @@ const transportes: winston.transport[] = [
 ];
 
 //if (config.esProduccion) {
-  /**
-   * Solo errores — archivo pequeño, el primero que se revisa cuando algo falla.
-   * Rotación: 10 MB por archivo, máximo 30 archivos (≈ un mes de errores diarios).
-   * tailable: true → el archivo activo siempre se llama error.log (sin sufijo numérico).
-   */
-  transportes.push(
-    new winston.transports.File({
-      filename: path.join(LOGS_DIR, 'error.log'),
-      level:    'error',
-      format:   formatoJSON,
-      maxsize:  10 * 1024 * 1024,
-      maxFiles: 30,
-      tailable: true,
-    }),
-  );
+/**
+ * Solo errores — archivo pequeño, el primero que se revisa cuando algo falla.
+ * Rotación: 10 MB por archivo, máximo 30 archivos (≈ un mes de errores diarios).
+ * tailable: true → el archivo activo siempre se llama error.log (sin sufijo numérico).
+ */
+transportes.push(
+  new winston.transports.File({
+    filename: path.join(LOGS_DIR, 'error.log'),
+    level: 'error',
+    format: formatoJSON,
+    maxsize: 10 * 1024 * 1024,
+    maxFiles: 30,
+    tailable: true,
+  }),
+);
 
-  /**
-   * Todos los niveles — historial completo para auditoría y troubleshooting.
-   * Rotación: 50 MB por archivo, máximo 7 archivos rotados.
-   */
-  transportes.push(
-    new winston.transports.File({
-      filename: path.join(LOGS_DIR, 'combined.log'),
-      format:   formatoJSON,
-      maxsize:  50 * 1024 * 1024,
-      maxFiles: 7,
-      tailable: true,
-    }),
-  );
+/**
+ * Todos los niveles — historial completo para auditoría y troubleshooting.
+ * Rotación: 50 MB por archivo, máximo 7 archivos rotados.
+ */
+transportes.push(
+  new winston.transports.File({
+    filename: path.join(LOGS_DIR, 'combined.log'),
+    format: formatoJSON,
+    maxsize: 50 * 1024 * 1024,
+    maxFiles: 7,
+    tailable: true,
+  }),
+);
 //}
 
 // ── Logger principal ──────────────────────────────────────────────────────────

@@ -4,7 +4,6 @@ import { responder } from '@/utils/respuestas.utils';
 import { ErrorNegocio } from '@/utils/errores.utils';
 
 class ArchivoController {
-
   /**
    * POST /api/v1/archivos/:subtipo
    * Recibe un archivo del campo "archivo" en el form-data.
@@ -23,7 +22,7 @@ class ArchivoController {
   async subir(req: Request, res: Response): Promise<void> {
     if (!req.file) throw new ErrorNegocio('No se recibió ningún archivo en el campo "archivo"');
 
-    const subtipo  = req.params['subtipo'] as SubtipoArchivo;
+    const subtipo = req.params['subtipo'] as SubtipoArchivo;
     const resultado = await archivoService.subir(req.file, subtipo);
 
     const mensaje = resultado.duplicado
@@ -43,9 +42,9 @@ class ArchivoController {
    *   GET /api/v1/archivos/documentos/abc123.pdf?descargar=1 → attachment (fuerza descarga)
    */
   async obtener(req: Request, res: Response): Promise<void> {
-    const subtipo       = req.params['subtipo'] as SubtipoArchivo;
+    const subtipo = req.params['subtipo'] as SubtipoArchivo;
     const nombreArchivo = req.params['nombre'] as string;
-    const descargar     = req.query['descargar'] === '1';
+    const descargar = req.query['descargar'] === '1';
 
     await archivoService.enviar(res, nombreArchivo, subtipo, descargar);
   }
@@ -55,7 +54,7 @@ class ArchivoController {
    * Elimina el archivo del disco. Requiere rol ADMIN.
    */
   async eliminar(req: Request, res: Response): Promise<void> {
-    const subtipo       = req.params['subtipo'] as SubtipoArchivo;
+    const subtipo = req.params['subtipo'] as SubtipoArchivo;
     const nombreArchivo = req.params['nombre'] as string;
 
     await archivoService.eliminar(nombreArchivo, subtipo);

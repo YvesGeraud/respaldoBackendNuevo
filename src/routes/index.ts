@@ -4,8 +4,8 @@ import { Router } from 'express';
 import { platilloRouter } from '@/routes/platillo.route';
 
 // * Reportes
-import { pdfRouter }    from '@/routes/pdf.route';
-import { excelRouter }  from '@/routes/excel.route';
+import { pdfRouter } from '@/routes/pdf.route';
+import { excelRouter } from '@/routes/excel.route';
 
 // * Archivos
 import { archivoRouter } from '@/routes/archivo.route';
@@ -22,7 +22,7 @@ export const router = Router();
 router.use('/platillos', platilloRouter);
 
 // * Reportes
-router.use('/pdf',   pdfRouter);
+router.use('/pdf', pdfRouter);
 router.use('/excel', excelRouter);
 
 // * Archivos
