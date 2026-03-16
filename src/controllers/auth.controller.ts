@@ -74,7 +74,7 @@ class AuthController {
    * El frontend usa este endpoint al recargar la página para restaurar la sesión.
    */
   async yo(req: Request, res: Response): Promise<void> {
-    const usuario = await authService.obtenerSesionActual(req.usuario!.id_usuario);
+    const usuario = await authService.obtenerSesionActual(req.usuario!.id_ct_usuario);
     responder.ok(res, { usuario });
   }
 

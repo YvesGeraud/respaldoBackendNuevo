@@ -82,7 +82,7 @@ describe('POST /api/auth/login — autenticación', () => {
   it('401 UNAUTHORIZED si el usuario está inactivo', async () => {
     const { prisma } = await import('../../src/config/database.config');
     vi.mocked(prisma.ct_usuario.findUnique).mockResolvedValueOnce({
-      id_usuario: 1,
+      id_ct_usuario: 1,
       usuario: 'inactivo',
       contrasena: 'hash',
       email: null,

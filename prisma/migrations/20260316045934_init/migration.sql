@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE `ct_usuario` (
-    `id_usuario` INTEGER NOT NULL AUTO_INCREMENT,
+    `id_ct_usuario` INTEGER NOT NULL AUTO_INCREMENT,
     `usuario` VARCHAR(100) NOT NULL,
     `contrasena` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `ct_usuario` (
     UNIQUE INDEX `ct_usuario_usuario_key`(`usuario`),
     UNIQUE INDEX `ct_usuario_email_key`(`email`),
     INDEX `ct_usuario_estado_idx`(`estado`),
-    PRIMARY KEY (`id_usuario`)
+    PRIMARY KEY (`id_ct_usuario`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -50,7 +50,7 @@ CREATE TABLE `ct_platillo` (
 -- CreateTable
 CREATE TABLE `dt_orden` (
     `id_orden` INTEGER NOT NULL AUTO_INCREMENT,
-    `id_usuario` INTEGER NOT NULL,
+    `id_ct_usuario` INTEGER NOT NULL,
     `id_mesa` INTEGER NULL,
     `estado` ENUM('PENDIENTE', 'EN_PROCESO', 'LISTO', 'ENTREGADO', 'CANCELADO') NOT NULL DEFAULT 'PENDIENTE',
     `total` DECIMAL(10, 2) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE `dt_orden` (
     `fecha_modificacion` DATETIME(6) NULL,
 
     INDEX `dt_orden_estado_idx`(`estado`),
-    INDEX `dt_orden_id_usuario_estado_idx`(`id_usuario`, `estado`),
+    INDEX `dt_orden_id_ct_usuario_estado_idx`(`id_ct_usuario`, `estado`),
     INDEX `dt_orden_id_mesa_estado_idx`(`id_mesa`, `estado`),
     PRIMARY KEY (`id_orden`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -78,7 +78,7 @@ CREATE TABLE `dt_detalle_orden` (
 -- CreateTable
 CREATE TABLE `dt_reservacion` (
     `id_reservacion` INTEGER NOT NULL AUTO_INCREMENT,
-    `id_usuario` INTEGER NOT NULL,
+    `id_ct_usuario` INTEGER NOT NULL,
     `nombre_cliente` VARCHAR(200) NOT NULL,
     `fecha` DATETIME(6) NOT NULL,
     `num_personas` INTEGER NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE `dt_reservacion` (
 ALTER TABLE `ct_platillo` ADD CONSTRAINT `ct_platillo_id_ct_categoria_fkey` FOREIGN KEY (`id_ct_categoria`) REFERENCES `ct_categoria`(`id_ct_categoria`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `dt_orden` ADD CONSTRAINT `dt_orden_id_usuario_fkey` FOREIGN KEY (`id_usuario`) REFERENCES `ct_usuario`(`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `dt_orden` ADD CONSTRAINT `dt_orden_id_ct_usuario_fkey` FOREIGN KEY (`id_ct_usuario`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_orden_fkey` FOREIGN KEY (`id_orden`) REFERENCES `dt_orden`(`id_orden`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -105,4 +105,4 @@ ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_orden_fkey` F
 ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_ct_platillo_fkey` FOREIGN KEY (`id_ct_platillo`) REFERENCES `ct_platillo`(`id_ct_platillo`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `dt_reservacion` ADD CONSTRAINT `dt_reservacion_id_usuario_fkey` FOREIGN KEY (`id_usuario`) REFERENCES `ct_usuario`(`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `dt_reservacion` ADD CONSTRAINT `dt_reservacion_id_ct_usuario_fkey` FOREIGN KEY (`id_ct_usuario`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;

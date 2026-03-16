@@ -12,7 +12,7 @@ import type { RolUsuario } from '@/generated/prisma/client';
 // ── Fixture ────────────────────────────────────────────────────────────────────
 
 const PAYLOAD: PayloadJWT = {
-  id_usuario: 42,
+  id_ct_usuario: 42,
   usuario: 'docente01',
   email: 'docente@escuela.edu.mx',
   rol: 'DOCENTE' as RolUsuario,
@@ -31,7 +31,7 @@ describe('generarAccessToken', () => {
     const token = generarAccessToken(PAYLOAD);
     const decoded = verificarAccessToken(token);
 
-    expect(decoded.id_usuario).toBe(PAYLOAD.id_usuario);
+    expect(decoded.id_ct_usuario).toBe(PAYLOAD.id_ct_usuario);
     expect(decoded.usuario).toBe(PAYLOAD.usuario);
     expect(decoded.rol).toBe(PAYLOAD.rol);
   });
@@ -42,7 +42,7 @@ describe('generarAccessToken', () => {
     // El payload debe ser idéntico; la firma puede variar si la librería añade jti/iat aleatorio
     const d1 = verificarAccessToken(t1);
     const d2 = verificarAccessToken(t2);
-    expect(d1.id_usuario).toBe(d2.id_usuario);
+    expect(d1.id_ct_usuario).toBe(d2.id_ct_usuario);
   });
 });
 
@@ -71,7 +71,7 @@ describe('generarRefreshToken + verificarRefreshToken', () => {
   it('el refresh token es válido y contiene el payload', () => {
     const token = generarRefreshToken(PAYLOAD);
     const decoded = verificarRefreshToken(token);
-    expect(decoded.id_usuario).toBe(PAYLOAD.id_usuario);
+    expect(decoded.id_ct_usuario).toBe(PAYLOAD.id_ct_usuario);
     expect(decoded.usuario).toBe(PAYLOAD.usuario);
   });
 

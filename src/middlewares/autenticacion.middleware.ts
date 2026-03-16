@@ -19,7 +19,7 @@ export const autenticado = (req: Request, _res: Response, next: NextFunction): v
   try {
     const payload = authService.verificarAccessToken(token);
     req.usuario = {
-      id_usuario: payload.id_usuario,
+      id_ct_usuario: payload.id_ct_usuario,
       usuario: payload.usuario,
       email: payload.email,
       rol: payload.rol as RolUsuario, // el JWT almacena el enum como string

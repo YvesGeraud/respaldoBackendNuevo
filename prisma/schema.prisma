@@ -39,7 +39,7 @@ enum EstadoReservacion {
 // ── Catálogos ─────────────────────────────────────────────────────────────────
 
 model ct_usuario {
-  id_usuario         Int        @id @default(autoincrement())
+  id_ct_usuario      Int        @id @default(autoincrement())
   usuario            String     @unique @db.VarChar(100)
   contrasena         String     @db.VarChar(255)
   email              String?    @unique @db.VarChar(255)
@@ -94,19 +94,19 @@ model ct_platillo {
 
 model dt_orden {
   id_orden           Int         @id @default(autoincrement())
-  id_usuario         Int
+  id_ct_usuario      Int
   id_mesa            Int?
   estado             EstadoOrden @default(PENDIENTE)
   total              Decimal     @db.Decimal(10, 2)
   fecha_registro     DateTime    @default(now()) @db.DateTime(6)
   fecha_modificacion DateTime?   @updatedAt @db.DateTime(6)
 
-  usuario  ct_usuario         @relation("UsuarioOrden", fields: [id_usuario], references: [id_usuario])
+  usuario  ct_usuario         @relation("UsuarioOrden", fields: [id_ct_usuario], references: [id_ct_usuario])
   detalles dt_detalle_orden[]
 
   // Consultas frecuentes: órdenes activas, órdenes por usuario, por mesa
   @@index([estado])
-  @@index([id_usuario, estado])
+  @@index([id_ct_usuario, estado])
   @@index([id_mesa, estado])
   @@map("dt_orden")
 }
@@ -128,7 +128,7 @@ model dt_detalle_orden {
 
 model dt_reservacion {
   id_reservacion     Int               @id @default(autoincrement())
-  id_usuario         Int
+  id_ct_usuario      Int
   nombre_cliente     String            @db.VarChar(200)
   fecha              DateTime          @db.DateTime(6)
   num_personas       Int
@@ -137,7 +137,7 @@ model dt_reservacion {
   fecha_registro     DateTime          @default(now()) @db.DateTime(6)
   fecha_modificacion DateTime?         @updatedAt @db.DateTime(6)
 
-  usuario ct_usuario @relation("UsuarioReservacion", fields: [id_usuario], references: [id_usuario])
+  usuario ct_usuario @relation("UsuarioReservacion", fields: [id_ct_usuario], references: [id_ct_usuario])
 
   // Consultas frecuentes: reservaciones del día, pendientes
   @@index([estado])

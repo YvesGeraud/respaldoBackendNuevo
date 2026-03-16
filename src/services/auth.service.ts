@@ -36,7 +36,7 @@ class AuthService {
     }
 
     const payload: PayloadJWT = {
-      id_usuario: encontrado.id_usuario,
+      id_ct_usuario: encontrado.id_ct_usuario,
       usuario: encontrado.usuario,
       email: encontrado.email,
       rol: encontrado.rol,
@@ -56,7 +56,7 @@ class AuthService {
     const payload = verificarRefreshToken(refreshToken);
 
     const usuario = await prisma.ct_usuario.findUnique({
-      where: { id_usuario: payload.id_usuario },
+      where: { id_ct_usuario: payload.id_ct_usuario },
     });
 
     if (!usuario || !usuario.estado) {
@@ -64,7 +64,7 @@ class AuthService {
     }
 
     const nuevoPayload: PayloadJWT = {
-      id_usuario: usuario.id_usuario,
+      id_ct_usuario: usuario.id_ct_usuario,
       usuario: usuario.usuario,
       email: usuario.email,
       rol: usuario.rol,
@@ -81,9 +81,9 @@ class AuthService {
    * El middleware ya verificó el token — aquí consultamos la BD
    * para devolver datos frescos (por si cambió rol, email, etc.).
    */
-  async obtenerSesionActual(id_usuario: number) {
+  async obtenerSesionActual(id_ct_usuario: number) {
     const usuario = await prisma.ct_usuario.findUnique({
-      where: { id_usuario },
+      where: { id_ct_usuario: id_ct_usuario },
     });
 
     if (!usuario || !usuario.estado) {
@@ -103,14 +103,14 @@ class AuthService {
 
   /** Elimina la contraseña y devuelve solo los campos seguros para el cliente. */
   private sanitizarUsuario(usuario: {
-    id_usuario: number;
+    id_ct_usuario: number;
     usuario: string;
     email: string | null;
     nombre_completo: string;
     rol: string;
   }) {
     return {
-      id_usuario: usuario.id_usuario,
+      id_ct_usuario: usuario.id_ct_usuario,
       usuario: usuario.usuario,
       email: usuario.email,
       nombre_completo: usuario.nombre_completo,

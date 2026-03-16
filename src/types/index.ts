@@ -9,7 +9,7 @@ import type { Meta } from '@/utils/respuestas.utils';
  * Para obtener nombre_completo u otros datos, consultar la BD (ej: endpoint /me).
  */
 export interface UsuarioAutenticado {
-  id_usuario: number;
+  id_ct_usuario: number;
   usuario: string;
   email: string | null; // nullable según el schema de BD
   rol: RolUsuario; // enum tipado, no string libre
@@ -21,7 +21,7 @@ export interface UsuarioAutenticado {
  * nombre_completo excluido deliberadamente: demasiado para cargar en cada petición.
  */
 export interface PayloadJWT {
-  id_usuario: number;
+  id_ct_usuario: number;
   usuario: string;
   email: string | null;
   rol: RolUsuario;
