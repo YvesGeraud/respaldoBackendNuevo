@@ -76,6 +76,21 @@ CREATE TABLE `dt_detalle_orden` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `dt_refresh_token` (
+    `id_dt_refresh_token` INTEGER NOT NULL AUTO_INCREMENT,
+    `token_hash` VARCHAR(64) NOT NULL,
+    `id_ct_usuario` INTEGER NOT NULL,
+    `expira_en` DATETIME(6) NOT NULL,
+    `revocado` BOOLEAN NOT NULL DEFAULT false,
+    `revocado_en` DATETIME(0) NULL,
+    `reemplazado_por` INTEGER NULL,
+    `creado_en` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+
+    UNIQUE INDEX `token_hash`(`token_hash`),
+    PRIMARY KEY (`id_dt_refresh_token`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `dt_reservacion` (
     `id_reservacion` INTEGER NOT NULL AUTO_INCREMENT,
     `id_ct_usuario` INTEGER NOT NULL,

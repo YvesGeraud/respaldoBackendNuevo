@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { config } from '@/config/servidor.config';
 import type { PayloadJWT } from '@/types';
 
@@ -37,4 +38,13 @@ export function verificarAccessToken(token: string): PayloadJWT {
  */
 export function verificarRefreshToken(token: string): PayloadJWT {
   return jwt.verify(token, config.jwt.refreshSecret) as PayloadJWT;
+}
+
+/**
+ * SHA-256 hex del token. Se usa para identificar tokens en BD sin
+ * almacenar el valor real — si la BD es comprometida los hashes
+ * no pueden usarse para forjar nuevas peticiones.
+ */
+export function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }

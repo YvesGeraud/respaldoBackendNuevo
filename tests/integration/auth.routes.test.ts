@@ -3,13 +3,20 @@ import request from 'supertest';
 
 /**
  * vi.mock es HOISTED por vitest al tope del archivo (antes de los imports).
- * Esto nos permite interceptar la BD sin que auth.service.ts llegue a conectarse.
+ * Mockeamos db para interceptar Prisma sin conectarse a la BD real.
+ * Se incluye dt_refresh_token porque auth.service lo usa en login, refresh y logout.
  */
 vi.mock('@/config/database.config', () => ({
   prisma: {
     ct_usuario: {
-      // Por defecto: usuario no encontrado — cada test puede sobreescribir con mockResolvedValueOnce
       findUnique: vi.fn().mockResolvedValue(null),
+    },
+    dt_refresh_token: {
+      create: vi.fn().mockResolvedValue({ id_dt_refresh_token: 1 }),
+      findUnique: vi.fn().mockResolvedValue(null),
+      update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
   },
 }));
@@ -26,7 +33,7 @@ describe('GET /health', () => {
   });
 });
 
-// ── POST /api/v1/auth/login — validación Zod ──────────────────────────────────
+// ── POST /api/auth/login — validación Zod ──────────────────────────────────────
 // Estos casos NO llegan a la BD: el middleware de validación los rechaza primero.
 
 describe('POST /api/auth/login — validación', () => {
@@ -65,11 +72,10 @@ describe('POST /api/auth/login — validación', () => {
   });
 });
 
-// ── POST /api/v1/auth/login — autenticación (BD mockeada) ─────────────────────
+// ── POST /api/auth/login — autenticación (BD mockeada) ────────────────────────
 
 describe('POST /api/auth/login — autenticación', () => {
   it('401 UNAUTHORIZED si el usuario no existe en BD', async () => {
-    // El mock devuelve null (usuario no encontrado) — ver vi.mock arriba
     const res = await request(app)
       .post('/api/auth/login')
       .send({ usuario: 'noexiste', contrasena: 'password123' });
@@ -80,15 +86,15 @@ describe('POST /api/auth/login — autenticación', () => {
   });
 
   it('401 UNAUTHORIZED si el usuario está inactivo', async () => {
-    const { prisma } = await import('../../src/config/database.config');
+    const { prisma } = await import('@/config/database.config');
     vi.mocked(prisma.ct_usuario.findUnique).mockResolvedValueOnce({
       id_ct_usuario: 1,
       usuario: 'inactivo',
       contrasena: 'hash',
       email: null,
       nombre_completo: 'Usuario Inactivo',
-      rol: 'DOCENTE' as never,
-      estado: false, // estado false → bloqueado
+      rol: 'CAJERO' as never,
+      estado: false,
       fecha_registro: new Date(),
       fecha_modificacion: null,
     });
@@ -102,6 +108,81 @@ describe('POST /api/auth/login — autenticación', () => {
   });
 });
 
+// ── POST /api/auth/refresh — rotación de tokens ───────────────────────────────
+
+describe('POST /api/auth/refresh — rotación', () => {
+  it('401 si no hay cookie de refreshToken', async () => {
+    const res = await request(app).post('/api/auth/refresh');
+    expect(res.status).toBe(401);
+    expect(res.body.codigo).toBe('UNAUTHORIZED');
+  });
+
+  it('401 si el refreshToken tiene firma inválida (JWT malformado)', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', 'refreshToken=esto.no.es.un.jwt.valido');
+
+    expect(res.status).toBe(401);
+  });
+
+  it('401 si el hash del token no está en BD (ya girado o fabricado)', async () => {
+    const { prisma } = await import('@/config/database.config');
+    // El mock por defecto de findUnique ya devuelve null — token no encontrado en BD
+    vi.mocked(prisma.dt_refresh_token.findUnique).mockResolvedValueOnce(null);
+
+    // Generamos un token válido criptográficamente para que pase la verificación JWT
+    const jwt = await import('jsonwebtoken');
+    const tokenValido = jwt.sign(
+      { id_ct_usuario: 1, usuario: 'test', email: null, rol: 'CAJERO' },
+      process.env['JWT_REFRESH_SECRET']!,
+      { expiresIn: '7d' },
+    );
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', `refreshToken=${tokenValido}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.codigo).toBe('UNAUTHORIZED');
+  });
+
+  it('401 si el token ya fue revocado (reutilización detectada) → invalida familia', async () => {
+    const { prisma } = await import('@/config/database.config');
+
+    vi.mocked(prisma.dt_refresh_token.findUnique).mockResolvedValueOnce({
+      id_dt_refresh_token: 5,
+      token_hash: 'cualquier-hash',
+      id_ct_usuario: 1,
+      expira_en: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      revocado: true, // ← ya revocado: reutilización
+      revocado_en: new Date(),
+      reemplazado_por: 6,
+      creado_en: new Date(),
+    } as never);
+
+    const jwt = await import('jsonwebtoken');
+    const tokenValido = jwt.sign(
+      { id_ct_usuario: 1, usuario: 'test', email: null, rol: 'CAJERO' },
+      process.env['JWT_REFRESH_SECRET']!,
+      { expiresIn: '7d' },
+    );
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', `refreshToken=${tokenValido}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.codigo).toBe('UNAUTHORIZED');
+    // Verifica que se invalidó toda la familia de tokens del usuario
+    expect(vi.mocked(prisma.dt_refresh_token.updateMany)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id_ct_usuario: 1 }),
+        data: expect.objectContaining({ revocado: true }),
+      }),
+    );
+  });
+});
+
 // ── Rutas protegidas sin cookie ────────────────────────────────────────────────
 
 describe('Rutas protegidas — sin cookie de sesión', () => {
@@ -111,15 +192,9 @@ describe('Rutas protegidas — sin cookie de sesión', () => {
     expect(res.body.codigo).toBe('UNAUTHORIZED');
   });
 
-  it('POST /api/auth/logout → 401', async () => {
+  it('POST /api/auth/logout → 401 (requiere accessToken cookie)', async () => {
     const res = await request(app).post('/api/auth/logout');
     expect(res.status).toBe(401);
-  });
-
-  it('POST /api/auth/refresh sin cookie → 401', async () => {
-    const res = await request(app).post('/api/auth/refresh');
-    expect(res.status).toBe(401);
-    expect(res.body.codigo).toBe('UNAUTHORIZED');
   });
 });
 

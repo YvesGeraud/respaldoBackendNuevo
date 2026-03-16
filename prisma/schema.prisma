@@ -49,8 +49,9 @@ model ct_usuario {
   fecha_registro     DateTime   @default(now()) @db.DateTime(6)
   fecha_modificacion DateTime?  @updatedAt @db.DateTime(6)
 
-  ordenes       dt_orden[]       @relation("UsuarioOrden")
-  reservaciones dt_reservacion[] @relation("UsuarioReservacion")
+  ordenes       dt_orden[]         @relation("UsuarioOrden")
+  reservaciones dt_reservacion[]   @relation("UsuarioReservacion")
+  tokens        dt_refresh_token[]
 
   @@index([estado])
   @@map("ct_usuario")
@@ -124,6 +125,29 @@ model dt_detalle_orden {
 
   // FK id_orden e id_platillo ya tienen índices automáticos por las relaciones
   @@map("dt_detalle_orden")
+}
+
+// ── Sesiones / Auth ───────────────────────────────────────────────────────────
+
+model dt_refresh_token {
+  id_dt_refresh_token Int       @id @default(autoincrement())
+  /// SHA-256 hex del refresh token — nunca se almacena el token en texto claro
+  token_hash          String    @unique(map: "token_hash") @db.VarChar(64)
+  id_ct_usuario       Int
+  expira_en           DateTime  @db.DateTime(6)
+  revocado            Boolean   @default(false)
+  revocado_en         DateTime? @db.DateTime(0)
+  /// ID del siguiente token en la cadena de rotación.
+  /// Permite trazar toda la familia y detectar reutilización (token ya girado).
+  reemplazado_por     Int?
+  creado_en           DateTime  @default(now()) @db.DateTime(6)
+
+  usuario ct_usuario @relation(fields: [id_ct_usuario], references: [id_ct_usuario], onDelete: Cascade)
+
+  @@index([id_ct_usuario])
+  @@index([expira_en])
+  @@index([revocado, expira_en]) // el job de limpieza filtra por ambos
+  @@map("dt_refresh_token")
 }
 
 model dt_reservacion {

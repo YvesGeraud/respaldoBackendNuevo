@@ -13,6 +13,8 @@ export default defineConfig({
     globals: true,
     // Se ejecuta antes de cada archivo de test — carga las variables de entorno
     setupFiles: ['./tests/setup.ts'],
+    // Evita que vitest descubra archivos .test.js compilados en dist/
+    exclude: ['dist/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

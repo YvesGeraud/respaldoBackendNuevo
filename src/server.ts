@@ -4,6 +4,7 @@ import 'dotenv/config';
 import app from './app';
 import { config } from '@/config/servidor.config';
 import { prisma } from '@/config/database.config';
+import { limpiarTokensExpirados } from '@/jobs/tokens.job';
 
 // ── Iniciar servidor ──────────────────────────────────────────────────────────
 
@@ -15,6 +16,10 @@ const servidor = app.listen(config.puerto, () => {
       `\n    ║  🌍 Entorno: ${config.nodeEnv.toUpperCase().padEnd(30)}║` +
       `\n    ╚════════════════════════════════════════════╝\n`,
   );
+
+  // Limpieza inicial al arrancar + cada 24 horas
+  void limpiarTokensExpirados();
+  setInterval(() => void limpiarTokensExpirados(), 24 * 60 * 60 * 1_000);
 });
 
 // ── Cierre limpio ─────────────────────────────────────────────────────────────

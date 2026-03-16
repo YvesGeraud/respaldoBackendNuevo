@@ -79,12 +79,20 @@ class AuthController {
   }
 
   /**
-   * POST /api/v1/auth/logout
-   * Elimina las cookies del cliente.
+   * POST /api/auth/logout
+   * Revoca el refreshToken en BD y limpia las dos cookies del cliente.
    * Importante: pasar las mismas opciones que al setear para que el navegador
    * reconozca la cookie y la elimine correctamente.
+   * Es async porque revocamos en BD antes de responder.
    */
-  logout(_req: Request, res: Response): void {
+  async logout(req: Request, res: Response): Promise<void> {
+    const refreshToken = req.cookies['refreshToken'] as string | undefined;
+
+    // Revocar en BD aunque la cookie exista o no — operación idempotente
+    if (refreshToken) {
+      await authService.logout(refreshToken);
+    }
+
     res.clearCookie('accessToken', BASE_COOKIE);
     res.clearCookie('refreshToken', BASE_COOKIE);
     responder.sinContenido(res);
