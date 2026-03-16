@@ -20,7 +20,7 @@ class PdfService {
     const platillos = await prisma.ct_platillo.findMany({
       where: { estado: true },
       include: { categoria: { select: { nombre: true } } },
-      orderBy: [{ id_categoria: 'asc' }, { nombre: 'asc' }],
+      orderBy: [{ id_ct_categoria: 'asc' }, { nombre: 'asc' }],
     });
 
     const fecha = new Date().toLocaleDateString('es-MX', {

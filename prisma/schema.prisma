@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
@@ -57,7 +57,7 @@ model ct_usuario {
 }
 
 model ct_categoria {
-  id_categoria       Int           @id @default(autoincrement())
+  id_ct_categoria       Int        @id @default(autoincrement())
   nombre             String        @unique @db.VarChar(100)
   descripcion        String?       @db.VarChar(500)
   estado             Boolean       @default(true)
@@ -71,8 +71,8 @@ model ct_categoria {
 }
 
 model ct_platillo {
-  id_platillo        Int       @id @default(autoincrement())
-  id_categoria       Int
+  id_ct_platillo        Int       @id @default(autoincrement())
+  id_ct_categoria       Int
   nombre             String    @db.VarChar(200)
   descripcion        String?   @db.VarChar(500)
   precio             Decimal   @db.Decimal(10, 2)
@@ -81,12 +81,12 @@ model ct_platillo {
   fecha_registro     DateTime  @default(now()) @db.DateTime(6)
   fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
 
-  categoria ct_categoria       @relation(fields: [id_categoria], references: [id_categoria])
+  categoria ct_categoria       @relation(fields: [id_ct_categoria], references: [id_ct_categoria])
   detalles  dt_detalle_orden[]
 
   // FK id_categoria ya tiene índice automático por la relación
   @@index([estado])
-  @@index([id_categoria, estado])
+  @@index([id_ct_categoria, estado])
   @@map("ct_platillo")
 }
 
@@ -114,13 +114,13 @@ model dt_orden {
 model dt_detalle_orden {
   id_detalle         Int     @id @default(autoincrement())
   id_orden           Int
-  id_platillo        Int
+  id_ct_platillo     Int
   cantidad           Int
   precio_unitario    Decimal @db.Decimal(10, 2)
   subtotal           Decimal @db.Decimal(10, 2)
 
   orden    dt_orden    @relation(fields: [id_orden], references: [id_orden])
-  platillo ct_platillo @relation(fields: [id_platillo], references: [id_platillo])
+  platillo ct_platillo @relation(fields: [id_ct_platillo], references: [id_ct_platillo])
 
   // FK id_orden e id_platillo ya tienen índices automáticos por las relaciones
   @@map("dt_detalle_orden")

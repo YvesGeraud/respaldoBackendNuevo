@@ -10,7 +10,7 @@ export const CAMPOS_ORDENABLES_PLATILLO = [
   'nombre',
   'precio',
   'fecha_registro',
-  'id_categoria',
+  'id_ct_categoria',
 ] as const;
 
 // ── Campos base reutilizables ─────────────────────────────────────────────────
@@ -20,7 +20,7 @@ export const CAMPOS_ORDENABLES_PLATILLO = [
  * los comparten para no duplicar reglas de validación.
  */
 const campos = {
-  id_categoria: z
+  id_ct_categoria: z
     .number({ error: 'La categoría es requerida' })
     .int()
     .positive('El id de categoría debe ser un número positivo'),
@@ -54,7 +54,7 @@ export const actualizarPlatilloSchema = z.object({
   }),
   body: z
     .object({
-      id_categoria: campos.id_categoria.optional(),
+      id_ct_categoria: campos.id_ct_categoria.optional(),
       nombre: campos.nombre.optional(),
       descripcion: campos.descripcion,
       precio: campos.precio.optional(),
@@ -78,7 +78,7 @@ export const filtrosPlatillosSchema = z.object({
     pagina: z.coerce.number().int().positive().optional(),
     limite: z.coerce.number().int().positive().max(100).optional(),
     busqueda: z.string().trim().optional(),
-    id_categoria: z.coerce.number().int().positive().optional(),
+    id_ct_categoria: z.coerce.number().int().positive().optional(),
     estado: z
       .enum(['true', 'false'])
       .transform((v) => v === 'true')

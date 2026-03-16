@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { prisma } from '../src/config/database.config';
-import { EstadoOrden, EstadoReservacion, RolUsuario } from '../src/generated/prisma/client';
+import { RolUsuario } from '../src/generated/prisma/client';
 import bcrypt from 'bcrypt';
 
 async function main() {
@@ -63,7 +63,7 @@ async function main() {
         precio: 85.0,
         imagen_url:
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s',
-        id_categoria: categorias[0].id_categoria,
+        id_ct_categoria: categorias[0].id_ct_categoria,
       },
     }),
     prisma.ct_platillo.create({
@@ -72,7 +72,7 @@ async function main() {
         descripcion: '10 alitas con salsa BBQ y aderezo ranch',
         precio: 120.0,
         imagen_url: 'https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg',
-        id_categoria: categorias[0].id_categoria,
+        id_ct_categoria: categorias[0].id_ct_categoria,
       },
     }),
     // Platos Fuertes
@@ -83,7 +83,7 @@ async function main() {
         precio: 150.0,
         imagen_url:
           'https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg',
-        id_categoria: categorias[1].id_categoria,
+        id_ct_categoria: categorias[1].id_ct_categoria,
       },
     }),
     prisma.ct_platillo.create({
@@ -93,7 +93,7 @@ async function main() {
         precio: 165.0,
         imagen_url:
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s',
-        id_categoria: categorias[1].id_categoria,
+        id_ct_categoria: categorias[1].id_ct_categoria,
       },
     }),
     // Postres
@@ -104,7 +104,7 @@ async function main() {
         precio: 75.0,
         imagen_url:
           'https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg',
-        id_categoria: categorias[2].id_categoria,
+        id_ct_categoria: categorias[2].id_ct_categoria,
       },
     }),
     // Bebidas
@@ -115,7 +115,7 @@ async function main() {
         precio: 35.0,
         imagen_url:
           'https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094',
-        id_categoria: categorias[3].id_categoria,
+        id_ct_categoria: categorias[3].id_ct_categoria,
       },
     }),
   ]);

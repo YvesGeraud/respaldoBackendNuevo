@@ -20,7 +20,7 @@ import { CAMPOS_ORDENABLES_PLATILLO } from '@/schemas/platillo.schema';
  * evitando casteos manuales o tipos definidos a mano.
  */
 const incluirCategoria = {
-  categoria: { select: { id_categoria: true, nombre: true } },
+  categoria: { select: { id_ct_categoria: true, nombre: true } },
 } as const;
 
 type PlatilloConCategoria = Prisma.ct_platilloGetPayload<{
@@ -48,7 +48,7 @@ class PlatilloService {
         { descripcion: { contains: filtros.busqueda } },
       ];
     }
-    if (filtros.id_categoria !== undefined) where.id_categoria = filtros.id_categoria;
+    if (filtros.id_ct_categoria !== undefined) where.id_ct_categoria = filtros.id_ct_categoria;
     if (filtros.estado !== undefined) where.estado = filtros.estado;
 
     // paginar devuelve ct_platillo[], pero el include garantiza que categoria esté presente.
@@ -61,7 +61,7 @@ class PlatilloService {
   async obtenerPorId(id: number): Promise<PlatilloConCategoria> {
     return buscarOError(
       prisma.ct_platillo.findUnique({
-        where: { id_platillo: id },
+        where: { id_ct_platillo: id },
         include: incluirCategoria,
       }),
       'Platillo',
@@ -79,7 +79,7 @@ class PlatilloService {
 
     return prisma.ct_platillo.create({
       data: {
-        id_categoria: datos.id_categoria,
+        id_ct_categoria: datos.id_ct_categoria,
         nombre: datos.nombre,
         descripcion: datos.descripcion,
         precio: datos.precio,
@@ -91,21 +91,21 @@ class PlatilloService {
 
   async actualizar(id: number, datos: ActualizarPlatilloDTO): Promise<PlatilloConCategoria> {
     // Verifica existencia antes de intentar el update (P2025 evitado con mensaje claro)
-    await buscarOError(prisma.ct_platillo.findUnique({ where: { id_platillo: id } }), 'Platillo');
+    await buscarOError(prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }), 'Platillo');
 
     return prisma.ct_platillo.update({
-      where: { id_platillo: id },
+      where: { id_ct_platillo: id },
       data: datos,
       include: incluirCategoria,
     });
   }
 
   async eliminar(id: number): Promise<void> {
-    await buscarOError(prisma.ct_platillo.findUnique({ where: { id_platillo: id } }), 'Platillo');
+    await buscarOError(prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }), 'Platillo');
 
     // Soft delete — preserva historial en dt_detalle_orden
     await prisma.ct_platillo.update({
-      where: { id_platillo: id },
+      where: { id_ct_platillo: id },
       data: { estado: false },
     });
   }
@@ -126,7 +126,7 @@ class PlatilloService {
     return insertarEnLotes(
       prisma.ct_platillo,
       datos.map((d) => ({
-        id_categoria: d.id_categoria,
+        id_ct_categoria: d.id_ct_categoria,
         nombre: d.nombre,
         descripcion: d.descripcion,
         precio: d.precio,

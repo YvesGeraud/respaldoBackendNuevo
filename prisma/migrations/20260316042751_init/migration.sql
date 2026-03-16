@@ -18,7 +18,7 @@ CREATE TABLE `ct_usuario` (
 
 -- CreateTable
 CREATE TABLE `ct_categoria` (
-    `id_categoria` INTEGER NOT NULL AUTO_INCREMENT,
+    `id_ct_categoria` INTEGER NOT NULL AUTO_INCREMENT,
     `nombre` VARCHAR(100) NOT NULL,
     `descripcion` VARCHAR(500) NULL,
     `estado` BOOLEAN NOT NULL DEFAULT true,
@@ -27,13 +27,13 @@ CREATE TABLE `ct_categoria` (
 
     UNIQUE INDEX `ct_categoria_nombre_key`(`nombre`),
     INDEX `ct_categoria_estado_idx`(`estado`),
-    PRIMARY KEY (`id_categoria`)
+    PRIMARY KEY (`id_ct_categoria`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `ct_platillo` (
-    `id_platillo` INTEGER NOT NULL AUTO_INCREMENT,
-    `id_categoria` INTEGER NOT NULL,
+    `id_ct_platillo` INTEGER NOT NULL AUTO_INCREMENT,
+    `id_ct_categoria` INTEGER NOT NULL,
     `nombre` VARCHAR(200) NOT NULL,
     `descripcion` VARCHAR(500) NULL,
     `precio` DECIMAL(10, 2) NOT NULL,
@@ -43,8 +43,8 @@ CREATE TABLE `ct_platillo` (
     `fecha_modificacion` DATETIME(6) NULL,
 
     INDEX `ct_platillo_estado_idx`(`estado`),
-    INDEX `ct_platillo_id_categoria_estado_idx`(`id_categoria`, `estado`),
-    PRIMARY KEY (`id_platillo`)
+    INDEX `ct_platillo_id_ct_categoria_estado_idx`(`id_ct_categoria`, `estado`),
+    PRIMARY KEY (`id_ct_platillo`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -67,7 +67,7 @@ CREATE TABLE `dt_orden` (
 CREATE TABLE `dt_detalle_orden` (
     `id_detalle` INTEGER NOT NULL AUTO_INCREMENT,
     `id_orden` INTEGER NOT NULL,
-    `id_platillo` INTEGER NOT NULL,
+    `id_ct_platillo` INTEGER NOT NULL,
     `cantidad` INTEGER NOT NULL,
     `precio_unitario` DECIMAL(10, 2) NOT NULL,
     `subtotal` DECIMAL(10, 2) NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE `dt_reservacion` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `ct_platillo` ADD CONSTRAINT `ct_platillo_id_categoria_fkey` FOREIGN KEY (`id_categoria`) REFERENCES `ct_categoria`(`id_categoria`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ct_platillo` ADD CONSTRAINT `ct_platillo_id_ct_categoria_fkey` FOREIGN KEY (`id_ct_categoria`) REFERENCES `ct_categoria`(`id_ct_categoria`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `dt_orden` ADD CONSTRAINT `dt_orden_id_usuario_fkey` FOREIGN KEY (`id_usuario`) REFERENCES `ct_usuario`(`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -102,7 +102,7 @@ ALTER TABLE `dt_orden` ADD CONSTRAINT `dt_orden_id_usuario_fkey` FOREIGN KEY (`i
 ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_orden_fkey` FOREIGN KEY (`id_orden`) REFERENCES `dt_orden`(`id_orden`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_platillo_fkey` FOREIGN KEY (`id_platillo`) REFERENCES `ct_platillo`(`id_platillo`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_ct_platillo_fkey` FOREIGN KEY (`id_ct_platillo`) REFERENCES `ct_platillo`(`id_ct_platillo`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `dt_reservacion` ADD CONSTRAINT `dt_reservacion_id_usuario_fkey` FOREIGN KEY (`id_usuario`) REFERENCES `ct_usuario`(`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
