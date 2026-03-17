@@ -87,6 +87,9 @@ CREATE TABLE `dt_refresh_token` (
     `creado_en` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
     UNIQUE INDEX `token_hash`(`token_hash`),
+    INDEX `dt_refresh_token_id_ct_usuario_idx`(`id_ct_usuario`),
+    INDEX `dt_refresh_token_expira_en_idx`(`expira_en`),
+    INDEX `dt_refresh_token_revocado_expira_en_idx`(`revocado`, `expira_en`),
     PRIMARY KEY (`id_dt_refresh_token`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -118,6 +121,9 @@ ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_orden_fkey` F
 
 -- AddForeignKey
 ALTER TABLE `dt_detalle_orden` ADD CONSTRAINT `dt_detalle_orden_id_ct_platillo_fkey` FOREIGN KEY (`id_ct_platillo`) REFERENCES `ct_platillo`(`id_ct_platillo`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `dt_refresh_token` ADD CONSTRAINT `dt_refresh_token_id_ct_usuario_fkey` FOREIGN KEY (`id_ct_usuario`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `dt_reservacion` ADD CONSTRAINT `dt_reservacion_id_ct_usuario_fkey` FOREIGN KEY (`id_ct_usuario`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE;
