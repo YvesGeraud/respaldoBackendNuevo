@@ -27,7 +27,9 @@
       "@/services/*": ["src/services/*"],
       "@/utils/*": ["src/utils/*"],
       "@/schemas/*": ["src/schemas/*"],
-      "@/types/*": ["src/types/*"]
+      "@/types/*": ["src/types/*"],
+      "@/docs/*": ["src/docs/*"],
+      "@/zod/*": ["src/zod/*"]
     }
   },
   "include": ["src/**/*", "tests/**/*"],

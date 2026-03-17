@@ -7,6 +7,8 @@ import morgan from 'morgan';
 import { rateLimit } from 'express-rate-limit';
 import { StatusCodes } from 'http-status-codes';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '@/docs/swagger.docs';
 import { config } from '@/config/servidor.config';
 import { errorMiddleware } from '@/middlewares/error.middlewares';
 import { router } from '@/routes';
@@ -72,6 +74,10 @@ app.use(cookieParser()); // necesario para leer cookies httpOnly
 
 // 'dev' en desarrollo: coloreado y conciso | 'combined' en prod: formato Apache (para logs)
 app.use(morgan(config.esProduccion ? 'combined' : 'dev'));
+
+// ── Swagger ────────────────────────────────────────────────────────────────────
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ── Rutas ─────────────────────────────────────────────────────────────────────
 
