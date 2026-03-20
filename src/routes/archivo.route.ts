@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import archivoController from '@/controllers/archivo.controller';
 import { crearSubidor, TIPOS } from '@/utils/archivo.utils';
+import { autenticado } from '@/middlewares/autenticacion.middleware';
 
 // ── Instancias de Multer por tipo de archivo ──────────────────────────────────
 //
@@ -83,7 +84,7 @@ const router = Router();
  * Respuesta:
  *   { nombreArchivo, rutaRelativa, hash, duplicado, tamanioBytes, mimeType }
  */
-router.post('/:subtipo', subirSegunTipo, archivoController.subir);
+router.post('/:subtipo', autenticado, subirSegunTipo, archivoController.subir);
 
 /**
  * GET /api/v1/archivos/:subtipo/:nombre
@@ -104,6 +105,6 @@ router.get('/:subtipo/:nombre', archivoController.obtener);
  * Ejemplo:
  *   DELETE /api/v1/archivos/imagenes/d4e5f6.png
  */
-router.delete('/:subtipo/:nombre', archivoController.eliminar);
+router.delete('/:subtipo/:nombre', autenticado, archivoController.eliminar);
 
 export { router as archivoRouter };

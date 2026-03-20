@@ -22,8 +22,12 @@ class ArchivoController {
   async subir(req: Request, res: Response): Promise<void> {
     if (!req.file) throw new ErrorNegocio('No se recibió ningún archivo en el campo "archivo"');
 
+    if (!req.usuario) {
+      throw new ErrorNegocio('Usuario no autenticado');
+    }
+
     const subtipo = req.params['subtipo'] as SubtipoArchivo;
-    const resultado = await archivoService.subir(req.file, subtipo);
+    const resultado = await archivoService.subir(req.file, subtipo, req.usuario.id_ct_usuario);
 
     const mensaje = resultado.duplicado
       ? 'El archivo ya existía — se reutilizó el existente'

@@ -58,12 +58,12 @@ model ct_usuario {
 }
 
 model ct_categoria {
-  id_ct_categoria       Int        @id @default(autoincrement())
-  nombre             String        @unique @db.VarChar(100)
-  descripcion        String?       @db.VarChar(500)
-  estado             Boolean       @default(true)
-  fecha_registro     DateTime      @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime?     @updatedAt @db.DateTime(6)
+  id_ct_categoria    Int       @id @default(autoincrement())
+  nombre             String    @unique @db.VarChar(100)
+  descripcion        String?   @db.VarChar(500)
+  estado             Boolean   @default(true)
+  fecha_registro     DateTime  @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
 
   platillos ct_platillo[]
 
@@ -72,8 +72,8 @@ model ct_categoria {
 }
 
 model ct_platillo {
-  id_ct_platillo        Int       @id @default(autoincrement())
-  id_ct_categoria       Int
+  id_ct_platillo     Int       @id @default(autoincrement())
+  id_ct_categoria    Int
   nombre             String    @db.VarChar(200)
   descripcion        String?   @db.VarChar(500)
   precio             Decimal   @db.Decimal(10, 2)
@@ -113,12 +113,12 @@ model dt_orden {
 }
 
 model dt_detalle_orden {
-  id_detalle         Int     @id @default(autoincrement())
-  id_orden           Int
-  id_ct_platillo     Int
-  cantidad           Int
-  precio_unitario    Decimal @db.Decimal(10, 2)
-  subtotal           Decimal @db.Decimal(10, 2)
+  id_detalle      Int     @id @default(autoincrement())
+  id_orden        Int
+  id_ct_platillo  Int
+  cantidad        Int
+  precio_unitario Decimal @db.Decimal(10, 2)
+  subtotal        Decimal @db.Decimal(10, 2)
 
   orden    dt_orden    @relation(fields: [id_orden], references: [id_orden])
   platillo ct_platillo @relation(fields: [id_ct_platillo], references: [id_ct_platillo])
@@ -167,4 +167,67 @@ model dt_reservacion {
   @@index([estado])
   @@index([fecha, estado])
   @@map("dt_reservacion")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int? // Opcional, por si la acción la hace un usuario no autenticado (ej: login)
+  action     String // ej. "POST", "PUT", "DELETE"
+  endpoint   String // ej. "/api/v1/users"
+  statusCode Int // ej. 200, 201, 400, 500
+  ipAddress  String? // Ej. "192.168.1.1"
+  userAgent  String? // Qué navegador usó
+  payload    Json? // Opcional: El body de la petición (¡cuidado con datos sensibles!)
+  createdAt  DateTime @default(now())
+
+  // Si tienes una tabla User, puedes relacionarla:
+  // user      User?    @relation(fields: [userId], references: [id])
+  @@index([userId]) // Indizar para búsquedas más rápidas en el futuro
+  @@index([createdAt])
+}
+
+// ── Archivos y Documentos ─────────────────────────────────────────────────────
+
+model ct_tipo_documento {
+  id_ct_tipo_documento   Int       @id @default(autoincrement())
+  clave                  String    @unique(map: "clave") @default("") @db.VarChar(50)
+  descripcion            String    @default("") @db.VarChar(255)
+  max_size_bytes         Int
+  extensiones_permitidas String    @default("pdf,jpg,png") @db.VarChar(255)
+  estado                 Boolean   @default(true)
+  fecha_in               DateTime  @default(now()) @db.DateTime(0)
+  fecha_up               DateTime? @db.DateTime(0)
+  id_ct_usuario_in       Int
+  id_ct_usuario_up       Int?
+
+  documentos dt_documento[]
+
+  @@index([id_ct_usuario_in], map: "ct_usuario_in")
+  @@index([id_ct_usuario_up], map: "ct_usuario_up")
+  @@index([estado], map: "estado")
+}
+
+model dt_documento {
+  id_dt_documento      Int       @id @default(autoincrement())
+  nombre_original      String    @db.VarChar(255)
+  nombre_sistema       String    @db.VarChar(255)
+  ruta_relativa        String    @db.VarChar(500)
+  mime_type            String    @db.VarChar(100)
+  tama_o_bytes         Int       @map("tamaño_bytes")
+  hash                 String    @db.VarChar(64)
+  id_ct_tipo_documento Int
+  modulo               String    @db.VarChar(100)
+  estado               Boolean   @default(true)
+  fecha_in             DateTime  @default(now()) @db.DateTime(0)
+  fecha_up             DateTime? @db.DateTime(0)
+  id_ct_usuario_in     Int
+  id_ct_usuario_up     Int?
+
+  ct_tipo_documento ct_tipo_documento @relation(fields: [id_ct_tipo_documento], references: [id_ct_tipo_documento], map: "fk_dt_documento_tipo")
+
+  @@index([hash], map: "idx_hash")
+  @@index([estado], map: "estado")
+  @@index([id_ct_tipo_documento], map: "idx_id_ct_tipo_documento")
+  @@index([id_ct_usuario_in], map: "id_ct_usuario_in")
+  @@index([id_ct_usuario_up], map: "id_ct_usuario_up")
 }

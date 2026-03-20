@@ -6,27 +6,23 @@ import {
   eliminarArchivo,
   rutaEnUploads,
 } from '@/utils/archivo.utils';
-import { ErrorNoEncontrado } from '@/utils/errores.utils';
+import { ErrorNoEncontrado, ErrorNegocio } from '@/utils/errores.utils';
 import type { Response } from 'express';
 import fs from 'fs';
+import { prisma } from '@/config/database.config';
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
-/**
- * Información devuelta tras una subida exitosa.
- * El campo `duplicado` permite al cliente saber si ya teníamos ese archivo.
- */
 export interface ResultadoSubida {
-  nombreArchivo: string; // solo el nombre, ej: "abc123...def.png"
-  rutaRelativa: string; // ruta desde uploads/, ej: "imagenes/abc123...def.png"
-  hash: string; // SHA-256 del contenido
-  duplicado: boolean; // true = el mismo archivo ya existía en disco
+  id_documento: number;
+  nombreArchivo: string;
+  rutaRelativa: string;
+  hash: string;
+  duplicado: boolean;
   tamanioBytes: number;
   mimeType: string;
 }
 
-// Subdirectorios manejados — centralizado para que el controller no necesite
-// conocer la estructura interna de carpetas
 export const SUBTIPOS = {
   IMAGENES: 'imagenes',
   DOCUMENTOS: 'documentos',
@@ -39,24 +35,88 @@ export type SubtipoArchivo = (typeof SUBTIPOS)[keyof typeof SUBTIPOS];
 
 class ArchivoService {
   /**
-   * Procesa un archivo subido por Multer:
-   *   1. Calcula el SHA-256 del contenido (via stream)
-   *   2. Si ya existe un archivo con ese hash → elimina el temporal y reutiliza el existente
-   *   3. Si es nuevo → renombra el temporal a {hash}{ext} para que sea su nombre definitivo
-   *
-   * De esta forma dos uploads del mismo archivo (aunque tengan distinto nombre)
-   * comparten un único registro en disco.
-   *
-   * @param file    - Objeto que deja Multer en req.file
-   * @param subtipo - Subcarpeta de destino (SUBTIPOS.IMAGENES, etc.)
+   * Procesa un archivo subido por Multer, validando contra la BD y deduplicando.
    */
-  async subir(file: Express.Multer.File, subtipo: SubtipoArchivo): Promise<ResultadoSubida> {
+  async subir(
+    file: Express.Multer.File,
+    subtipo: SubtipoArchivo,
+    id_usuario: number
+  ): Promise<ResultadoSubida> {
+    // 1. Consultar tipo de documento en BD
+    const tipoDato = await prisma.ct_tipo_documento.findUnique({
+      where: { clave: subtipo },
+    });
+
+    if (!tipoDato || !tipoDato.estado) {
+      await eliminarArchivo(file.path);
+      throw new ErrorNegocio(`El tipo de documento '${subtipo}' no está configurado o está inactivo.`);
+    }
+
+    // 2. Validar tamaño
+    if (file.size > tipoDato.max_size_bytes) {
+      await eliminarArchivo(file.path);
+      throw new ErrorNegocio(
+        `El archivo excede el tamaño máximo permitido de ${
+          Math.round((tipoDato.max_size_bytes / 1024 / 1024) * 100) / 100
+        } MB.`,
+      );
+    }
+
+    // 3. Validar extensión permitida
+    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+    let permitidas: string[] = [];
+    
+    try {
+      // Intenta parsear si la base de datos lo guardó como JSON (ej: '["jpg", "png"]')
+      const arrayJson = JSON.parse(tipoDato.extensiones_permitidas);
+      if (Array.isArray(arrayJson)) {
+        permitidas = arrayJson.map(e => e.toLowerCase());
+      }
+    } catch {
+      // Fallback si lo guardaron separado por comas (ej: "jpg,png,pdf")
+      permitidas = tipoDato.extensiones_permitidas.split(',').map(e => e.trim().toLowerCase());
+    }
+
+    if (!permitidas.includes(ext)) {
+      await eliminarArchivo(file.path);
+      throw new ErrorNegocio(
+        `La extensión '${ext}' no está permitida. Solo se permiten: ${tipoDato.extensiones_permitidas}.`,
+      );
+    }
+
+    // 4. Deduplicar archivo físico en disco
     const directorio = rutaEnUploads(subtipo);
     const resultado = await deduplicarArchivo(file.path, directorio);
 
+    const rutaRelativa = path.relative(UPLOADS_DIR, resultado.ruta);
+    const nombreArchivo = path.basename(resultado.ruta);
+
+    // 5. Buscar si ya existe el registro lógico en BD (Deduplicación estricta)
+    let doc = await prisma.dt_documento.findFirst({
+      where: { hash: resultado.hash },
+    });
+
+    // Si el documento (hash) no existe aún en la base de datos, lo creamos
+    if (!doc) {
+      doc = await prisma.dt_documento.create({
+        data: {
+          nombre_original: file.originalname,
+          nombre_sistema: nombreArchivo,
+          ruta_relativa: rutaRelativa,
+          mime_type: file.mimetype,
+          tama_o_bytes: file.size,
+          hash: resultado.hash,
+          modulo: subtipo,
+          id_ct_tipo_documento: tipoDato.id_ct_tipo_documento,
+          id_ct_usuario_in: id_usuario,
+        },
+      });
+    }
+
     return {
-      nombreArchivo: path.basename(resultado.ruta),
-      rutaRelativa: path.relative(UPLOADS_DIR, resultado.ruta),
+      id_documento: doc.id_dt_documento,
+      nombreArchivo,
+      rutaRelativa,
       hash: resultado.hash,
       duplicado: resultado.duplicado,
       tamanioBytes: file.size,
@@ -64,38 +124,21 @@ class ArchivoService {
     };
   }
 
-  /**
-   * Envía un archivo al cliente via stream.
-   * Lanza ErrorNoEncontrado si el archivo no existe en el subtipo indicado.
-   *
-   * @param res            - Response de Express
-   * @param nombreArchivo  - Nombre del archivo (con extensión), tal como lo devolvió subir()
-   * @param subtipo        - Subcarpeta donde está guardado
-   * @param descargar      - true: attachment | false: inline (útil para imágenes/PDF)
-   */
   async enviar(
     res: Response,
     nombreArchivo: string,
     subtipo: SubtipoArchivo,
     descargar = false,
   ): Promise<void> {
-    // Sanitizar: extraer solo el basename para que no puedan hacer path traversal
-    // con nombres como "../../config/.env"
     const nombreSanitizado = path.basename(nombreArchivo);
     const rutaAbsoluta = rutaEnUploads(subtipo, nombreSanitizado);
     await descargarArchivo(res, rutaAbsoluta, nombreSanitizado, descargar);
   }
 
-  /**
-   * Elimina un archivo del subtipo dado.
-   * No lanza error si el archivo ya no existe (idempotente).
-   */
   async eliminar(nombreArchivo: string, subtipo: SubtipoArchivo): Promise<void> {
     const nombreSanitizado = path.basename(nombreArchivo);
     const rutaAbsoluta = rutaEnUploads(subtipo, nombreSanitizado);
 
-    // Verificar que el archivo existe antes de intentar eliminar,
-    // para devolver 404 en lugar de silencio si el nombre es incorrecto
     const existe = await fs.promises
       .access(rutaAbsoluta, fs.constants.F_OK)
       .then(() => true)
