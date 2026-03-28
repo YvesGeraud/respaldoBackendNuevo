@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -8,14 +8,6 @@ datasource db {
 }
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
-
-enum RolUsuario {
-  ADMIN
-  CAJERO
-  COCINERO
-
-  @@map("rol_usuario")
-}
 
 enum EstadoOrden {
   PENDIENTE
@@ -38,17 +30,57 @@ enum EstadoReservacion {
 
 // ── Catálogos ─────────────────────────────────────────────────────────────────
 
-model ct_usuario {
-  id_ct_usuario      Int        @id @default(autoincrement())
-  usuario            String     @unique @db.VarChar(100)
-  contrasena         String     @db.VarChar(255)
-  email              String?    @unique @db.VarChar(255)
-  nombre_completo    String     @db.VarChar(200)
-  rol                RolUsuario @default(CAJERO)
-  estado             Boolean    @default(true)
-  fecha_registro     DateTime   @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime?  @updatedAt @db.DateTime(6)
+model ct_rol {
+  id_ct_rol   Int       @id @default(autoincrement())
+  nombre      String    @unique @db.VarChar(100)
+  descripcion String?   @db.VarChar(255)
+  estado      Boolean   @default(true)
+  fecha_in    DateTime  @default(now()) @db.DateTime(6)
+  fecha_up    DateTime? @updatedAt @db.DateTime(6)
 
+  usuarios  ct_usuario[]
+  permisos  dt_rol_permiso[]
+
+  @@map("ct_rol")
+}
+
+model ct_permiso {
+  id_ct_permiso Int       @id @default(autoincrement())
+  nombre        String    @unique @db.VarChar(100)
+  codigo        String    @unique @db.VarChar(100) // Ej: "PLATILLOS_VER"
+  descripcion   String?   @db.VarChar(255)
+  estado        Boolean   @default(true)
+  fecha_in      DateTime  @default(now()) @db.DateTime(6)
+
+  roles dt_rol_permiso[]
+
+  @@map("ct_permiso")
+}
+
+model dt_rol_permiso {
+  id_dt_rol_permiso Int @id @default(autoincrement())
+  id_ct_rol         Int
+  id_ct_permiso     Int
+
+  rol     ct_rol     @relation(fields: [id_ct_rol], references: [id_ct_rol], onDelete: Cascade)
+  permiso ct_permiso @relation(fields: [id_ct_permiso], references: [id_ct_permiso], onDelete: Cascade)
+
+  @@unique([id_ct_rol, id_ct_permiso])
+  @@map("dt_rol_permiso")
+}
+
+model ct_usuario {
+  id_ct_usuario      Int       @id @default(autoincrement())
+  usuario            String    @unique @db.VarChar(100)
+  contrasena         String    @db.VarChar(255)
+  email              String?   @unique @db.VarChar(255)
+  nombre_completo    String    @db.VarChar(200)
+  id_ct_rol          Int       @default(1)
+  estado             Boolean   @default(true)
+  fecha_registro     DateTime  @default(now()) @db.DateTime(6)
+  fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
+
+  rol           ct_rol             @relation(fields: [id_ct_rol], references: [id_ct_rol])
   ordenes       dt_orden[]         @relation("UsuarioOrden")
   reservaciones dt_reservacion[]   @relation("UsuarioReservacion")
   tokens        dt_refresh_token[]
@@ -169,22 +201,26 @@ model dt_reservacion {
   @@map("dt_reservacion")
 }
 
-model AuditLog {
-  id         Int      @id @default(autoincrement())
-  userId     Int? // Opcional, por si la acción la hace un usuario no autenticado (ej: login)
-  action     String // ej. "POST", "PUT", "DELETE"
-  endpoint   String // ej. "/api/v1/users"
-  statusCode Int // ej. 200, 201, 400, 500
-  ipAddress  String? // Ej. "192.168.1.1"
-  userAgent  String? // Qué navegador usó
-  payload    Json? // Opcional: El body de la petición (¡cuidado con datos sensibles!)
-  createdAt  DateTime @default(now())
+model dt_bitacora {
+  id_dt_bitacora   Int      @id @default(autoincrement())
+  id_ct_usuario    Int? // Relación con el usuario que hizo el cambio
+  accion           String // ej. "CREATE", "UPDATE", "DELETE"
+  modelo           String // Nombre de la tabla/modelo afectado
+  registro_id      String? // ID del registro afectado (en string para soportar UUIDs o Ints)
+  endpoint         String // URL de la API
+  metodo           String // Método HTTP (POST, PUT, DELETE)
+  ip_address       String?
+  user_agent       String?
+  datos_anteriores Json? // Estado del registro ANTES del cambio
+  datos_nuevos     Json? // Estado del registro DESPUÉS del cambio
+  createdAt        DateTime @default(now())
 
-  // Si tienes una tabla User, puedes relacionarla:
-  // user      User?    @relation(fields: [userId], references: [id])
-  @@index([userId]) // Indizar para búsquedas más rápidas en el futuro
+  @@index([id_ct_usuario])
+  @@index([modelo, registro_id])
   @@index([createdAt])
+  @@map("dt_bitacora")
 }
+
 
 // ── Archivos y Documentos ─────────────────────────────────────────────────────
 

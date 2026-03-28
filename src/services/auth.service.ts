@@ -8,19 +8,16 @@ import {
   verificarAccessToken,
   hashToken,
 } from '@/utils/jwt.utils';
-import type { PayloadJWT } from '@/types';
+import type { PayloadJWT, AuthTokens, UsuarioSanitizado } from '@/types';
+import type { ct_usuario } from '@/generated/prisma/client';
+import { obtenerPermisosPorRol } from '@/config/permisos.config';
+import { getAuditContext } from '@/utils/async-context';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 /** 7 días en milisegundos — debe coincidir con JWT_REFRESH_EXPIRES_IN */
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1_000;
 
-// ── Tipos internos ────────────────────────────────────────────────────────────
-
-interface TokensPar {
-  accessToken: string;
-  refreshToken: string;
-}
 
 // ── Servicio ──────────────────────────────────────────────────────────────────
 
@@ -31,10 +28,13 @@ class AuthService {
     usuario: string,
     contrasena: string,
   ): Promise<{
-    usuario: ReturnType<AuthService['sanitizarUsuario']>;
-    tokens: TokensPar;
+    usuario: UsuarioSanitizado;
+    tokens: AuthTokens;
   }> {
-    const encontrado = await prisma.ct_usuario.findUnique({ where: { usuario } });
+    const encontrado = await prisma.ct_usuario.findUnique({
+      where: { usuario },
+      include: { rol: true },
+    });
 
     // Mismo mensaje para usuario no encontrado y contraseña incorrecta
     // → no da pistas a un atacante sobre qué campo está mal
@@ -51,8 +51,15 @@ class AuthService {
       id_ct_usuario: encontrado.id_ct_usuario,
       usuario: encontrado.usuario,
       email: encontrado.email,
-      rol: encontrado.rol,
+      id_ct_rol: encontrado.id_ct_rol,
+      rol: encontrado.rol.nombre,
     };
+
+    // Actualizar contexto de auditoría para que el CREATE del refresh token tenga el ID
+    const context = getAuditContext();
+    if (context) {
+      context.id_ct_usuario = encontrado.id_ct_usuario;
+    }
 
     const tokens = await this.emitirTokens(payload);
 
@@ -73,7 +80,7 @@ class AuthService {
    *      - Activo      → rota: revoca el actual, emite nuevo par
    *   3. Actualiza `reemplazado_por` para trazabilidad de la cadena.
    */
-  async refrescarTokens(refreshToken: string): Promise<TokensPar> {
+  async refrescarTokens(refreshToken: string): Promise<AuthTokens> {
     // 1 — Verificar firma JWT (lanza TokenExpiredError / JsonWebTokenError si falla)
     // No usamos el payload decodificado — los datos del usuario se leen de BD (más seguro y fresco)
     verificarRefreshToken(refreshToken);
@@ -85,7 +92,7 @@ class AuthService {
     });
 
     if (!registro) {
-      // Token válido criptográficamente pero no en BD (ya limpiado o nunca existió)
+      // Token válido criptográfico pero no en BD (ya limpiado o nunca existió)
       throw new ErrorNoAutenticado('Sesión inválida. Vuelve a iniciar sesión.');
     }
 
@@ -104,6 +111,7 @@ class AuthService {
     // 3 — Verificar que el usuario sigue activo en BD
     const usuario = await prisma.ct_usuario.findUnique({
       where: { id_ct_usuario: registro.id_ct_usuario },
+      include: { rol: true },
     });
 
     if (!usuario || !usuario.estado) {
@@ -115,8 +123,15 @@ class AuthService {
       id_ct_usuario: usuario.id_ct_usuario,
       usuario: usuario.usuario,
       email: usuario.email,
-      rol: usuario.rol,
+      id_ct_rol: usuario.id_ct_rol,
+      rol: usuario.rol.nombre,
     };
+
+    // Actualizar contexto de auditoría
+    const context = getAuditContext();
+    if (context) {
+      context.id_ct_usuario = usuario.id_ct_usuario;
+    }
 
     const nuevosTokens = await this.emitirTokens(nuevoPayload);
 
@@ -159,8 +174,11 @@ class AuthService {
    * El middleware ya verificó el token — aquí consultamos la BD
    * para devolver datos actualizados (por si cambió rol, email, etc.).
    */
-  async obtenerSesionActual(id_ct_usuario: number) {
-    const usuario = await prisma.ct_usuario.findUnique({ where: { id_ct_usuario } });
+  async obtenerSesionActual(id_ct_usuario: number): Promise<UsuarioSanitizado> {
+    const usuario = await prisma.ct_usuario.findUnique({
+      where: { id_ct_usuario },
+      include: { rol: true },
+    });
 
     if (!usuario || !usuario.estado) {
       throw new ErrorNoAutenticado('Sesión expirada');
@@ -181,7 +199,7 @@ class AuthService {
    * Genera accessToken + refreshToken y persiste el hash del refresh en BD.
    * Centraliza la lógica de emisión para login y rotación.
    */
-  private async emitirTokens(payload: PayloadJWT): Promise<TokensPar> {
+  private async emitirTokens(payload: PayloadJWT): Promise<AuthTokens> {
     const accessToken = generarAccessToken(payload);
     const refreshToken = generarRefreshToken(payload);
 
@@ -197,19 +215,15 @@ class AuthService {
   }
 
   /** Elimina la contraseña y devuelve solo los campos seguros para el cliente. */
-  private sanitizarUsuario(usuario: {
-    id_ct_usuario: number;
-    usuario: string;
-    email: string | null;
-    nombre_completo: string;
-    rol: string;
-  }) {
+  private sanitizarUsuario(usuario: ct_usuario & { rol: { nombre: string } }): UsuarioSanitizado {
     return {
       id_ct_usuario: usuario.id_ct_usuario,
       usuario: usuario.usuario,
       email: usuario.email,
       nombre_completo: usuario.nombre_completo,
-      rol: usuario.rol,
+      id_ct_rol: usuario.id_ct_rol,
+      rol: usuario.rol.nombre,
+      permisos: obtenerPermisosPorRol(usuario.rol.nombre),
     };
   }
 }

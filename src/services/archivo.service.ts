@@ -10,26 +10,7 @@ import { ErrorNoEncontrado, ErrorNegocio } from '@/utils/errores.utils';
 import type { Response } from 'express';
 import fs from 'fs';
 import { prisma } from '@/config/database.config';
-
-// ── Tipos ─────────────────────────────────────────────────────────────────────
-
-export interface ResultadoSubida {
-  id_documento: number;
-  nombreArchivo: string;
-  rutaRelativa: string;
-  hash: string;
-  duplicado: boolean;
-  tamanioBytes: number;
-  mimeType: string;
-}
-
-export const SUBTIPOS = {
-  IMAGENES: 'imagenes',
-  DOCUMENTOS: 'documentos',
-  EXCEL: 'excel',
-} as const;
-
-export type SubtipoArchivo = (typeof SUBTIPOS)[keyof typeof SUBTIPOS];
+import type { SubtipoArchivo, ResultadoSubida } from '@/types';
 
 // ── Servicio ──────────────────────────────────────────────────────────────────
 
@@ -70,11 +51,11 @@ class ArchivoService {
       // Intenta parsear si la base de datos lo guardó como JSON (ej: '["jpg", "png"]')
       const arrayJson = JSON.parse(tipoDato.extensiones_permitidas);
       if (Array.isArray(arrayJson)) {
-        permitidas = arrayJson.map(e => e.toLowerCase());
+        permitidas = arrayJson.map((e: string) => e.toLowerCase());
       }
     } catch {
       // Fallback si lo guardaron separado por comas (ej: "jpg,png,pdf")
-      permitidas = tipoDato.extensiones_permitidas.split(',').map(e => e.trim().toLowerCase());
+      permitidas = tipoDato.extensiones_permitidas.split(',').map((e: string) => e.trim().toLowerCase());
     }
 
     if (!permitidas.includes(ext)) {

@@ -1,82 +1,57 @@
-type NodeEnv = 'development' | 'test' | 'production';
+import { entornoSchema } from '@/schemas/entorno.schema';
 
-function requerida(nombre: string): string {
-  const valor = process.env[nombre];
-  if (!valor || valor.trim() === '') {
-    throw new Error(`Variable de entorno requerida: ${nombre}`);
+// ── Parseo y Exportación ──────────────────────────────────────────────────────
+
+/**
+ * .safeParse() permite manejar el error manualmente para dar un mensaje claro.
+ * Si algo falla, el servidor NO debe arrancar porque su configuración sería inválida.
+ */
+const resultado = entornoSchema.safeParse(process.env);
+
+if (!resultado.success) {
+  console.error('\n❌ Error de configuración (Variables de Entorno):\n');
+  const errores = resultado.error.flatten().fieldErrors;
+  for (const [campo, mensajes] of Object.entries(errores)) {
+    console.error(`   • ${campo}: ${mensajes?.join(', ')}`);
   }
-  return valor;
+  process.exit(1);
 }
 
-function opcional(nombre: string, porDefecto: string): string {
-  const valor = process.env[nombre];
-  return valor && valor.trim() !== '' ? valor : porDefecto;
-}
-
-function numero(nombre: string, porDefecto?: number): number {
-  const raw = process.env[nombre];
-
-  if (!raw || raw.trim() === '') {
-    if (porDefecto === undefined) throw new Error(`Variable de entorno requerida: ${nombre}`);
-    return porDefecto;
-  }
-
-  const n = Number(raw);
-  if (!Number.isFinite(n)) {
-    throw new Error(`Variable de entorno ${nombre} debe ser número. Recibido: "${raw}"`);
-  }
-  return n;
-}
-
-function unoDe<T extends string>(nombre: string, permitidos: readonly T[], porDefecto?: T): T {
-  const raw = process.env[nombre];
-  if (!raw || raw.trim() === '') {
-    if (porDefecto === undefined) throw new Error(`Variable de entorno requerida: ${nombre}`);
-    return porDefecto;
-  }
-  if (!permitidos.includes(raw as T)) {
-    throw new Error(
-      `Variable de entorno ${nombre} inválida. Permitidos: ${permitidos.join(', ')}. Recibido: "${raw}"`,
-    );
-  }
-  return raw as T;
-}
-
-const nodeEnv = unoDe<NodeEnv>(
-  'NODE_ENV',
-  ['development', 'test', 'production'] as const,
-  'development',
-);
+const env = resultado.data;
 
 export const config = {
-  nodeEnv,
-  esProduccion: nodeEnv === 'production',
-  puerto: numero('PORT', 3000),
+  nodeEnv: env.NODE_ENV,
+  esProduccion: env.NODE_ENV === 'production',
+  puerto: env.PORT,
+  uploadPath: env.UPLOAD_BASE_PATH,
+  apiUrl: env.API_URL,
+  basePath: env.HOST,
 
   db: {
-    url: requerida('DATABASE_URL'),
-    host: opcional('DB_HOST', 'localhost'),
-    port: numero('DB_PORT', 3306),
-    nombre: opcional('DB_NAME', 'restaurante'),
-    usuario: opcional('DB_USER', 'root'),
-    password: opcional('DB_PASSWORD', ''),
+    url: env.DATABASE_URL,
+    host: env.DB_HOST,
+    port: env.DB_PORT,
+    nombre: env.DBNAMES,
+    usuario: env.DB_USER,
+    password: env.DB_PASSWORD,
   },
 
   cors: {
-    origenes: opcional('CORS_ORIGINS', 'http://localhost:4200')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
+    origenes: env.ALLOWED_ORIGINS,
   },
 
   jwt: {
-    secret: requerida('JWT_SECRET'),
-    expiracion: opcional('JWT_EXPIRES_IN', '15m'),
-    refreshSecret: requerida('JWT_REFRESH_SECRET'),
-    refreshExpiracion: opcional('JWT_REFRESH_EXPIRES_IN', '7d'),
+    secret: env.JWT_SECRET,
+    expiracion: env.JWT_EXPIRES_IN,
+    refreshSecret: env.JWT_REFRESH_SECRET,
+    refreshExpiracion: env.JWT_REFRESH_EXPIRES_IN,
   },
 
   bcrypt: {
-    rounds: numero('BCRYPT_ROUNDS', 12),
+    rounds: env.BCRYPT_ROUNDS,
   },
 } as const;
+
+export type Config = typeof config;
+
+

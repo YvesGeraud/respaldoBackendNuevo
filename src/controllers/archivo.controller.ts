@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
-import archivoService, { type SubtipoArchivo } from '@/services/archivo.service';
+import archivoService from '@/services/archivo.service';
+import type { SubtipoArchivo } from '@/types';
 import { responder } from '@/utils/respuestas.utils';
 import { ErrorNegocio } from '@/utils/errores.utils';
 

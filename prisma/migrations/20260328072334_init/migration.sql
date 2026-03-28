@@ -1,11 +1,48 @@
 -- CreateTable
+CREATE TABLE `ct_rol` (
+    `id_ct_rol` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(100) NOT NULL,
+    `descripcion` VARCHAR(255) NULL,
+    `estado` BOOLEAN NOT NULL DEFAULT true,
+    `fecha_in` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    `fecha_up` DATETIME(6) NULL,
+
+    UNIQUE INDEX `ct_rol_nombre_key`(`nombre`),
+    PRIMARY KEY (`id_ct_rol`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ct_permiso` (
+    `id_ct_permiso` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(100) NOT NULL,
+    `codigo` VARCHAR(100) NOT NULL,
+    `descripcion` VARCHAR(255) NULL,
+    `estado` BOOLEAN NOT NULL DEFAULT true,
+    `fecha_in` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+
+    UNIQUE INDEX `ct_permiso_nombre_key`(`nombre`),
+    UNIQUE INDEX `ct_permiso_codigo_key`(`codigo`),
+    PRIMARY KEY (`id_ct_permiso`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `dt_rol_permiso` (
+    `id_dt_rol_permiso` INTEGER NOT NULL AUTO_INCREMENT,
+    `id_ct_rol` INTEGER NOT NULL,
+    `id_ct_permiso` INTEGER NOT NULL,
+
+    UNIQUE INDEX `dt_rol_permiso_id_ct_rol_id_ct_permiso_key`(`id_ct_rol`, `id_ct_permiso`),
+    PRIMARY KEY (`id_dt_rol_permiso`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `ct_usuario` (
     `id_ct_usuario` INTEGER NOT NULL AUTO_INCREMENT,
     `usuario` VARCHAR(100) NOT NULL,
     `contrasena` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NULL,
     `nombre_completo` VARCHAR(200) NOT NULL,
-    `rol` ENUM('ADMIN', 'CAJERO', 'COCINERO') NOT NULL DEFAULT 'CAJERO',
+    `id_ct_rol` INTEGER NOT NULL DEFAULT 1,
     `estado` BOOLEAN NOT NULL DEFAULT true,
     `fecha_registro` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     `fecha_modificacion` DATETIME(6) NULL,
@@ -111,20 +148,24 @@ CREATE TABLE `dt_reservacion` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `AuditLog` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `userId` INTEGER NULL,
-    `action` VARCHAR(191) NOT NULL,
+CREATE TABLE `dt_bitacora` (
+    `id_dt_bitacora` INTEGER NOT NULL AUTO_INCREMENT,
+    `id_ct_usuario` INTEGER NULL,
+    `accion` VARCHAR(191) NOT NULL,
+    `modelo` VARCHAR(191) NOT NULL,
+    `registro_id` VARCHAR(191) NULL,
     `endpoint` VARCHAR(191) NOT NULL,
-    `statusCode` INTEGER NOT NULL,
-    `ipAddress` VARCHAR(191) NULL,
-    `userAgent` VARCHAR(191) NULL,
-    `payload` JSON NULL,
+    `metodo` VARCHAR(191) NOT NULL,
+    `ip_address` VARCHAR(191) NULL,
+    `user_agent` VARCHAR(191) NULL,
+    `datos_anteriores` JSON NULL,
+    `datos_nuevos` JSON NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    INDEX `AuditLog_userId_idx`(`userId`),
-    INDEX `AuditLog_createdAt_idx`(`createdAt`),
-    PRIMARY KEY (`id`)
+    INDEX `dt_bitacora_id_ct_usuario_idx`(`id_ct_usuario`),
+    INDEX `dt_bitacora_modelo_registro_id_idx`(`modelo`, `registro_id`),
+    INDEX `dt_bitacora_createdAt_idx`(`createdAt`),
+    PRIMARY KEY (`id_dt_bitacora`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -171,6 +212,15 @@ CREATE TABLE `dt_documento` (
     INDEX `id_ct_usuario_up`(`id_ct_usuario_up`),
     PRIMARY KEY (`id_dt_documento`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `dt_rol_permiso` ADD CONSTRAINT `dt_rol_permiso_id_ct_rol_fkey` FOREIGN KEY (`id_ct_rol`) REFERENCES `ct_rol`(`id_ct_rol`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `dt_rol_permiso` ADD CONSTRAINT `dt_rol_permiso_id_ct_permiso_fkey` FOREIGN KEY (`id_ct_permiso`) REFERENCES `ct_permiso`(`id_ct_permiso`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ct_usuario` ADD CONSTRAINT `ct_usuario_id_ct_rol_fkey` FOREIGN KEY (`id_ct_rol`) REFERENCES `ct_rol`(`id_ct_rol`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `ct_platillo` ADD CONSTRAINT `ct_platillo_id_ct_categoria_fkey` FOREIGN KEY (`id_ct_categoria`) REFERENCES `ct_categoria`(`id_ct_categoria`) ON DELETE RESTRICT ON UPDATE CASCADE;

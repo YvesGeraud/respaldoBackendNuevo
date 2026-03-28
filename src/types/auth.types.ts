@@ -1,0 +1,61 @@
+import type { Permiso } from './rbac.types';
+
+/**
+ * Datos del usuario disponibles en req.usuario después de validar el JWT.
+ * Solo incluye lo mínimo para autenticación y autorización — nunca la contraseña.
+ */
+export interface UsuarioAutenticado {
+  id_ct_usuario: number;
+  usuario: string;
+  email: string | null;
+  id_ct_rol: number;
+  rol: string; // Nombre del rol extraído de la BD
+}
+
+/**
+ * Payload firmado dentro del JWT (access y refresh token).
+ * Se mantiene mínimo — datos que rara vez cambian y son necesarios en cada request.
+ */
+export interface PayloadJWT {
+  id_ct_usuario: number;
+  usuario: string;
+  email: string | null;
+  id_ct_rol: number;
+  rol: string;
+}
+
+/**
+ * Datos del usuario después de eliminar campos sensibles como contraseñas.
+ * Se usa para devolver la información del usuario logueado al frontend.
+ */
+export interface UsuarioSanitizado {
+  id_ct_usuario: number;
+  usuario: string;
+  email: string | null;
+  nombre_completo: string;
+  id_ct_rol: number;
+  rol: string;
+  permisos: Permiso[]; // Lista de habilidades calculadas según el rol
+}
+
+/**
+ * Par de tokens (Acceso + Refresh) emitidos por el servidor después de autenticar.
+ */
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+// ── Augmentación de Express ───────────────────────────────────────────────────
+/* eslint-disable @typescript-eslint/no-namespace */
+
+declare global {
+  namespace Express {
+    interface Request {
+      /**
+       * Disponible solo en rutas protegidas, después del middleware de autenticación.
+       */
+      usuario?: UsuarioAutenticado;
+    }
+  }
+}

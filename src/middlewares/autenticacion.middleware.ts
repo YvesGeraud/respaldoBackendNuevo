@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { RolUsuario } from '@/generated/prisma/client';
 import authService from '@/services/auth.service';
 import { ErrorNoAutenticado, ErrorNoAutorizado } from '@/utils/errores.utils';
+import { getAuditContext } from '@/utils/async-context';
 
 /**
  * Lee el accessToken de la cookie httpOnly y lo verifica.
@@ -22,8 +22,20 @@ export const autenticado = (req: Request, _res: Response, next: NextFunction): v
       id_ct_usuario: payload.id_ct_usuario,
       usuario: payload.usuario,
       email: payload.email,
-      rol: payload.rol as RolUsuario, // el JWT almacena el enum como string
+      id_ct_rol: payload.id_ct_rol,
+      rol: payload.rol,
     };
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // ACTUALIZAR CONTEXTO DE AUDITORÍA
+    // Como el auditMiddleware corre globalmente al inicio de la petición (antes de auth),
+    // aquí inyectamos el ID del usuario en el objeto de contexto ya existente.
+    const context = getAuditContext();
+    if (context) {
+      context.id_ct_usuario = payload.id_ct_usuario;
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
+
     next();
   } catch (error) {
     // TokenExpiredError y JsonWebTokenError llegan aquí y el error middleware los maneja
@@ -37,9 +49,9 @@ export const autenticado = (req: Request, _res: Response, next: NextFunction): v
  *
  * @example
  * router.delete('/:id', autenticado, autorizado('ADMIN'), controller.eliminar);
- * router.patch('/:id',  autenticado, autorizado('ADMIN', 'ENCARGADO'), controller.actualizar);
+ * router.patch('/:id',  autenticado, autorizado('ADMIN', 'GERENTE'), controller.actualizar);
  */
-export const autorizado = (...rolesPermitidos: RolUsuario[]) => {
+export const autorizado = (...rolesPermitidos: string[]) => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const rol = req.usuario?.rol;
 

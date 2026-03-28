@@ -1,263 +1,209 @@
 import 'dotenv/config';
 import { prisma } from '../src/config/database.config';
-import { RolUsuario } from '../src/generated/prisma/client';
 import bcrypt from 'bcrypt';
+
+const PERMISOS = [
+  'USUARIOS_VER', 'USUARIOS_CREAR', 'USUARIOS_EDITAR', 'USUARIOS_BORRAR',
+  'PLATILLOS_VER', 'PLATILLOS_CREAR', 'PLATILLOS_EDITAR', 'PLATILLOS_BORRAR',
+  'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO', 'ORDENES_CANCELAR',
+  'CONFIG_VER', 'AUDITORIA_VER', 'REPORTES_VER'
+];
+
+const ROLES_CONFIG = {
+  ADMIN: PERMISOS,
+  GERENTE: [
+    'USUARIOS_VER', 'PLATILLOS_VER', 'PLATILLOS_CREAR', 'PLATILLOS_EDITAR',
+    'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO', 'ORDENES_CANCELAR',
+    'REPORTES_VER', 'AUDITORIA_VER'
+  ],
+  CAJERO: [
+    'PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO', 'ORDENES_CANCELAR',
+    'REPORTES_VER'
+  ],
+  MESERO: [
+    'PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO'
+  ],
+  COCINA: [
+    'PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_ESTADO', 'PLATILLOS_CREAR'
+  ]
+};
 
 async function main() {
   console.log('🌱 Iniciando seed de base de datos...');
 
-  // Limpiar datos existentes (en orden inverso por las relaciones)
+  // 1. Limpiar datos (orden inverso)
   console.log('🧹 Limpiando datos existentes...');
+  await prisma.dt_bitacora.deleteMany();
+  await prisma.dt_rol_permiso.deleteMany();
+  await prisma.ct_permiso.deleteMany();
+  await prisma.dt_refresh_token.deleteMany();
   await prisma.dt_detalle_orden.deleteMany();
   await prisma.dt_orden.deleteMany();
   await prisma.dt_reservacion.deleteMany();
   await prisma.ct_platillo.deleteMany();
   await prisma.ct_usuario.deleteMany();
+  await prisma.ct_rol.deleteMany();
   console.log('✅ Datos limpiados');
 
-  // Crear categorías con upsert (crea o actualiza si existe)
+  // 2. Crear Permisos
+  console.log('🔑 Creando permisos...');
+  const permisosMap: Record<string, number> = {};
+  for (const codigo of PERMISOS) {
+    const p = await prisma.ct_permiso.create({
+      data: {
+        codigo,
+        nombre: codigo.replace(/_/g, ' ').toLowerCase(),
+        descripcion: `Permiso para ${codigo.toLowerCase()}`
+      }
+    });
+    permisosMap[codigo] = p.id_ct_permiso;
+  }
+
+  // 3. Crear Roles y vincular permisos
+  console.log('👥 Creando roles y vinculando permisos...');
+  const rolesMap: Record<string, number> = {};
+  for (const [nombre, listaPermisos] of Object.entries(ROLES_CONFIG)) {
+    const rol = await prisma.ct_rol.create({
+      data: {
+        nombre,
+        descripcion: `Rol de ${nombre.toLowerCase()}`
+      }
+    });
+    rolesMap[nombre] = rol.id_ct_rol;
+
+    // Vincular permisos
+    for (const codPermiso of listaPermisos) {
+      await prisma.dt_rol_permiso.create({
+        data: {
+          id_ct_rol: rol.id_ct_rol,
+          id_ct_permiso: permisosMap[codPermiso]
+        }
+      });
+    }
+  }
+
+  // 4. Categorías
   const categorias = await Promise.all([
-    prisma.ct_categoria.upsert({
-      where: { nombre: 'Entradas' },
-      update: {},
-      create: {
-        nombre: 'Entradas',
-        descripcion: 'Aperitivos y entradas',
-      },
-    }),
-    prisma.ct_categoria.upsert({
-      where: { nombre: 'Platos Fuertes' },
-      update: {},
-      create: {
-        nombre: 'Platos Fuertes',
-        descripcion: 'Platos principales',
-      },
-    }),
-    prisma.ct_categoria.upsert({
-      where: { nombre: 'Postres' },
-      update: {},
-      create: {
-        nombre: 'Postres',
-        descripcion: 'Dulces y postres',
-      },
-    }),
-    prisma.ct_categoria.upsert({
-      where: { nombre: 'Bebidas' },
-      update: {},
-      create: {
-        nombre: 'Bebidas',
-        descripcion: 'Bebidas frías y calientes',
-      },
-    }),
+    prisma.ct_categoria.create({ data: { nombre: 'Entradas', descripcion: 'Aperitivos' } }),
+    prisma.ct_categoria.create({ data: { nombre: 'Platos Fuertes', descripcion: 'Principales' } }),
+    prisma.ct_categoria.create({ data: { nombre: 'Postres', descripcion: 'Dulces' } }),
+    prisma.ct_categoria.create({ data: { nombre: 'Bebidas', descripcion: 'Líquidos' } }),
   ]);
 
-  console.log(`✅ ${categorias.length} categorías creadas`);
+  // 5. Platillos (ejemplo simplificado para el seed)
 
-  // Crear platillos
-  const platillos = await Promise.all([
-    // Entradas
-    prisma.ct_platillo.create({
-      data: {
-        nombre: 'Nachos con Queso',
-        descripcion: 'Crujientes nachos con salsa de queso fundido',
+  await prisma.ct_platillo.create({
+    data: {
+        nombre: "Nachos con Queso",
+        descripcion: "Crujientes nachos con salsa de queso fundido",
         precio: 85.0,
         imagen_url:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s',
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s",
         id_ct_categoria: categorias[0].id_ct_categoria,
       },
-    }),
-    prisma.ct_platillo.create({
-      data: {
-        nombre: 'Alitas BBQ',
-        descripcion: '10 alitas con salsa BBQ y aderezo ranch',
+  });
+
+  await prisma.ct_platillo.create({
+    data: {
+        nombre: "Alitas BBQ",
+        descripcion: "10 alitas con salsa BBQ y aderezo ranch",
         precio: 120.0,
-        imagen_url: 'https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg',
+        imagen_url:
+          "https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg",
         id_ct_categoria: categorias[0].id_ct_categoria,
       },
-    }),
-    // Platos Fuertes
-    prisma.ct_platillo.create({
-      data: {
-        nombre: 'Hamburguesa Clásica',
-        descripcion: 'Carne de res, queso, lechuga, tomate y papas',
+  });
+
+  await prisma.ct_platillo.create({
+     data: {
+        nombre: "Hamburguesa Clásica",
+        descripcion: "Carne de res, queso, lechuga, tomate y papas",
         precio: 150.0,
         imagen_url:
-          'https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg',
+          "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg",
         id_ct_categoria: categorias[1].id_ct_categoria,
       },
-    }),
-    prisma.ct_platillo.create({
-      data: {
-        nombre: 'Pasta Alfredo',
-        descripcion: 'Fettuccine en salsa cremosa con pollo',
+  });
+
+  await prisma.ct_platillo.create({
+    data: {
+        nombre: "Pasta Alfredo",
+        descripcion: "Fettuccine en salsa cremosa con pollo",
         precio: 165.0,
         imagen_url:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s',
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s",
         id_ct_categoria: categorias[1].id_ct_categoria,
       },
-    }),
-    // Postres
-    prisma.ct_platillo.create({
-      data: {
-        nombre: 'Brownie con Helado',
-        descripcion: 'Brownie de chocolate caliente con helado de vainilla',
-        precio: 75.0,
+  });
+
+  await prisma.ct_platillo.create({
+    data: {
+        nombre: "Pastel de Chocolate",
+        descripcion: "Delicioso pastel de chocolate con crema",
+        precio: 85.0,
         imagen_url:
-          'https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg',
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s",
         id_ct_categoria: categorias[2].id_ct_categoria,
       },
-    }),
-    // Bebidas
-    prisma.ct_platillo.create({
-      data: {
-        nombre: 'Limonada Natural',
-        descripcion: 'Limonada recién exprimida',
+  });
+
+  await prisma.ct_platillo.create({
+     data: {
+        nombre: "Brownie con Helado",
+        descripcion: "Brownie de chocolate caliente con helado de vainilla",
+        precio: 75.0,
+        imagen_url:
+          "https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg",
+        id_ct_categoria: categorias[2].id_ct_categoria,
+      },
+  });
+
+  await prisma.ct_platillo.create({
+    data: {
+        nombre: "Limonada Natural",
+        descripcion: "Limonada recién exprimida",
         precio: 35.0,
         imagen_url:
-          'https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094',
+          "https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094",
         id_ct_categoria: categorias[3].id_ct_categoria,
       },
-    }),
-  ]);
+  });
 
-  console.log(`✅ ${platillos.length} platillos creados`);
-
-  // Crear usuarios para testing
+  // 6. Usuarios
+  console.log('👤 Creando usuarios...');
   const passwordHash = await bcrypt.hash('password123', 12);
+  
+  await prisma.ct_usuario.create({
+    data: {
+      usuario: 'admin',
+      contrasena: passwordHash,
+      email: 'admin@restaurante.com',
+      nombre_completo: 'Administrador del Sistema',
+      id_ct_rol: rolesMap['ADMIN']
+    }
+  });
 
-  const usuarios = await Promise.all([
-    prisma.ct_usuario.create({
-      data: {
-        usuario: 'mesero1',
-        contrasena: passwordHash,
-        email: 'mesero1@restaurante.com',
-        nombre_completo: 'Juan Pérez',
-        rol: RolUsuario.CAJERO,
-      },
-    }),
-    prisma.ct_usuario.create({
-      data: {
-        usuario: 'cocinero1',
-        contrasena: passwordHash,
-        email: 'cocinero1@restaurante.com',
-        nombre_completo: 'María García',
-        rol: RolUsuario.COCINERO,
-      },
-    }),
-  ]);
+  await prisma.ct_usuario.create({
+    data: {
+      usuario: 'mesero1',
+      contrasena: passwordHash,
+      email: 'mesero1@restaurante.com',
+      nombre_completo: 'Juan Pérez',
+      id_ct_rol: rolesMap['MESERO']
+    }
+  });
 
-  console.log(`✅ ${usuarios.length} usuarios creados`);
-
-  // Crear categorías con upsert (crea o actualiza si existe)
-  const tiposDocumento = await Promise.all([
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'IDENTIFICACION_OFICIAL' },
-      update: {},
-      create: {
-        clave: 'IDENTIFICACION_OFICIAL',
-        descripcion: 'Identificación oficial vigente (INE, pasaporte, cédula)',
-        max_size_bytes: 5_242_880, // 5 MB
-        extensiones_permitidas: JSON.stringify(['pdf', 'jpg', 'jpeg', 'png']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'COMPROBANTE_DOMICILIO' },
-      update: {},
-      create: {
-        clave: 'COMPROBANTE_DOMICILIO',
-        descripcion: 'Comprobante de domicilio no mayor a 3 meses',
-        max_size_bytes: 5_242_880,
-        extensiones_permitidas: JSON.stringify(['pdf', 'jpg', 'jpeg', 'png']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'ACTA_CONSTITUTIVA' },
-      update: {},
-      create: {
-        clave: 'ACTA_CONSTITUTIVA',
-        descripcion: 'Acta constitutiva de la empresa',
-        max_size_bytes: 10_485_760, // 10 MB
-        extensiones_permitidas: JSON.stringify(['pdf']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'CONTRATO' },
-      update: {},
-      create: {
-        clave: 'CONTRATO',
-        descripcion: 'Contrato firmado entre las partes',
-        max_size_bytes: 10_485_760,
-        extensiones_permitidas: JSON.stringify(['pdf']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'FACTURA' },
-      update: {},
-      create: {
-        clave: 'FACTURA',
-        descripcion: 'Factura electrónica (CFDI)',
-        max_size_bytes: 2_097_152, // 2 MB
-        extensiones_permitidas: JSON.stringify(['pdf', 'xml']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'IMAGEN_GENERAL' },
-      update: {},
-      create: {
-        clave: 'IMAGEN_GENERAL',
-        descripcion: 'Imagen de uso general',
-        max_size_bytes: 8_388_608, // 8 MB
-        extensiones_permitidas: JSON.stringify(['jpg', 'jpeg', 'png', 'webp', 'gif']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'imagenes' },
-      update: {},
-      create: {
-        clave: 'imagenes',
-        descripcion: 'Ruta general para imágenes del sistema',
-        max_size_bytes: 2_097_152, // 2 MB (según tu ruta)
-        extensiones_permitidas: JSON.stringify(['jpg', 'jpeg', 'png', 'webp', 'gif']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'documentos' },
-      update: {},
-      create: {
-        clave: 'documentos',
-        descripcion: 'Ruta general para documentos PDF/TXT',
-        max_size_bytes: 10_485_760, // 10 MB (según ruta)
-        extensiones_permitidas: JSON.stringify(['pdf', 'txt', 'csv']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-    prisma.ct_tipo_documento.upsert({
-      where: { clave: 'excel' },
-      update: {},
-      create: {
-        clave: 'excel',
-        descripcion: 'Ruta general para documentos Excel',
-        max_size_bytes: 5_242_880, // 5 MB
-        extensiones_permitidas: JSON.stringify(['xlsx']),
-        id_ct_usuario_in: 1,
-      },
-    }),
-  ]);
-
-  console.log('✅ Tipos de documento creados');
+  // 7. Tipos de documento
+  await prisma.ct_tipo_documento.create({
+    data: {
+      clave: 'imagenes',
+      descripcion: 'Imágenes del sistema',
+      max_size_bytes: 5242880,
+      id_ct_usuario_in: 1
+    }
+  });
 
   console.log('🎉 Seed completado exitosamente!');
-  console.log('\n📋 Datos de acceso:');
-  console.log('   👤 Usuario mesero: mesero1');
-  console.log('   👤 Usuario cocinero: cocinero1');
-  console.log('   🔑 Contraseña para ambos: password123');
 }
 
 main()
