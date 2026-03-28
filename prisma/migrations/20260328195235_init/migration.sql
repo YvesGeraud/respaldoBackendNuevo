@@ -213,6 +213,23 @@ CREATE TABLE `dt_documento` (
     PRIMARY KEY (`id_dt_documento`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `ct_plantilla_correo` (
+    `id_ct_plantilla_correo` INTEGER NOT NULL AUTO_INCREMENT,
+    `clave` VARCHAR(50) NOT NULL,
+    `nombre` VARCHAR(100) NOT NULL,
+    `asunto` VARCHAR(200) NOT NULL,
+    `contenido_html` MEDIUMTEXT NOT NULL,
+    `estado` BOOLEAN NOT NULL DEFAULT true,
+    `fecha_in` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `fecha_up` DATETIME(0) NULL,
+    `id_ct_usuario_in` INTEGER NULL,
+    `id_ct_usuario_up` INTEGER NULL,
+
+    UNIQUE INDEX `ct_plantilla_correo_clave_key`(`clave`),
+    PRIMARY KEY (`id_ct_plantilla_correo`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `dt_rol_permiso` ADD CONSTRAINT `dt_rol_permiso_id_ct_rol_fkey` FOREIGN KEY (`id_ct_rol`) REFERENCES `ct_rol`(`id_ct_rol`) ON DELETE CASCADE ON UPDATE CASCADE;
 

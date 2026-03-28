@@ -267,3 +267,18 @@ model dt_documento {
   @@index([id_ct_usuario_in], map: "id_ct_usuario_in")
   @@index([id_ct_usuario_up], map: "id_ct_usuario_up")
 }
+
+model ct_plantilla_correo {
+  id_ct_plantilla_correo Int       @id @default(autoincrement())
+  clave                  String    @unique @db.VarChar(50)
+  nombre                 String    @db.VarChar(100)
+  asunto                 String    @db.VarChar(200)
+  contenido_html         String    @db.MediumText
+  estado                 Boolean   @default(true)
+  fecha_in               DateTime  @default(now()) @db.DateTime(0)
+  fecha_up               DateTime? @updatedAt @db.DateTime(0)
+  id_ct_usuario_in       Int?
+  id_ct_usuario_up       Int?
+
+  @@map("ct_plantilla_correo")
+}

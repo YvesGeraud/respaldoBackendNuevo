@@ -203,6 +203,89 @@ async function main() {
     }
   });
 
+  // 8. Plantillas de correo
+  // 1. Plantilla de Cambio de Contraseña
+  await prisma.ct_plantilla_correo.upsert({
+    where: { clave: "CAMBIO_CONTRASENA" },
+    update: {},
+    create: {
+      clave: "CAMBIO_CONTRASENA",
+      nombre: "Notificación de Cambio de Contraseña",
+      asunto: "🔐 Alerta de Seguridad: Cambio de Contraseña",
+      contenido_html: `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Notificación de Seguridad</h2>
+          <p>Hola <strong>{{usuario}}</strong>,</p>
+          <p>Te informamos que la contraseña de tu cuenta ha sido cambiada exitosamente.</p>
+          <p>Si no fuiste tú quien realizó este cambio, por favor contacta al administrador de inmediato.</p>
+          <br>
+          <p style="font-size: 12px; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 10px;">
+            Este es un mensaje generado automáticamente desde el sistema USET, por lo que se solicita no responder al mismo.
+          </p>
+        </div>
+      `,
+      estado: true,
+    },
+  });
+
+  // 2. Plantilla de Reseteo de Contraseña (Admin)
+  await prisma.ct_plantilla_correo.upsert({
+    where: { clave: "RESETEO_CONTRASENA" },
+    update: {},
+    create: {
+      clave: "RESETEO_CONTRASENA",
+      nombre: "Reseteo de Contraseña por Administrador",
+      asunto: "🔐 Tus nuevas credenciales de acceso - USET",
+      contenido_html: `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Nuevas Credenciales</h2>
+          <p>Hola <strong>{{usuario}}</strong>,</p>
+          <p>Un administrador ha reseteado tu contraseña. Aquí tienes tus nuevas credenciales de acceso:</p>
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px dashed #3498db;">
+            <p style="margin: 5px 0;"><strong>Usuario:</strong> {{usuario}}</p>
+            <p style="margin: 5px 0;"><strong>Nueva Contraseña:</strong> <code style="background: #eee; padding: 2px 5px;">{{contrasena}}</code></p>
+          </div>
+          <p>⚠️ <strong>IMPORTANTE:</strong> Se te solicitará cambiar esta contraseña en tu próximo inicio de sesión por motivos de seguridad.</p>
+          <br>
+          <p style="font-size: 12px; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 10px;">
+            Si no reconoces esta acción, por favor contacta al departamento de TI de inmediato.
+          </p>
+        </div>
+      `,
+      estado: true,
+    },
+  });
+
+  // 3. Plantilla de Recuperación de Contraseña (Link)
+  await prisma.ct_plantilla_correo.upsert({
+    where: { clave: "RECUPERAR_PASSWORD" },
+    update: {},
+    create: {
+      clave: "RECUPERAR_PASSWORD",
+      nombre: "Recuperación de Contraseña (Link)",
+      asunto: "🔑 Restablece tu contraseña - USET",
+      contenido_html: `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Recuperación de Cuenta</h2>
+          <p>Hola,</p>
+          <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="{{link}}" style="background-color: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Restablecer Contraseña</a>
+          </div>
+          <p style="font-size: 13px; color: #7f8c8d;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+          <p style="font-size: 11px; word-break: break-all; color: #3498db;">{{link}}</p>
+          <p>Este enlace expirará en 1 hora por motivos de seguridad.</p>
+          <br>
+          <p style="font-size: 12px; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 10px;">
+            Si no solicitaste este cambio, puedes ignorar este correo con seguridad.
+          </p>
+        </div>
+      `,
+      estado: true,
+    },
+  });
+
+
   console.log('🎉 Seed completado exitosamente!');
 }
 
