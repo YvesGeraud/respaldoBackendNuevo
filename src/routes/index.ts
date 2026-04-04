@@ -10,6 +10,12 @@ import { excelRouter } from '@/routes/excel.route';
 // * Archivos
 import { archivoRouter } from '@/routes/archivo.route';
 
+// * Configuración / Catálogos
+import { categoriaRouter } from '@/routes/categoria.route';
+
+// * Email
+import { emailRouter } from './email.route';
+
 /**
  * Router raíz de la API — monta cada módulo bajo su prefijo.
  * Patrón para agregar nuevos módulos:
@@ -27,6 +33,12 @@ router.use('/excel', excelRouter);
 
 // * Archivos
 router.use('/archivos', archivoRouter);
+
+// * Configuración / Catálogos
+router.use('/config/categorias', categoriaRouter);
+
+// * Email
+router.use('/email', emailRouter);
 
 // Módulos pendientes:
 // import { authRouter }          from './auth.route';

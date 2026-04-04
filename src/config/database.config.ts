@@ -1,8 +1,7 @@
 import { PrismaClient } from '@/generated/prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { config } from '@/config/servidor.config';
-import { auditExtension } from './prisma-audit.extension';
-
+import { auditExtension } from './prisma_auditoria';
 
 declare global {
   var prisma: ReturnType<typeof crearCliente> | undefined;

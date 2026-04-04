@@ -15,6 +15,10 @@ import { authRouter } from '@/routes/auth.route';
 import { auditMiddleware } from '@/middlewares/audit.middleware';
 import { morganStream } from '@/utils/logger.utils';
 
+// ── Swagger ──────────────────────────────────────────────────────────────────
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '@/docs/swagger.docs';
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 const app = express();
@@ -99,6 +103,11 @@ app.use(auditMiddleware);
 // Prefijo base para todas las rutas (útil cuando el proxy no reescribe la ruta)
 // local: "/" -> "/health" | servidor: "/app/dms/" -> "/app/dms/health"
 const base = config.basePath.endsWith('/') ? config.basePath : `${config.basePath}/`;
+
+// ── Swagger UI ───────────────────────────────────────────────────────────────
+// Se sirve en /docs (o según configuración)
+app.use(`${base}docs`, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get(`${base}docs-json`, (_req, res) => res.json(swaggerSpec));
 
 // Health check — sin autenticación, útil para balanceadores de carga y monitoreo
 app.get(`${base}health`, async (_req, res) => {

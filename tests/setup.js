@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 process.env['NODE_ENV'] = 'test';
 process.env['JWT_SECRET'] = 'clave-secreta-test-minimo-32-caracteres!!';
 process.env['JWT_REFRESH_SECRET'] = 'clave-refresh-test-minimo-32-caracteres!';

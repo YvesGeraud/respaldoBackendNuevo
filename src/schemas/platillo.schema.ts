@@ -1,4 +1,5 @@
-import { z } from 'zod';
+import { z } from '@/zod';
+import { MSG } from '@/constants';
 
 // ── Campos ordenables (whitelist) ─────────────────────────────────────────────
 
@@ -21,25 +22,21 @@ export const CAMPOS_ORDENABLES_PLATILLO = [
  */
 const campos = {
   id_ct_categoria: z
-    .number({ error: 'La categoría es requerida' })
+    .number({ error: MSG.VAL_REQUERIDO('categoría') })
     .int()
-    .positive('El id de categoría debe ser un número positivo'),
+    .positive(MSG.VAL_REQUERIDO('id de categoría')),
 
   nombre: z
     .string()
     .trim()
-    .min(1, 'El nombre no puede estar vacío')
-    .max(200, 'El nombre no puede superar 200 caracteres'),
+    .min(1, MSG.VAL_REQUERIDO('nombre'))
+    .max(200, MSG.VAL_MAX('nombre', 200)),
 
-  descripcion: z
-    .string()
-    .trim()
-    .max(500, 'La descripción no puede superar 500 caracteres')
-    .optional(),
+  descripcion: z.string().trim().max(500, MSG.VAL_MAX('descripción', 500)).optional(),
 
-  precio: z.number({ error: 'El precio es requerido' }).positive('El precio debe ser mayor a 0'),
+  precio: z.number({ error: MSG.VAL_REQUERIDO('precio') }).positive(MSG.VAL_REQUERIDO('precio')),
 
-  imagen_url: z.string().url('La URL de la imagen no es válida').optional(),
+  imagen_url: z.string().url('La URL de la imagen no es válida').nullable().optional(),
 };
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
@@ -50,7 +47,7 @@ export const crearPlatilloSchema = z.object({
 
 export const actualizarPlatilloSchema = z.object({
   params: z.object({
-    id: z.coerce.number().int().positive('El id debe ser un número positivo'),
+    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
   }),
   body: z
     .object({
@@ -69,7 +66,7 @@ export const actualizarPlatilloSchema = z.object({
 
 export const idParamSchema = z.object({
   params: z.object({
-    id: z.coerce.number().int().positive('El id debe ser un número positivo'),
+    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
   }),
 });
 

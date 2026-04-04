@@ -25,9 +25,7 @@ export const registerEmailDocs = (registry: OpenAPIRegistry) => {
       },
     },
     responses: {
-      200: okResponse(
-        confirmarReservacionSchema.shape.body
-      ),
+      200: okResponse(confirmarReservacionSchema.shape.body),
       400: errorResponse('Error al enviar correo'),
     },
   });
@@ -48,9 +46,7 @@ export const registerEmailDocs = (registry: OpenAPIRegistry) => {
       },
     },
     responses: {
-      200: okResponse(
-        recuperarPasswordSchema.shape.body
-      ),
+      200: okResponse(recuperarPasswordSchema.shape.body),
     },
   });
 
@@ -70,9 +66,7 @@ export const registerEmailDocs = (registry: OpenAPIRegistry) => {
       },
     },
     responses: {
-      200: okResponse(
-        enviarPruebaSchema.shape.body
-      ),
+      200: okResponse(enviarPruebaSchema.shape.body),
     },
   });
 };

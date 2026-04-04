@@ -21,7 +21,7 @@ class ArchivoService {
   async subir(
     file: Express.Multer.File,
     subtipo: SubtipoArchivo,
-    id_usuario: number
+    id_usuario: number,
   ): Promise<ResultadoSubida> {
     // 1. Consultar tipo de documento en BD
     const tipoDato = await prisma.ct_tipo_documento.findUnique({
@@ -30,7 +30,9 @@ class ArchivoService {
 
     if (!tipoDato || !tipoDato.estado) {
       await eliminarArchivo(file.path);
-      throw new ErrorNegocio(`El tipo de documento '${subtipo}' no está configurado o está inactivo.`);
+      throw new ErrorNegocio(
+        `El tipo de documento '${subtipo}' no está configurado o está inactivo.`,
+      );
     }
 
     // 2. Validar tamaño
@@ -46,7 +48,7 @@ class ArchivoService {
     // 3. Validar extensión permitida
     const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
     let permitidas: string[] = [];
-    
+
     try {
       // Intenta parsear si la base de datos lo guardó como JSON (ej: '["jpg", "png"]')
       const arrayJson = JSON.parse(tipoDato.extensiones_permitidas);
@@ -55,7 +57,9 @@ class ArchivoService {
       }
     } catch {
       // Fallback si lo guardaron separado por comas (ej: "jpg,png,pdf")
-      permitidas = tipoDato.extensiones_permitidas.split(',').map((e: string) => e.trim().toLowerCase());
+      permitidas = tipoDato.extensiones_permitidas
+        .split(',')
+        .map((e: string) => e.trim().toLowerCase());
     }
 
     if (!permitidas.includes(ext)) {

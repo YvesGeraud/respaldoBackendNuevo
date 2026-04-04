@@ -8,21 +8,17 @@ const registry = new OpenAPIRegistry();
 
 // ── ✅ REGISTRAR COMPONENTES PRIMERO ──────────────────────────────────────────
 
-registry.registerComponent(
-  'securitySchemes',
-  'bearerAuth',
-  {
-    type: 'http',
-    scheme: 'bearer',
-    bearerFormat: 'JWT',
-  }
-);
+registry.registerComponent('securitySchemes', 'bearerAuth', {
+  type: 'http',
+  scheme: 'bearer',
+  bearerFormat: 'JWT',
+});
 
 // ── Registrar módulos (cuando los actives) ────────────────────────────────────
 
- registerPlatillosDocs(registry);
- registerAuthDocs(registry);
- registerEmailDocs(registry);
+registerPlatillosDocs(registry);
+registerAuthDocs(registry);
+registerEmailDocs(registry);
 
 // ── Generar documento ─────────────────────────────────────────────────────────
 
@@ -44,6 +40,6 @@ export const swaggerSpec = generator.generateDocument({
   tags: [
     //{ name: 'Auth', description: 'Autenticación y sesión' },
     { name: 'Platillos', description: 'Catálogo de platillos' },
-   // { name: 'Email', description: 'Envío de correos' },
+    // { name: 'Email', description: 'Envío de correos' },
   ],
 });

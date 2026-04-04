@@ -8,16 +8,14 @@ import {
   verificarAccessToken,
   hashToken,
 } from '@/utils/jwt.utils';
-import type { PayloadJWT, AuthTokens, UsuarioSanitizado } from '@/types';
+import type { PayloadJWT, AuthTokens, UsuarioSanitizado, Permiso } from '@/types';
 import type { ct_usuario } from '@/generated/prisma/client';
-import { obtenerPermisosPorRol } from '@/config/permisos.config';
 import { getAuditContext } from '@/utils/async-context';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 /** 7 días en milisegundos — debe coincidir con JWT_REFRESH_EXPIRES_IN */
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1_000;
-
 
 // ── Servicio ──────────────────────────────────────────────────────────────────
 
@@ -62,9 +60,10 @@ class AuthService {
     }
 
     const tokens = await this.emitirTokens(payload);
+    const permisos = await this.obtenerPermisosPorRolId(encontrado.id_ct_rol);
 
     return {
-      usuario: this.sanitizarUsuario(encontrado),
+      usuario: this.sanitizarUsuario({ ...encontrado, permisos }),
       tokens,
     };
   }
@@ -184,13 +183,31 @@ class AuthService {
       throw new ErrorNoAutenticado('Sesión expirada');
     }
 
-    return this.sanitizarUsuario(usuario);
+    const permisos = await this.obtenerPermisosPorRolId(usuario.id_ct_rol);
+
+    return this.sanitizarUsuario({ ...usuario, permisos });
   }
 
   // ── Expuesto para el middleware de autenticación ──────────────────────────
 
   verificarAccessToken(token: string): PayloadJWT {
     return verificarAccessToken(token);
+  }
+
+  /**
+   * Obtiene la lista de códigos de permisos asociados a un rol directamente de la base de datos.
+   */
+  async obtenerPermisosPorRolId(id_ct_rol: number): Promise<Permiso[]> {
+    const relaciones = await prisma.dt_rol_permiso.findMany({
+      where: { id_ct_rol },
+      include: {
+        permiso: {
+          select: { codigo: true },
+        },
+      },
+    });
+
+    return relaciones.map((r) => r.permiso.codigo as Permiso);
   }
 
   // ── Privados ──────────────────────────────────────────────────────────────
@@ -215,7 +232,9 @@ class AuthService {
   }
 
   /** Elimina la contraseña y devuelve solo los campos seguros para el cliente. */
-  private sanitizarUsuario(usuario: ct_usuario & { rol: { nombre: string } }): UsuarioSanitizado {
+  private sanitizarUsuario(
+    usuario: ct_usuario & { rol: { nombre: string }; permisos?: Permiso[] },
+  ): UsuarioSanitizado {
     return {
       id_ct_usuario: usuario.id_ct_usuario,
       usuario: usuario.usuario,
@@ -223,7 +242,7 @@ class AuthService {
       nombre_completo: usuario.nombre_completo,
       id_ct_rol: usuario.id_ct_rol,
       rol: usuario.rol.nombre,
-      permisos: obtenerPermisosPorRol(usuario.rol.nombre),
+      permisos: usuario.permisos || [],
     };
   }
 }

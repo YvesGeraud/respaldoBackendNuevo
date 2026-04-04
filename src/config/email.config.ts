@@ -20,4 +20,3 @@ export const mailConfig = {
   },
   from: opcional('MAIL_FROM', 'Restaurante <noreply@restaurante.com>'),
 } as const;
-  

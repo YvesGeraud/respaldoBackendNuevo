@@ -8,7 +8,11 @@ import { getAuditContext } from '@/utils/async-context';
  * Si es válido, adjunta el payload en req.usuario para que los controllers lo usen.
  * Si el token expiró o es inválido, los errores JWT llegan al error middleware global.
  */
-export const autenticado = (req: Request, _res: Response, next: NextFunction): void => {
+export const autenticado = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const token = req.cookies['accessToken'] as string | undefined;
 
   if (!token) {
@@ -18,12 +22,15 @@ export const autenticado = (req: Request, _res: Response, next: NextFunction): v
 
   try {
     const payload = authService.verificarAccessToken(token);
+    const permisos = await authService.obtenerPermisosPorRolId(payload.id_ct_rol);
+
     req.usuario = {
       id_ct_usuario: payload.id_ct_usuario,
       usuario: payload.usuario,
       email: payload.email,
       id_ct_rol: payload.id_ct_rol,
       rol: payload.rol,
+      permisos: permisos,
     };
 
     // ─────────────────────────────────────────────────────────────────────────────

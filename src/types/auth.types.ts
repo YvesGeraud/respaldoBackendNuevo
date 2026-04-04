@@ -1,4 +1,4 @@
-import type { Permiso } from './rbac.types';
+import type { Permiso } from '../constants/auth.constants';
 
 /**
  * Datos del usuario disponibles en req.usuario después de validar el JWT.
@@ -10,6 +10,7 @@ export interface UsuarioAutenticado {
   email: string | null;
   id_ct_rol: number;
   rol: string; // Nombre del rol extraído de la BD
+  permisos: Permiso[]; // Lista de permisos activos para el rol
 }
 
 /**

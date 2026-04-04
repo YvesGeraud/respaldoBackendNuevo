@@ -11,35 +11,25 @@ import type {
   FiltrosPlatillos,
 } from '@/schemas/platillo.schema';
 import { CAMPOS_ORDENABLES_PLATILLO } from '@/schemas/platillo.schema';
+import { PAGINACION, INCLUDE_PLATILLO_CATEGORIA } from '@/constants';
 
 // ── Tipo de retorno preciso ───────────────────────────────────────────────────
 
-/**
- * ct_platillo con la relación categoria incluida.
- * Prisma.ct_platilloGetPayload calcula el tipo exacto según el include,
- * evitando casteos manuales o tipos definidos a mano.
- */
-const incluirCategoria = {
-  categoria: { select: { id_ct_categoria: true, nombre: true } },
-} as const;
-
 type PlatilloConCategoria = Prisma.ct_platilloGetPayload<{
-  include: typeof incluirCategoria;
+  include: typeof INCLUDE_PLATILLO_CATEGORIA;
 }>;
 
 // ── Servicio ──────────────────────────────────────────────────────────────────
 
 class PlatilloService {
   async obtenerTodos(filtros: FiltrosPlatillos): Promise<ResultadoPaginado<PlatilloConCategoria>> {
-    // filtros ya fue validado y tipado por Zod en el middleware — no necesita parsearPaginacion
     const opciones: OpcionesPaginacion = {
-      pagina: filtros.pagina ?? 1,
-      limite: filtros.limite ?? 20,
+      pagina: Number(filtros.pagina) || PAGINACION.PAGINA_POR_DEFECTO,
+      limite: Number(filtros.limite) || PAGINACION.LIMITE_POR_DEFECTO,
       ordenarPor: filtros.ordenar_por ?? CAMPOS_ORDENABLES_PLATILLO[0],
       orden: filtros.orden ?? 'asc',
     };
 
-    // Prisma.ct_platilloWhereInput da type-safety en el where (detecta typos en nombres de campo)
     const where: Prisma.ct_platilloWhereInput = {};
 
     if (filtros.busqueda) {
@@ -48,12 +38,11 @@ class PlatilloService {
         { descripcion: { contains: filtros.busqueda } },
       ];
     }
-    if (filtros.id_ct_categoria !== undefined) where.id_ct_categoria = filtros.id_ct_categoria;
-    if (filtros.estado !== undefined) where.estado = filtros.estado;
+    if (filtros.id_ct_categoria !== undefined)
+      where.id_ct_categoria = Number(filtros.id_ct_categoria);
+    if (filtros.estado !== undefined) where.estado = String(filtros.estado) === 'true';
 
-    // paginar devuelve ct_platillo[], pero el include garantiza que categoria esté presente.
-    // El cast es seguro porque siempre pasamos incluirCategoria.
-    return paginar(prisma.ct_platillo, where, opciones, incluirCategoria) as Promise<
+    return paginar(prisma.ct_platillo, where, opciones, INCLUDE_PLATILLO_CATEGORIA) as Promise<
       ResultadoPaginado<PlatilloConCategoria>
     >;
   }
@@ -62,7 +51,7 @@ class PlatilloService {
     return buscarOError(
       prisma.ct_platillo.findUnique({
         where: { id_ct_platillo: id },
-        include: incluirCategoria,
+        include: INCLUDE_PLATILLO_CATEGORIA,
       }),
       'Platillo',
     );
@@ -85,23 +74,29 @@ class PlatilloService {
         precio: datos.precio,
         imagen_url: datos.imagen_url,
       },
-      include: incluirCategoria,
+      include: INCLUDE_PLATILLO_CATEGORIA,
     });
   }
 
   async actualizar(id: number, datos: ActualizarPlatilloDTO): Promise<PlatilloConCategoria> {
     // Verifica existencia antes de intentar el update (P2025 evitado con mensaje claro)
-    await buscarOError(prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }), 'Platillo');
+    await buscarOError(
+      prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }),
+      'Platillo',
+    );
 
     return prisma.ct_platillo.update({
       where: { id_ct_platillo: id },
       data: datos,
-      include: incluirCategoria,
+      include: INCLUDE_PLATILLO_CATEGORIA,
     });
   }
 
   async eliminar(id: number): Promise<void> {
-    await buscarOError(prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }), 'Platillo');
+    await buscarOError(
+      prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }),
+      'Platillo',
+    );
 
     // Soft delete — preserva historial en dt_detalle_orden
     await prisma.ct_platillo.update({

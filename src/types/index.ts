@@ -3,7 +3,7 @@
  * Agrupa los tipos por dominio para facilitar el mantenimiento.
  */
 
-export * from './rbac.types';
+export * from '../constants/auth.constants';
 export * from './auth.types';
 export * from './archivos.types';
 export * from './respuestas.types';

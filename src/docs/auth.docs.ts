@@ -23,7 +23,7 @@ export const registerAuthDocs = (registry: OpenAPIRegistry) => {
       200: okResponse(
         loginSchema.shape.body.extend({
           accessToken: z.string(),
-        })
+        }),
       ),
       401: errorResponse('Credenciales inválidas'),
     },
@@ -42,7 +42,7 @@ export const registerAuthDocs = (registry: OpenAPIRegistry) => {
             schema: loginSchema.shape.body,
           },
         },
-      }
+      },
     },
     responses: {
       200: okResponse(z.object({ accessToken: z.string() })),

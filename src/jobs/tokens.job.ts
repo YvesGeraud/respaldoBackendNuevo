@@ -22,7 +22,9 @@ const DIAS_RETENCION_REVOCADOS = 30;
  */
 export async function limpiarTokensExpirados(): Promise<void> {
   const ahora = new Date();
-  const limiteRevocados = new Date(ahora.getTime() - DIAS_RETENCION_REVOCADOS * 24 * 60 * 60 * 1_000);
+  const limiteRevocados = new Date(
+    ahora.getTime() - DIAS_RETENCION_REVOCADOS * 24 * 60 * 60 * 1_000,
+  );
 
   try {
     const { count } = await prisma.dt_refresh_token.deleteMany({

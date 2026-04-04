@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { Permiso } from '@/types';
-import { obtenerPermisosPorRol } from '@/config/permisos.config';
 import { ErrorNoAutenticado, ErrorNoAutorizado } from '@/utils/errores.utils';
 
 /**
  * Middleware para validar que el usuario tenga un permiso específico.
  * Debe usarse DESPUÉS del middleware de autenticación.
- * 
+ *
  * @param permisoRequerido El permiso necesario para acceder a la ruta.
  */
 export const tienePermiso = (permisoRequerido: Permiso) => {
@@ -17,7 +16,7 @@ export const tienePermiso = (permisoRequerido: Permiso) => {
       throw new ErrorNoAutenticado('Usuario no identificado en la petición.');
     }
 
-    const permisosDelUsuario = obtenerPermisosPorRol(usuario.rol);
+    const permisosDelUsuario = usuario.permisos || [];
 
     if (!permisosDelUsuario.includes(permisoRequerido)) {
       throw new ErrorNoAutorizado(`Acceso denegado. Se requiere el permiso: ${permisoRequerido}`);
@@ -38,8 +37,8 @@ export const tieneCualquierPermiso = (permisos: Permiso[]) => {
       throw new ErrorNoAutenticado();
     }
 
-    const permisosDelUsuario = obtenerPermisosPorRol(usuario.rol);
-    const tieneAlguno = permisos.some(p => permisosDelUsuario.includes(p));
+    const permisosDelUsuario = usuario.permisos || [];
+    const tieneAlguno = permisos.some((p) => permisosDelUsuario.includes(p));
 
     if (!tieneAlguno) {
       throw new ErrorNoAutorizado('Acceso denegado. No cuentas con los permisos necesarios.');

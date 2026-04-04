@@ -12,7 +12,14 @@ export const auditExtension = Prisma.defineExtension((client) => {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {
           // Solo auditar operaciones de escritura
-          const operacionesAuditables = ['create', 'update', 'delete', 'updateMany', 'deleteMany', 'upsert'];
+          const operacionesAuditables = [
+            'create',
+            'update',
+            'delete',
+            'updateMany',
+            'deleteMany',
+            'upsert',
+          ];
           if (!operacionesAuditables.includes(operation)) {
             return query(args);
           }
@@ -59,18 +66,65 @@ export const auditExtension = Prisma.defineExtension((client) => {
           // Usamos el cliente base (sin extensión) para evitar recursividad
           (async () => {
             try {
+              const accionMap: Record<string, string> = {
+                create: 'CREAR',
+                update: 'ACTUALIZAR',
+                delete: 'ELIMINAR',
+                updateMany: 'ACTUALIZAR_MULTIPLE',
+                deleteMany: 'ELIMINAR_MULTIPLE',
+                upsert: 'GUARDAR',
+              };
+
+              let auditAnteriores = datosAnteriores;
+              let auditNuevos = datosNuevos;
+
+              // Si es una actualización, solo guardar los campos que cambiaron
+              if (
+                ['update', 'upsert'].includes(operation) &&
+                datosAnteriores &&
+                (args as any).data
+              ) {
+                const subAnterior: any = {};
+                const subNuevo: any = {};
+
+                // En upsert, args.update contiene los datos de actualización
+                const dataToCompare =
+                  operation === 'upsert' ? (args as any).update : (args as any).data;
+
+                if (dataToCompare) {
+                  const camposModificados = Object.keys(dataToCompare);
+                  camposModificados.forEach((campo) => {
+                    // Solo incluir si el campo existe en el registro anterior
+                    if (Object.prototype.hasOwnProperty.call(datosAnteriores, campo)) {
+                      subAnterior[campo] = (datosAnteriores as any)[campo];
+                      subNuevo[campo] = resultado ? (resultado as any)[campo] : null;
+                    }
+                  });
+
+                  auditAnteriores = subAnterior;
+                  auditNuevos = subNuevo;
+                }
+              }
+
               await (client as any).dt_bitacora.create({
                 data: {
                   id_ct_usuario: context.id_ct_usuario,
-                  accion: operation.toUpperCase(),
+                  accion: accionMap[operation] || operation.toUpperCase(),
                   modelo: model,
                   registro_id: registroId,
                   endpoint: context.endpoint || 'N/A',
-                  metodo: (operation === 'create' ? 'POST' : operation === 'update' ? 'PUT' : 'DELETE'),
+                  metodo:
+                    operation === 'create'
+                      ? 'POST'
+                      : ['update', 'updateMany', 'upsert'].includes(operation)
+                        ? 'PUT'
+                        : 'DELETE',
                   ip_address: context.ip,
                   user_agent: context.user_agent,
-                  datos_anteriores: datosAnteriores ? JSON.parse(JSON.stringify(datosAnteriores)) : null,
-                  datos_nuevos: datosNuevos ? JSON.parse(JSON.stringify(datosNuevos)) : null,
+                  datos_anteriores: auditAnteriores
+                    ? JSON.parse(JSON.stringify(auditAnteriores))
+                    : null,
+                  datos_nuevos: auditNuevos ? JSON.parse(JSON.stringify(auditNuevos)) : null,
                 },
               });
             } catch (auditError) {

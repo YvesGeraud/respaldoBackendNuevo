@@ -1,0 +1,57 @@
+import { z } from '@/zod';
+import { MSG } from '@/constants';
+
+export const CAMPOS_ORDENABLES_CATEGORIA = ['nombre', 'fecha_registro'] as const;
+
+const campos = {
+  nombre: z
+    .string()
+    .trim()
+    .min(1, MSG.VAL_REQUERIDO('nombre'))
+    .max(100, MSG.VAL_MAX('nombre', 100)),
+
+  descripcion: z.string().trim().max(500, MSG.VAL_MAX('descripción', 500)).optional(),
+};
+
+export const crearCategoriaSchema = z.object({
+  body: z.object(campos),
+});
+
+export const actualizarCategoriaSchema = z.object({
+  params: z.object({
+    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
+  }),
+  body: z
+    .object({
+      nombre: campos.nombre.optional(),
+      descripcion: campos.descripcion,
+      estado: z.boolean().optional(),
+    })
+    .refine((data) => Object.values(data).some((v) => v !== undefined), {
+      message: 'Debes enviar al menos un campo para actualizar',
+    }),
+});
+
+export const idParamCategoriaSchema = z.object({
+  params: z.object({
+    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
+  }),
+});
+
+export const filtrosCategoriasSchema = z.object({
+  query: z.object({
+    pagina: z.coerce.number().int().positive().optional(),
+    limite: z.coerce.number().int().positive().max(100).optional(),
+    busqueda: z.string().trim().optional(),
+    estado: z
+      .enum(['true', 'false'])
+      .transform((v) => v === 'true')
+      .optional(),
+    ordenar_por: z.enum(CAMPOS_ORDENABLES_CATEGORIA).optional(),
+    orden: z.enum(['asc', 'desc']).optional(),
+  }),
+});
+
+export type CrearCategoriaDTO = z.infer<typeof crearCategoriaSchema>['body'];
+export type ActualizarCategoriaDTO = z.infer<typeof actualizarCategoriaSchema>['body'];
+export type FiltrosCategorias = z.infer<typeof filtrosCategoriasSchema>['query'];

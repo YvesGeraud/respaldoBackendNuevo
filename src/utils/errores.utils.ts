@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import { MSG } from '@/constants';
 import type { ErrorCampo } from '@/utils/respuestas.utils';
 
 // ── Códigos de error internos ─────────────────────────────────────────────────
@@ -40,8 +41,8 @@ export class AppError extends Error {
 
 /** 404 — El recurso pedido no existe */
 export class ErrorNoEncontrado extends AppError {
-  constructor(recurso = 'Recurso') {
-    super(`${recurso} no encontrado`, StatusCodes.NOT_FOUND, 'NOT_FOUND');
+  constructor(recurso: string = 'Recurso') {
+    super(MSG.ERROR_NO_ENCONTRADO(recurso), StatusCodes.NOT_FOUND, 'NOT_FOUND');
   }
 }
 
@@ -61,14 +62,14 @@ export class ErrorMalFormado extends AppError {
 
 /** 401 — No autenticado (sin token o token inválido) */
 export class ErrorNoAutenticado extends AppError {
-  constructor(mensaje = 'No autenticado') {
+  constructor(mensaje: string = MSG.AUTH_TOKEN_INVALIDO) {
     super(mensaje, StatusCodes.UNAUTHORIZED, 'UNAUTHORIZED');
   }
 }
 
 /** 403 — Autenticado pero sin permisos suficientes */
 export class ErrorNoAutorizado extends AppError {
-  constructor(mensaje = 'No tienes permisos para realizar esta acción') {
+  constructor(mensaje: string = MSG.AUTH_SIN_PERMISOS) {
     super(mensaje, StatusCodes.FORBIDDEN, 'FORBIDDEN');
   }
 }

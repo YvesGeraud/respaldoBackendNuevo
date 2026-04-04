@@ -3,29 +3,47 @@ import { prisma } from '../src/config/database.config';
 import bcrypt from 'bcrypt';
 
 const PERMISOS = [
-  'USUARIOS_VER', 'USUARIOS_CREAR', 'USUARIOS_EDITAR', 'USUARIOS_BORRAR',
-  'PLATILLOS_VER', 'PLATILLOS_CREAR', 'PLATILLOS_EDITAR', 'PLATILLOS_BORRAR',
-  'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO', 'ORDENES_CANCELAR',
-  'CONFIG_VER', 'AUDITORIA_VER', 'REPORTES_VER'
+  'USUARIOS_VER',
+  'USUARIOS_CREAR',
+  'USUARIOS_EDITAR',
+  'USUARIOS_BORRAR',
+  'PLATILLOS_VER',
+  'PLATILLOS_CREAR',
+  'PLATILLOS_EDITAR',
+  'PLATILLOS_BORRAR',
+  'ORDENES_VER',
+  'ORDENES_CREAR',
+  'ORDENES_ESTADO',
+  'ORDENES_CANCELAR',
+  'CONFIG_VER',
+  'AUDITORIA_VER',
+  'REPORTES_VER',
 ];
 
 const ROLES_CONFIG = {
   ADMIN: PERMISOS,
   GERENTE: [
-    'USUARIOS_VER', 'PLATILLOS_VER', 'PLATILLOS_CREAR', 'PLATILLOS_EDITAR',
-    'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO', 'ORDENES_CANCELAR',
-    'REPORTES_VER', 'AUDITORIA_VER'
+    'USUARIOS_VER',
+    'PLATILLOS_VER',
+    'PLATILLOS_CREAR',
+    'PLATILLOS_EDITAR',
+    'ORDENES_VER',
+    'ORDENES_CREAR',
+    'ORDENES_ESTADO',
+    'ORDENES_CANCELAR',
+    'REPORTES_VER',
+    'AUDITORIA_VER',
   ],
   CAJERO: [
-    'PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO', 'ORDENES_CANCELAR',
-    'REPORTES_VER'
+    'PLATILLOS_VER',
+    'ORDENES_VER',
+    'ORDENES_CREAR',
+    'ORDENES_ESTADO',
+    'ORDENES_CANCELAR',
+    'REPORTES_VER',
   ],
-  MESERO: [
-    'PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO'
-  ],
-  COCINA: [
-    'PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_ESTADO', 'PLATILLOS_CREAR'
-  ]
+  MESERO: ['PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_CREAR', 'ORDENES_ESTADO'],
+  COCINA: ['PLATILLOS_VER', 'ORDENES_VER', 'ORDENES_ESTADO', 'PLATILLOS_CREAR'],
 };
 
 async function main() {
@@ -53,8 +71,8 @@ async function main() {
       data: {
         codigo,
         nombre: codigo.replace(/_/g, ' ').toLowerCase(),
-        descripcion: `Permiso para ${codigo.toLowerCase()}`
-      }
+        descripcion: `Permiso para ${codigo.toLowerCase()}`,
+      },
     });
     permisosMap[codigo] = p.id_ct_permiso;
   }
@@ -66,8 +84,8 @@ async function main() {
     const rol = await prisma.ct_rol.create({
       data: {
         nombre,
-        descripcion: `Rol de ${nombre.toLowerCase()}`
-      }
+        descripcion: `Rol de ${nombre.toLowerCase()}`,
+      },
     });
     rolesMap[nombre] = rol.id_ct_rol;
 
@@ -76,8 +94,8 @@ async function main() {
       await prisma.dt_rol_permiso.create({
         data: {
           id_ct_rol: rol.id_ct_rol,
-          id_ct_permiso: permisosMap[codPermiso]
-        }
+          id_ct_permiso: permisosMap[codPermiso],
+        },
       });
     }
   }
@@ -94,93 +112,92 @@ async function main() {
 
   await prisma.ct_platillo.create({
     data: {
-        nombre: "Nachos con Queso",
-        descripcion: "Crujientes nachos con salsa de queso fundido",
-        precio: 85.0,
-        imagen_url:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s",
-        id_ct_categoria: categorias[0].id_ct_categoria,
-      },
+      nombre: 'Nachos con Queso',
+      descripcion: 'Crujientes nachos con salsa de queso fundido',
+      precio: 85.0,
+      imagen_url:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s',
+      id_ct_categoria: categorias[0].id_ct_categoria,
+    },
   });
 
   await prisma.ct_platillo.create({
     data: {
-        nombre: "Alitas BBQ",
-        descripcion: "10 alitas con salsa BBQ y aderezo ranch",
-        precio: 120.0,
-        imagen_url:
-          "https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg",
-        id_ct_categoria: categorias[0].id_ct_categoria,
-      },
-  });
-
-  await prisma.ct_platillo.create({
-     data: {
-        nombre: "Hamburguesa Clásica",
-        descripcion: "Carne de res, queso, lechuga, tomate y papas",
-        precio: 150.0,
-        imagen_url:
-          "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg",
-        id_ct_categoria: categorias[1].id_ct_categoria,
-      },
+      nombre: 'Alitas BBQ',
+      descripcion: '10 alitas con salsa BBQ y aderezo ranch',
+      precio: 120.0,
+      imagen_url: 'https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg',
+      id_ct_categoria: categorias[0].id_ct_categoria,
+    },
   });
 
   await prisma.ct_platillo.create({
     data: {
-        nombre: "Pasta Alfredo",
-        descripcion: "Fettuccine en salsa cremosa con pollo",
-        precio: 165.0,
-        imagen_url:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s",
-        id_ct_categoria: categorias[1].id_ct_categoria,
-      },
+      nombre: 'Hamburguesa Clásica',
+      descripcion: 'Carne de res, queso, lechuga, tomate y papas',
+      precio: 150.0,
+      imagen_url:
+        'https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg',
+      id_ct_categoria: categorias[1].id_ct_categoria,
+    },
   });
 
   await prisma.ct_platillo.create({
     data: {
-        nombre: "Pastel de Chocolate",
-        descripcion: "Delicioso pastel de chocolate con crema",
-        precio: 85.0,
-        imagen_url:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s",
-        id_ct_categoria: categorias[2].id_ct_categoria,
-      },
-  });
-
-  await prisma.ct_platillo.create({
-     data: {
-        nombre: "Brownie con Helado",
-        descripcion: "Brownie de chocolate caliente con helado de vainilla",
-        precio: 75.0,
-        imagen_url:
-          "https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg",
-        id_ct_categoria: categorias[2].id_ct_categoria,
-      },
+      nombre: 'Pasta Alfredo',
+      descripcion: 'Fettuccine en salsa cremosa con pollo',
+      precio: 165.0,
+      imagen_url:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s',
+      id_ct_categoria: categorias[1].id_ct_categoria,
+    },
   });
 
   await prisma.ct_platillo.create({
     data: {
-        nombre: "Limonada Natural",
-        descripcion: "Limonada recién exprimida",
-        precio: 35.0,
-        imagen_url:
-          "https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094",
-        id_ct_categoria: categorias[3].id_ct_categoria,
-      },
+      nombre: 'Pastel de Chocolate',
+      descripcion: 'Delicioso pastel de chocolate con crema',
+      precio: 85.0,
+      imagen_url:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s',
+      id_ct_categoria: categorias[2].id_ct_categoria,
+    },
+  });
+
+  await prisma.ct_platillo.create({
+    data: {
+      nombre: 'Brownie con Helado',
+      descripcion: 'Brownie de chocolate caliente con helado de vainilla',
+      precio: 75.0,
+      imagen_url:
+        'https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg',
+      id_ct_categoria: categorias[2].id_ct_categoria,
+    },
+  });
+
+  await prisma.ct_platillo.create({
+    data: {
+      nombre: 'Limonada Natural',
+      descripcion: 'Limonada recién exprimida',
+      precio: 35.0,
+      imagen_url:
+        'https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094',
+      id_ct_categoria: categorias[3].id_ct_categoria,
+    },
   });
 
   // 6. Usuarios
   console.log('👤 Creando usuarios...');
   const passwordHash = await bcrypt.hash('password123', 12);
-  
+
   await prisma.ct_usuario.create({
     data: {
       usuario: 'admin',
       contrasena: passwordHash,
       email: 'admin@restaurante.com',
       nombre_completo: 'Administrador del Sistema',
-      id_ct_rol: rolesMap['ADMIN']
-    }
+      id_ct_rol: rolesMap['ADMIN'],
+    },
   });
 
   await prisma.ct_usuario.create({
@@ -189,8 +206,8 @@ async function main() {
       contrasena: passwordHash,
       email: 'mesero1@restaurante.com',
       nombre_completo: 'Juan Pérez',
-      id_ct_rol: rolesMap['MESERO']
-    }
+      id_ct_rol: rolesMap['MESERO'],
+    },
   });
 
   // 7. Tipos de documento
@@ -199,19 +216,19 @@ async function main() {
       clave: 'imagenes',
       descripcion: 'Imágenes del sistema',
       max_size_bytes: 5242880,
-      id_ct_usuario_in: 1
-    }
+      id_ct_usuario_in: 1,
+    },
   });
 
   // 8. Plantillas de correo
   // 1. Plantilla de Cambio de Contraseña
   await prisma.ct_plantilla_correo.upsert({
-    where: { clave: "CAMBIO_CONTRASENA" },
+    where: { clave: 'CAMBIO_CONTRASENA' },
     update: {},
     create: {
-      clave: "CAMBIO_CONTRASENA",
-      nombre: "Notificación de Cambio de Contraseña",
-      asunto: "🔐 Alerta de Seguridad: Cambio de Contraseña",
+      clave: 'CAMBIO_CONTRASENA',
+      nombre: 'Notificación de Cambio de Contraseña',
+      asunto: '🔐 Alerta de Seguridad: Cambio de Contraseña',
       contenido_html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
           <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Notificación de Seguridad</h2>
@@ -230,12 +247,12 @@ async function main() {
 
   // 2. Plantilla de Reseteo de Contraseña (Admin)
   await prisma.ct_plantilla_correo.upsert({
-    where: { clave: "RESETEO_CONTRASENA" },
+    where: { clave: 'RESETEO_CONTRASENA' },
     update: {},
     create: {
-      clave: "RESETEO_CONTRASENA",
-      nombre: "Reseteo de Contraseña por Administrador",
-      asunto: "🔐 Tus nuevas credenciales de acceso - USET",
+      clave: 'RESETEO_CONTRASENA',
+      nombre: 'Reseteo de Contraseña por Administrador',
+      asunto: '🔐 Tus nuevas credenciales de acceso - USET',
       contenido_html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
           <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Nuevas Credenciales</h2>
@@ -258,12 +275,12 @@ async function main() {
 
   // 3. Plantilla de Recuperación de Contraseña (Link)
   await prisma.ct_plantilla_correo.upsert({
-    where: { clave: "RECUPERAR_PASSWORD" },
+    where: { clave: 'RECUPERAR_PASSWORD' },
     update: {},
     create: {
-      clave: "RECUPERAR_PASSWORD",
-      nombre: "Recuperación de Contraseña (Link)",
-      asunto: "🔑 Restablece tu contraseña - USET",
+      clave: 'RECUPERAR_PASSWORD',
+      nombre: 'Recuperación de Contraseña (Link)',
+      asunto: '🔑 Restablece tu contraseña - USET',
       contenido_html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
           <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">Recuperación de Cuenta</h2>
@@ -284,7 +301,6 @@ async function main() {
       estado: true,
     },
   });
-
 
   console.log('🎉 Seed completado exitosamente!');
 }

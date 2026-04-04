@@ -11,11 +11,7 @@ import {
 } from '@/schemas/platillo.schema';
 
 // Helpers de respuesta (los que te enseñé)
-import {
-  okResponse,
-  paginatedResponse,
-  errorResponse,
-} from '@/docs/respuestas.docs'; // <- crea este archivo
+import { okResponse, paginatedResponse, errorResponse } from '@/docs/respuestas.docs';
 
 // ── Schema base (importante) ───────────────────────────────────────────────────
 

@@ -3,7 +3,7 @@ import { sendEmail } from '@/utils/mailer.utils';
 import { logger } from '@/utils/logger.utils';
 
 /**
- * Servicio de correo mejorado. 
+ * Servicio de correo mejorado.
  * Ahora las plantillas se gestionan desde la base de datos (ct_plantilla_correo),
  * lo que permite cambios dinámicos sin tocar el código.
  */

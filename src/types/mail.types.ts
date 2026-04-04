@@ -14,4 +14,3 @@ export interface SendEmailResponse {
   messageId?: string;
   error?: string;
 }
-  

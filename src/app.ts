@@ -17,6 +17,30 @@ const servidor = app.listen(config.puerto, () => {
   );
 });
 
+// ── Manejo de errores de red y arranque ────────────────────────────────────────
+
+servidor.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(
+      `\n❌ Error FATAL: El puerto ${config.puerto} ya está siendo usado por otro proceso.`,
+    );
+    console.error('   Sugerencia: Termina el proceso anterior o cambia el PORT en el .env');
+  } else {
+    console.error('\n❌ Error al iniciar el servidor:', error);
+  }
+  process.exit(1);
+});
+
+// Capturar errores no manejados para que no muera en silencio
+process.on('unhandledRejection', (reason) => {
+  console.error('\n⚠️ RECHAZO NO MANEJADO (Promise):', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('\n❌ EXCEPCIÓN NO CAPTURADA:', error);
+  process.exit(1);
+});
+
 // ── Cierre limpio ─────────────────────────────────────────────────────────────
 
 // El ciclo de vida del proceso pertenece al punto de entrada, no a app.ts,
