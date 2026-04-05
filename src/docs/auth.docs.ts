@@ -1,7 +1,7 @@
 import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import { loginSchema } from '@/schemas/auth.schema';
 import { okResponse, errorResponse } from '@/docs/respuestas.docs';
-import { z } from '@/zod';
+import { z } from '@/zod-extended';
 
 export const registerAuthDocs = (registry: OpenAPIRegistry) => {
   // ── LOGIN ───────────────────────────────────────────────────────────────────

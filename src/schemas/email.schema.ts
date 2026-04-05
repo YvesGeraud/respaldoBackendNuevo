@@ -1,4 +1,4 @@
-import { z } from '@/zod';
+import { z } from '@/zod-extended';
 
 // ── Schemas para rutas de email ────────────────────────────────────────────────
 

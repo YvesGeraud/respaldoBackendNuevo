@@ -1,4 +1,4 @@
-import { z } from '@/zod';
+import { z } from '@/zod-extended';
 import { MSG } from '@/constants';
 
 export const CAMPOS_ORDENABLES_CATEGORIA = ['nombre', 'fecha_registro'] as const;

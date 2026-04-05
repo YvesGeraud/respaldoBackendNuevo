@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/config/database.config';
 import { buscarOError } from '@/utils/prisma.utils';
 import { paginar } from '@/utils/paginacion.utils';

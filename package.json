@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec \"tsx -r tsconfig-paths/register src/app.ts\" --watch src --ext ts --legacy-watch",
-    "build": "rm -rf dist && tsc && tsc-alias",
+    "build": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && tsc && tsc-alias",
     "start": "node dist/app.js",
     "db:generate": "prisma generate",
     "db:migrate:init": "prisma migrate dev --name init",

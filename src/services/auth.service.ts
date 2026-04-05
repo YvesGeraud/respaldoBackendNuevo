@@ -9,7 +9,7 @@ import {
   hashToken,
 } from '@/utils/jwt.utils';
 import type { PayloadJWT, AuthTokens, UsuarioSanitizado, Permiso } from '@/types';
-import type { ct_usuario } from '@/generated/prisma/client';
+import type { ct_usuario } from '@prisma/client';
 import { getAuditContext } from '@/utils/async-context';
 
 // ── Constantes ────────────────────────────────────────────────────────────────

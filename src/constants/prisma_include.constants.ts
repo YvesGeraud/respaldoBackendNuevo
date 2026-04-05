@@ -1,4 +1,4 @@
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma } from '@prisma/client';
 
 /**
  * Define objetos de 'include' reutilizables para Prisma.

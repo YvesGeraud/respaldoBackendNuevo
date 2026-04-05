@@ -1,4 +1,4 @@
-import { z } from '@/zod';
+import { z } from '@/zod-extended';
 import { MSG } from '@/constants';
 
 // ── Campos ordenables (whitelist) ─────────────────────────────────────────────

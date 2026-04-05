@@ -3,7 +3,7 @@ import { ZodError, type ZodIssue } from 'zod';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import multer from 'multer'; // Descomentamos esto cuando instalemos multer
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma } from '@prisma/client';
 import { AppError, type CodigoError } from '@/utils/errores.utils';
 import { responder } from '@/utils/respuestas.utils';
 import { logger } from '@/utils/logger.utils';

@@ -1,4 +1,4 @@
-import { z } from '@/zod';
+import { z } from '@/zod-extended';
 
 /**
  * Definición declarativa de todas las variables de entorno del sistema.
