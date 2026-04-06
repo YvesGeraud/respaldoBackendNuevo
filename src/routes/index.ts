@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 //* Servicios
 import { platilloRouter } from '@/routes/platillo.route';
+import { categoriaRouter } from '@/routes/categoria.route';
 
 //* Reportes
 import { pdfRouter } from '@/routes/pdf.route';
@@ -23,6 +24,7 @@ export const router = Router();
 
 //* Servicios
 router.use('/platillos', platilloRouter);
+router.use('/categorias', categoriaRouter);
 
 //* Reportes
 router.use('/pdf', pdfRouter);

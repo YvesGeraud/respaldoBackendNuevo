@@ -18,8 +18,8 @@ import { autenticado } from '@/middlewares/autenticacion.middleware';
 const router = Router();
 
 // Rutas protegidas (Requieren al menos login para verlas en el dropdown)
-router.get('/', autenticado, validar(filtrosCategoriasSchema), categoriaController.listar);
-router.get('/:id', autenticado, validar(idParamCategoriaSchema), categoriaController.obtenerPorId);
+router.get('/', validar(filtrosCategoriasSchema), categoriaController.listar);
+router.get('/:id', validar(idParamCategoriaSchema), categoriaController.obtenerPorId);
 
 // Creación, actualización y borrado
 router.post('/', autenticado, validar(crearCategoriaSchema), categoriaController.crear);
