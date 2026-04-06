@@ -10,9 +10,9 @@ import { StatusCodes } from 'http-status-codes';
 import { config } from '@/config/servidor.config';
 import { prisma } from '@/config/database.config';
 import { errorMiddleware } from '@/middlewares/error.middlewares';
-import { router } from '@/routes';
-import { authRouter } from '@/routes/auth.route';
-import { auditMiddleware } from '@/middlewares/audit.middleware';
+import { router } from '@/routes'; // Para cuando se implemente un api
+import { authRouter } from '@/routes/auth.route'; // Para cuando se implemente la autenticación
+import { middlewareAuditoria } from '@/middlewares/auditoria.middleware';
 import { morganStream } from '@/utils/logger.utils';
 
 // ── Swagger ──────────────────────────────────────────────────────────────────
@@ -96,7 +96,7 @@ app.use(morgan(config.esProduccion ? 'combined' : 'dev', { stream: morganStream 
 
 // ── Auditoría ────────────────────────────────────────────────────────────────
 // Captura el contexto de la petición (usuario, ip, etc) para Prisma
-app.use(auditMiddleware);
+app.use(middlewareAuditoria);
 
 // ── Rutas ─────────────────────────────────────────────────────────────────────
 

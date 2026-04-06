@@ -1,19 +1,16 @@
 import { Router } from 'express';
 
-// * Servicios
+//* Servicios
 import { platilloRouter } from '@/routes/platillo.route';
 
-// * Reportes
+//* Reportes
 import { pdfRouter } from '@/routes/pdf.route';
-import { excelRouter } from '@/routes/excel.route';
+import { excelRouter } from './excel.route';
 
-// * Archivos
+//* Archivos
 import { archivoRouter } from '@/routes/archivo.route';
 
-// * Configuración / Catálogos
-import { categoriaRouter } from '@/routes/categoria.route';
-
-// * Email
+//* emails
 import { emailRouter } from './email.route';
 
 /**
@@ -24,21 +21,18 @@ import { emailRouter } from './email.route';
  */
 export const router = Router();
 
-// * Servicios
+//* Servicios
 router.use('/platillos', platilloRouter);
 
-// * Reportes
+//* Reportes
 router.use('/pdf', pdfRouter);
 router.use('/excel', excelRouter);
 
-// * Archivos
+//* Archivos
 router.use('/archivos', archivoRouter);
 
-// * Configuración / Catálogos
-router.use('/config/categorias', categoriaRouter);
-
-// * Email
-router.use('/email', emailRouter);
+//* emails
+router.use('/emails', emailRouter);
 
 // Módulos pendientes:
 // import { authRouter }          from './auth.route';

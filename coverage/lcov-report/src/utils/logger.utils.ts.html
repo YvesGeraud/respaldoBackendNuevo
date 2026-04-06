@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.33% </span>
+                <span class="strong">93.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/15</span>
+                <span class='fraction'>14/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">30% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/10</span>
+                <span class='fraction'>5/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.33% </span>
+                <span class="strong">93.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/15</span>
+                <span class='fraction'>14/15</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -175,11 +175,7 @@
 <a name='L110'></a><a href='#L110'>110</a>
 <a name='L111'></a><a href='#L111'>111</a>
 <a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -215,8 +211,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,10 +224,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -293,7 +285,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import path from 'path';
 import fs from 'fs';
@@ -305,9 +297,9 @@ const { combine, timestamp, errors, colorize, printf, json } = winston.format;
 // Colores por nivel — sobreescribe los defaults de Winston para mejor visibilidad
 winston.addColors({
   error: 'bold red',
-  warn:  'bold yellow',
-  info:  'bold cyan',
-  http:  'magenta',
+  warn: 'bold yellow',
+  info: 'bold cyan',
+  http: 'magenta',
   debug: 'gray',
 });
 &nbsp;
@@ -330,10 +322,10 @@ const formatoConsolaDesarrollo = combine(
   colorize({ all: true }),
   timestamp({ format: 'HH:mm:ss' }),
   errors({ stack: true }),
-<span class="fstat-no" title="function not covered" >  printf(({</span> level, message, timestamp, stack, ...meta }) =&gt; {
-    const extras = <span class="cstat-no" title="statement not covered" >Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';</span>
-<span class="cstat-no" title="statement not covered" >    return stack</span>
-      ? `${timestamp} [${level}] ${message}${extras}\n${stack}`
+  printf(({ level, message, timestamp, stack, ...meta }) =&gt; {
+    const extras = Object.keys(meta).length ? <span class="branch-0 cbranch-no" title="branch not covered" >` ${JSON.stringify(meta)}` : '</span>';
+    return stack
+      ? <span class="branch-0 cbranch-no" title="branch not covered" >`${timestamp} [${level}] ${message}${extras}\n${stack}`</span>
       : `${timestamp} [${level}] ${message}${extras}`;
   }),
 );
@@ -343,11 +335,7 @@ const formatoConsolaDesarrollo = combine(
  * Compatible con ELK Stack, Datadog, GCP Logging, etc.
  * No usa colorize — los códigos ANSI se ven mal en archivos y en algunos agregadores.
  */
-const formatoJSON = combine(
-  timestamp(),
-  errors({ stack: true }),
-  json(),
-);
+const formatoJSON = combine(timestamp(), errors({ stack: true }), json());
 &nbsp;
 // ── Transportes ───────────────────────────────────────────────────────────────
 &nbsp;
@@ -360,35 +348,35 @@ const transportes: winston.transport[] = [
 ];
 &nbsp;
 //if (config.esProduccion) {
-  /**
-   * Solo errores — archivo pequeño, el primero que se revisa cuando algo falla.
-   * Rotación: 10 MB por archivo, máximo 30 archivos (≈ un mes de errores diarios).
-   * tailable: true → el archivo activo siempre se llama error.log (sin sufijo numérico).
-   */
-  transportes.push(
-    new winston.transports.File({
-      filename: path.join(LOGS_DIR, 'error.log'),
-      level:    'error',
-      format:   formatoJSON,
-      maxsize:  10 * 1024 * 1024,
-      maxFiles: 30,
-      tailable: true,
-    }),
-  );
+/**
+ * Solo errores — archivo pequeño, el primero que se revisa cuando algo falla.
+ * Rotación: 10 MB por archivo, máximo 30 archivos (≈ un mes de errores diarios).
+ * tailable: true → el archivo activo siempre se llama error.log (sin sufijo numérico).
+ */
+transportes.push(
+  new winston.transports.File({
+    filename: path.join(LOGS_DIR, 'error.log'),
+    level: 'error',
+    format: formatoJSON,
+    maxsize: 10 * 1024 * 1024,
+    maxFiles: 30,
+    tailable: true,
+  }),
+);
 &nbsp;
-  /**
-   * Todos los niveles — historial completo para auditoría y troubleshooting.
-   * Rotación: 50 MB por archivo, máximo 7 archivos rotados.
-   */
-  transportes.push(
-    new winston.transports.File({
-      filename: path.join(LOGS_DIR, 'combined.log'),
-      format:   formatoJSON,
-      maxsize:  50 * 1024 * 1024,
-      maxFiles: 7,
-      tailable: true,
-    }),
-  );
+/**
+ * Todos los niveles — historial completo para auditoría y troubleshooting.
+ * Rotación: 50 MB por archivo, máximo 7 archivos rotados.
+ */
+transportes.push(
+  new winston.transports.File({
+    filename: path.join(LOGS_DIR, 'combined.log'),
+    format: formatoJSON,
+    maxsize: 50 * 1024 * 1024,
+    maxFiles: 7,
+    tailable: true,
+  }),
+);
 //}
 &nbsp;
 // ── Logger principal ──────────────────────────────────────────────────────────
@@ -409,7 +397,7 @@ export const logger = winston.createLogger({
  * y queden registrados en los mismos archivos que el resto de la aplicación.
  */
 export const morganStream: { write: (message: string) =&gt; void } = {
-<span class="fstat-no" title="function not covered" >  write: (m</span>essage) =&gt; <span class="cstat-no" title="statement not covered" >logger.http(message.trim()),</span>
+  write: (message) =&gt; logger.http(message.trim()),
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -418,7 +406,7 @@ export const morganStream: { write: (message: string) =&gt; void } = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T05:32:16.049Z
+                at 2026-04-06T08:35:57.220Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -18,10 +18,11 @@ vi.mock('@/config/database.config', () => ({
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
+    $queryRaw: vi.fn().mockResolvedValue([{ db_health_check: 1 }]),
   },
 }));
 
-import app from '@/app';
+import app from '@/setup';
 
 // ── Health check ───────────────────────────────────────────────────────────────
 

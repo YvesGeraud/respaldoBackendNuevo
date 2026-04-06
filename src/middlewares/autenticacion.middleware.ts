@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import authService from '@/services/auth.service';
 import { ErrorNoAutenticado, ErrorNoAutorizado } from '@/utils/errores.utils';
-import { getAuditContext } from '@/utils/async-context';
+import { getAuditContext } from '@/utils/auth.utils';
 
 /**
  * Lee el accessToken de la cookie httpOnly y lo verifica.

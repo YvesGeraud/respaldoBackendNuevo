@@ -362,8 +362,7 @@
 <a name='L297'></a><a href='#L297'>297</a>
 <a name='L298'></a><a href='#L298'>298</a>
 <a name='L299'></a><a href='#L299'>299</a>
-<a name='L300'></a><a href='#L300'>300</a>
-<a name='L301'></a><a href='#L301'>301</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L300'></a><a href='#L300'>300</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -476,15 +475,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -550,6 +547,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -673,22 +671,22 @@ import { ErrorNoEncontrado, ErrorNegocio } from '@/utils/errores.utils';
 // ── MIME types conocidos ──────────────────────────────────────────────────────
 &nbsp;
 const MIME_TYPES: Record&lt;string, string&gt; = {
-  '.jpg':  'image/jpeg',
+  '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.png':  'image/png',
-  '.gif':  'image/gif',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
   '.webp': 'image/webp',
-  '.pdf':  'application/pdf',
+  '.pdf': 'application/pdf',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  '.csv':  'text/csv',
-  '.txt':  'text/plain',
+  '.csv': 'text/csv',
+  '.txt': 'text/plain',
 };
 &nbsp;
 // Expresiones regulares reutilizables para tiposPermitidos
 export const TIPOS = {
-  IMAGENES:    /^image\/(jpeg|png|webp|gif)$/,
-  DOCUMENTOS:  /^(application\/pdf|text\/plain|text\/csv)$/,
-  EXCEL:       /^application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet$/,
+  IMAGENES: /^image\/(jpeg|png|webp|gif)$/,
+  DOCUMENTOS: /^(application\/pdf|text\/plain|text\/csv)$/,
+  EXCEL: /^application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet$/,
   /** Imágenes + PDF: útil para formularios con adjuntos */
   IMAGENES_PDF: /^(image\/(jpeg|png|webp)|application\/pdf)$/,
 } as const;
@@ -755,10 +753,10 @@ export interface OpcionesSubida {
  */
 export function crearSubidor(opciones: OpcionesSubida = {}) {
   const {
-    destino         = 'general',
-    maxMB           = 5,
+    destino = 'general',
+    maxMB = 5,
     tiposPermitidos = TIPOS.IMAGENES,
-    maxArchivos     = 1,
+    maxArchivos = 1,
   } = opciones;
 &nbsp;
   const dirDestino = path.join(UPLOADS_DIR, destino);
@@ -768,26 +766,24 @@ export function crearSubidor(opciones: OpcionesSubida = {}) {
 &nbsp;
   const storage: StorageEngine = multer.diskStorage({
 <span class="fstat-no" title="function not covered" >    destination: (_</span>req, _file, cb) =&gt; <span class="cstat-no" title="statement not covered" >cb(null, dirDestino),</span>
-<span class="fstat-no" title="function not covered" >    filename:    (_</span>req, file, cb) =&gt; {
-      const ext    = <span class="cstat-no" title="statement not covered" >path.extname(file.originalname).toLowerCase();</span>
+<span class="fstat-no" title="function not covered" >    filename: (_</span>req, file, cb) =&gt; {
+      const ext = <span class="cstat-no" title="statement not covered" >path.extname(file.originalname).toLowerCase();</span>
       const nombre = <span class="cstat-no" title="statement not covered" >crypto.randomBytes(16).toString('hex');</span>
 <span class="cstat-no" title="statement not covered" >      cb(null, `${nombre}${ext}`);</span>
     },
   });
 &nbsp;
-  const <span class="fstat-no" title="function not covered" >filtroMime = (</span>
-    _req:  Request,
-    file:  Express.Multer.File,
-    cb:    FileFilterCallback,
-  ) =&gt; {
+  const <span class="fstat-no" title="function not covered" >filtroMime = (_</span>req: Request, file: Express.Multer.File, cb: FileFilterCallback) =&gt; {
 <span class="cstat-no" title="statement not covered" >    if (tiposPermitidos.test(file.mimetype)) {</span>
 <span class="cstat-no" title="statement not covered" >      cb(null, true);</span>
     } else {
       // El error llega al error middleware global como cualquier otro AppError
-<span class="cstat-no" title="statement not covered" >      cb(new ErrorNegocio(</span>
-        `Tipo de archivo no permitido: ${file.mimetype}. ` +
-        `Se esperaba: ${tiposPermitidos.source}`,
-      ));
+<span class="cstat-no" title="statement not covered" >      cb(</span>
+        new ErrorNegocio(
+          `Tipo de archivo no permitido: ${file.mimetype}. ` +
+            `Se esperaba: ${tiposPermitidos.source}`,
+        ),
+      );
     }
   };
 &nbsp;
@@ -796,7 +792,7 @@ export function crearSubidor(opciones: OpcionesSubida = {}) {
     fileFilter: filtroMime,
     limits: {
       fileSize: maxMB * 1024 * 1024,
-      files:    maxArchivos,
+      files: maxArchivos,
     },
   });
 }
@@ -829,8 +825,8 @@ export function crearSubidor(opciones: OpcionesSubida = {}) {
  * }
  */
 export async function <span class="fstat-no" title="function not covered" >descargarArchivo(</span>
-  res:             Response,
-  rutaArchivo:     string,
+  res: Response,
+  rutaArchivo: string,
   nombreDescarga?: string,
   descargar = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
 ): Promise&lt;void&gt; {
@@ -842,14 +838,15 @@ export async function <span class="fstat-no" title="function not covered" >desca
 <span class="cstat-no" title="statement not covered" >    throw new ErrorNoEncontrado(`Archivo no encontrado: ${path.basename(rutaArchivo)}`);</span>
   }
 &nbsp;
-  const stats    = <span class="cstat-no" title="statement not covered" >await fs.promises.stat(rutaArchivo);</span>
-  const ext      = <span class="cstat-no" title="statement not covered" >path.extname(rutaArchivo).toLowerCase();</span>
+  const stats = <span class="cstat-no" title="statement not covered" >await fs.promises.stat(rutaArchivo);</span>
+  const ext = <span class="cstat-no" title="statement not covered" >path.extname(rutaArchivo).toLowerCase();</span>
   const mimeType = <span class="cstat-no" title="statement not covered" >MIME_TYPES[ext] ?? 'application/octet-stream';</span>
-  const nombre   = <span class="cstat-no" title="statement not covered" >nombreDescarga ?? path.basename(rutaArchivo);</span>
+  const nombre = <span class="cstat-no" title="statement not covered" >nombreDescarga ?? path.basename(rutaArchivo);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  res.setHeader('Content-Type',        mimeType);</span>
-<span class="cstat-no" title="statement not covered" >  res.setHeader('Content-Length',      stats.size);</span>
-<span class="cstat-no" title="statement not covered" >  res.setHeader('Content-Disposition',</span>
+<span class="cstat-no" title="statement not covered" >  res.setHeader('Content-Type', mimeType);</span>
+<span class="cstat-no" title="statement not covered" >  res.setHeader('Content-Length', stats.size);</span>
+<span class="cstat-no" title="statement not covered" >  res.setHeader(</span>
+    'Content-Disposition',
     `${descargar ? 'attachment' : 'inline'}; filename="${encodeURIComponent(nombre)}"`,
   );
 &nbsp;
@@ -869,9 +866,9 @@ export async function <span class="fstat-no" title="function not covered" >desca
 &nbsp;
 export interface ResultadoDeduplicacion {
   /** Ruta absoluta final del archivo (canónica basada en hash) */
-  ruta:      string;
+  ruta: string;
   /** SHA-256 del contenido del archivo en hexadecimal */
-  hash:      string;
+  hash: string;
   /** true si el archivo ya existía (misma imagen con distinto nombre) */
   duplicado: boolean;
 }
@@ -882,11 +879,11 @@ export interface ResultadoDeduplicacion {
  */
 export function <span class="fstat-no" title="function not covered" >calcularHashArchivo(r</span>utaArchivo: string): Promise&lt;string&gt; {
 <span class="cstat-no" title="statement not covered" >  return new <span class="fstat-no" title="function not covered" >Promise((r</span>esolve, reject) =&gt; {</span>
-    const hash   = <span class="cstat-no" title="statement not covered" >crypto.createHash('sha256');</span>
+    const hash = <span class="cstat-no" title="statement not covered" >crypto.createHash('sha256');</span>
     const stream = <span class="cstat-no" title="statement not covered" >fs.createReadStream(rutaArchivo);</span>
 <span class="cstat-no" title="statement not covered" >    stream.on('error', reject);</span>
-<span class="cstat-no" title="statement not covered" >    stream.on(<span class="fstat-no" title="function not covered" >'data',  (c</span>hunk) =&gt; <span class="cstat-no" title="statement not covered" >hash.update(chunk))</span>;</span>
-<span class="cstat-no" title="statement not covered" >    stream.on(<span class="fstat-no" title="function not covered" >'end',   () =&gt; <span class="cstat-no" title="statement not covered" >r</span>esolve(hash.digest('hex')))</span>;</span>
+<span class="cstat-no" title="statement not covered" >    stream.on(<span class="fstat-no" title="function not covered" >'data', (c</span>hunk) =&gt; <span class="cstat-no" title="statement not covered" >hash.update(chunk))</span>;</span>
+<span class="cstat-no" title="statement not covered" >    stream.on(<span class="fstat-no" title="function not covered" >'end', () =&gt; <span class="cstat-no" title="statement not covered" >r</span>esolve(hash.digest('hex')))</span>;</span>
   });
 }
 &nbsp;
@@ -909,10 +906,10 @@ export function <span class="fstat-no" title="function not covered" >calcularHas
  */
 export async function <span class="fstat-no" title="function not covered" >deduplicarArchivo(</span>
   rutaTemporal: string,
-  directorio:   string,
+  directorio: string,
 ): Promise&lt;ResultadoDeduplicacion&gt; {
-  const hash         = <span class="cstat-no" title="statement not covered" >await calcularHashArchivo(rutaTemporal);</span>
-  const ext          = <span class="cstat-no" title="statement not covered" >path.extname(rutaTemporal).toLowerCase();</span>
+  const hash = <span class="cstat-no" title="statement not covered" >await calcularHashArchivo(rutaTemporal);</span>
+  const ext = <span class="cstat-no" title="statement not covered" >path.extname(rutaTemporal).toLowerCase();</span>
   const rutaCanonica = <span class="cstat-no" title="statement not covered" >path.join(directorio, `${hash}${ext}`);</span>
 &nbsp;
   const yaExiste = <span class="cstat-no" title="statement not covered" >await fs.promises</span>
@@ -970,7 +967,7 @@ export function <span class="fstat-no" title="function not covered" >rutaEnUploa
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T05:32:16.049Z
+                at 2026-04-06T08:35:57.220Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

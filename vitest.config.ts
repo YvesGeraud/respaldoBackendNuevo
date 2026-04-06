@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     // Necesario para que los imports @/ funcionen igual que en el código fuente
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   test: {

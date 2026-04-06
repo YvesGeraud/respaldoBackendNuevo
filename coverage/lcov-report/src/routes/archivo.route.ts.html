@@ -172,7 +172,9 @@
 <a name='L107'></a><a href='#L107'>107</a>
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -284,6 +286,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Router } from 'express';
 import archivoController from '@/controllers/archivo.controller';
 import { crearSubidor, TIPOS } from '@/utils/archivo.utils';
+import { autenticado } from '@/middlewares/autenticacion.middleware'; //* Autenticación
 &nbsp;
 // ── Instancias de Multer por tipo de archivo ──────────────────────────────────
 //
@@ -297,19 +300,19 @@ import { crearSubidor, TIPOS } from '@/utils/archivo.utils';
 &nbsp;
 const subidores: Record&lt;string, ReturnType&lt;typeof crearSubidor&gt;&gt; = {
   imagenes: crearSubidor({
-    destino:         'imagenes',
-    maxMB:           2,
-    tiposPermitidos: TIPOS.IMAGENES,       // jpeg, png, webp, gif
+    destino: 'imagenes',
+    maxMB: 2,
+    tiposPermitidos: TIPOS.IMAGENES, // jpeg, png, webp, gif
   }),
   documentos: crearSubidor({
-    destino:         'documentos',
-    maxMB:           10,
-    tiposPermitidos: TIPOS.DOCUMENTOS,     // pdf, txt, csv
+    destino: 'documentos',
+    maxMB: 10,
+    tiposPermitidos: TIPOS.DOCUMENTOS, // pdf, txt, csv
   }),
   excel: crearSubidor({
-    destino:         'excel',
-    maxMB:           5,
-    tiposPermitidos: TIPOS.EXCEL,          // xlsx
+    destino: 'excel',
+    maxMB: 5,
+    tiposPermitidos: TIPOS.EXCEL, // xlsx
   }),
 };
 &nbsp;
@@ -327,15 +330,15 @@ const <span class="fstat-no" title="function not covered" >subirSegunTipo = (</s
   res: import('express').Response,
   next: import('express').NextFunction,
 ) =&gt; {
-  const subtipo  = <span class="cstat-no" title="statement not covered" >req.params['subtipo'] as string | undefined;</span>
-  const subidor  = <span class="cstat-no" title="statement not covered" >subidores[subtipo ?? ''];</span>
+  const subtipo = <span class="cstat-no" title="statement not covered" >req.params['subtipo'] as string | undefined;</span>
+  const subidor = <span class="cstat-no" title="statement not covered" >subidores[subtipo ?? ''];</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  if (!subidor) {</span>
     // Subtipo no soportado → 404 antes de tocar el disco
 <span class="cstat-no" title="statement not covered" >    res.status(404).json({</span>
-      exito:   false,
+      exito: false,
       mensaje: `Tipo de archivo no soportado: ${subtipo}. Use: imagenes, documentos, excel`,
-      codigo:  'NOT_FOUND',
+      codigo: 'NOT_FOUND',
     });
 <span class="cstat-no" title="statement not covered" >    return;</span>
   }
@@ -357,25 +360,25 @@ const router = Router();
  *   - excel      → xlsx,              máx 5 MB
  *
  * Ejemplos con curl:
- *   curl -X POST http://localhost:3000/api/v1/archivos/imagenes \
+ *   curl -X POST http://localhost:3000/api/archivos/imagenes \
  *        -F "archivo=@foto.jpg"
  *
- *   curl -X POST http://localhost:3000/api/v1/archivos/documentos \
+ *   curl -X POST http://localhost:3000/api/archivos/documentos \
  *        -F "archivo=@menu.pdf"
  *
  * Respuesta:
  *   { nombreArchivo, rutaRelativa, hash, duplicado, tamanioBytes, mimeType }
  */
-router.post('/:subtipo', subirSegunTipo, archivoController.subir);
+router.post('/:subtipo', autenticado, subirSegunTipo, archivoController.subir);
 &nbsp;
 /**
- * GET /api/v1/archivos/:subtipo/:nombre
+ * GET /api/archivos/:subtipo/:nombre
  * Sirve el archivo. Imágenes y PDFs se muestran inline por defecto.
  * Añadir ?descargar=1 para forzar la descarga.
  *
  * Ejemplos:
- *   GET /api/v1/archivos/imagenes/d4e5f6.png           → muestra inline
- *   GET /api/v1/archivos/documentos/abc.pdf?descargar=1 → descarga
+ *   GET /api/archivos/imagenes/d4e5f6.png           → muestra inline
+ *   GET /api/archivos/documentos/abc.pdf?descargar=1 → descarga
  */
 router.get('/:subtipo/:nombre', archivoController.obtener);
 &nbsp;
@@ -385,9 +388,9 @@ router.get('/:subtipo/:nombre', archivoController.obtener);
  * En producción agregar: autenticado, autorizado('ADMIN')
  *
  * Ejemplo:
- *   DELETE /api/v1/archivos/imagenes/d4e5f6.png
+ *   DELETE /api/archivos/imagenes/d4e5f6.png
  */
-router.delete('/:subtipo/:nombre', archivoController.eliminar);
+router.delete('/:subtipo/:nombre', autenticado, archivoController.eliminar);
 &nbsp;
 export { router as archivoRouter };
 &nbsp;</pre></td></tr></table></pre>
@@ -397,7 +400,7 @@ export { router as archivoRouter };
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T05:32:16.049Z
+                at 2026-04-06T08:35:57.220Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

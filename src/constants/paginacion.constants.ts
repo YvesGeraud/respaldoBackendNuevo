@@ -7,5 +7,3 @@ export const PAGINACION = {
   LIMITE_POR_DEFECTO: 20,
   LIMITE_MAXIMO: 100,
 } as const;
-
-export type PaginationDefaults = typeof PAGINACION;

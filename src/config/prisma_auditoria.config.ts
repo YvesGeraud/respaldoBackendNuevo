@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { getAuditContext } from '@/utils/async-context';
+import { getAuditContext } from '@/utils/auth.utils';
 
 /**
  * Extensión de Prisma para Auditoría Automática.

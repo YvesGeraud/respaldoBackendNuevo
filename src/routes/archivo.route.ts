@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import archivoController from '@/controllers/archivo.controller';
 import { crearSubidor, TIPOS } from '@/utils/archivo.utils';
-import { autenticado } from '@/middlewares/autenticacion.middleware';
+import { autenticado } from '@/middlewares/autenticacion.middleware'; //* Autenticación
 
 // ── Instancias de Multer por tipo de archivo ──────────────────────────────────
 //
@@ -75,10 +75,10 @@ const router = Router();
  *   - excel      → xlsx,              máx 5 MB
  *
  * Ejemplos con curl:
- *   curl -X POST http://localhost:3000/api/v1/archivos/imagenes \
+ *   curl -X POST http://localhost:3000/api/archivos/imagenes \
  *        -F "archivo=@foto.jpg"
  *
- *   curl -X POST http://localhost:3000/api/v1/archivos/documentos \
+ *   curl -X POST http://localhost:3000/api/archivos/documentos \
  *        -F "archivo=@menu.pdf"
  *
  * Respuesta:
@@ -87,13 +87,13 @@ const router = Router();
 router.post('/:subtipo', autenticado, subirSegunTipo, archivoController.subir);
 
 /**
- * GET /api/v1/archivos/:subtipo/:nombre
+ * GET /api/archivos/:subtipo/:nombre
  * Sirve el archivo. Imágenes y PDFs se muestran inline por defecto.
  * Añadir ?descargar=1 para forzar la descarga.
  *
  * Ejemplos:
- *   GET /api/v1/archivos/imagenes/d4e5f6.png           → muestra inline
- *   GET /api/v1/archivos/documentos/abc.pdf?descargar=1 → descarga
+ *   GET /api/archivos/imagenes/d4e5f6.png           → muestra inline
+ *   GET /api/archivos/documentos/abc.pdf?descargar=1 → descarga
  */
 router.get('/:subtipo/:nombre', archivoController.obtener);
 
@@ -103,7 +103,7 @@ router.get('/:subtipo/:nombre', archivoController.obtener);
  * En producción agregar: autenticado, autorizado('ADMIN')
  *
  * Ejemplo:
- *   DELETE /api/v1/archivos/imagenes/d4e5f6.png
+ *   DELETE /api/archivos/imagenes/d4e5f6.png
  */
 router.delete('/:subtipo/:nombre', autenticado, archivoController.eliminar);
 

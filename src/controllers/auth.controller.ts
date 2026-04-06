@@ -28,7 +28,10 @@ const BASE_COOKIE = {
  * Access token: 15 min | Refresh token: 7 días.
  */
 function ponerCookies(res: Response, tokens: { accessToken: string; refreshToken: string }): void {
-  res.cookie('accessToken', tokens.accessToken, { ...BASE_COOKIE, maxAge: 15 * 60 * 1_000 });
+  res.cookie('accessToken', tokens.accessToken, {
+    ...BASE_COOKIE,
+    maxAge: 15 * 60 * 1_000,
+  });
   res.cookie('refreshToken', tokens.refreshToken, {
     ...BASE_COOKIE,
     maxAge: 7 * 24 * 60 * 60 * 1_000,

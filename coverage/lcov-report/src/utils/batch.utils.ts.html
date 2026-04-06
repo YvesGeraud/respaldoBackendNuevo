@@ -208,7 +208,9 @@
 <a name='L143'></a><a href='#L143'>143</a>
 <a name='L144'></a><a href='#L144'>144</a>
 <a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -289,6 +291,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -361,16 +365,16 @@
  * para que el cliente sepa exactamente qué se procesó y qué no.
  */
 export interface ResultadoBatch&lt;TError = unknown&gt; {
-  procesados:  number;
-  exitosos:    number;
-  fallidos:    number;
-  errores:     ErrorBatch&lt;TError&gt;[];
+  procesados: number;
+  exitosos: number;
+  fallidos: number;
+  errores: ErrorBatch&lt;TError&gt;[];
 }
 &nbsp;
 export interface ErrorBatch&lt;T = unknown&gt; {
-  indice: number;   // posición del item en el array original
-  error:  string;
-  dato?:  T;        // el item que falló (útil para reintentar)
+  indice: number; // posición del item en el array original
+  error: string;
+  dato?: T; // el item que falló (útil para reintentar)
 }
 &nbsp;
 export interface OpcionesBatch {
@@ -406,8 +410,8 @@ export async function <span class="fstat-no" title="function not covered" >proce
 ): Promise&lt;ResultadoBatch&lt;TInput&gt; &amp; { resultados: TOutput[] }&gt; {
   const { tamanioLote = <span class="branch-0 cbranch-no" title="branch not covered" >100, d</span>etenerEnError = <span class="branch-0 cbranch-no" title="branch not covered" >false } = <span class="cstat-no" title="statement not covered" >o</span>pciones;</span>
 &nbsp;
-  const resultados: TOutput[]          = <span class="cstat-no" title="statement not covered" >[];</span>
-  const errores:    ErrorBatch&lt;TInput&gt;[] = <span class="cstat-no" title="statement not covered" >[];</span>
+  const resultados: TOutput[] = <span class="cstat-no" title="statement not covered" >[];</span>
+  const errores: ErrorBatch&lt;TInput&gt;[] = <span class="cstat-no" title="statement not covered" >[];</span>
   let exitosos = <span class="cstat-no" title="statement not covered" >0;</span>
 &nbsp;
   // Procesamos lote por lote en secuencia para no saturar el pool de conexiones.
@@ -424,7 +428,7 @@ export async function <span class="fstat-no" title="function not covered" >proce
 <span class="cstat-no" title="statement not covered" >      lote.<span class="fstat-no" title="function not covered" >forEach((d</span>ato, j) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        errores.push({</span>
           indice: i + j,
-          error:  err instanceof Error ? err.message : String(err),
+          error: err instanceof Error ? err.message : String(err),
           dato,
         });
       });
@@ -436,7 +440,7 @@ export async function <span class="fstat-no" title="function not covered" >proce
 <span class="cstat-no" title="statement not covered" >  return {</span>
     procesados: items.length,
     exitosos,
-    fallidos:   errores.length,
+    fallidos: errores.length,
     errores,
     resultados,
   };
@@ -459,7 +463,9 @@ export async function <span class="fstat-no" title="function not covered" >proce
  * );
  */
 export async function <span class="fstat-no" title="function not covered" >insertarEnLotes&lt;TData&gt;(</span>
-  modelo: { createMany: (args: { data: TData[]; skipDuplicates?: boolean }) =&gt; Promise&lt;{ count: number }&gt; },
+  modelo: {
+    createMany: (args: { data: TData[]; skipDuplicates?: boolean }) =&gt; Promise&lt;{ count: number }&gt;;
+  },
   datos: TData[],
   opciones: OpcionesBatch &amp; { skipDuplicates?: boolean } = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
 ): Promise&lt;ResultadoBatch&gt; {
@@ -476,9 +482,9 @@ export async function <span class="fstat-no" title="function not covered" >inser
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return {</span>
     procesados: resultado.procesados,
-    exitosos:   totalInsertados,
-    fallidos:   resultado.fallidos,
-    errores:    resultado.errores,
+    exitosos: totalInsertados,
+    fallidos: resultado.fallidos,
+    errores: resultado.errores,
   };
 }
 &nbsp;
@@ -505,7 +511,7 @@ export function <span class="fstat-no" title="function not covered" >dividirEnLo
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T05:32:16.049Z
+                at 2026-04-06T08:35:57.220Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

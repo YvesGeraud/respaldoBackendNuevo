@@ -9,8 +9,8 @@ import {
   crearPlatillosLoteSchema,
 } from '@/schemas/platillo.schema';
 
-import { autenticado } from '@/middlewares/autenticacion.middleware';
-import { tienePermiso } from '@/middlewares/autorizacion.middleware';
+import { autenticado } from '@/middlewares/autenticacion.middleware'; //TODO: Implementar autenticación
+import { tienePermiso } from '@/middlewares/autorizacion.middleware'; //TODO: Implementar autorización
 const router = Router();
 
 // Rutas públicas

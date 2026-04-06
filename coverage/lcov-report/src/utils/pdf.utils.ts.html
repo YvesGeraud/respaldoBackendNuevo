@@ -352,20 +352,7 @@
 <a name='L287'></a><a href='#L287'>287</a>
 <a name='L288'></a><a href='#L288'>288</a>
 <a name='L289'></a><a href='#L289'>289</a>
-<a name='L290'></a><a href='#L290'>290</a>
-<a name='L291'></a><a href='#L291'>291</a>
-<a name='L292'></a><a href='#L292'>292</a>
-<a name='L293'></a><a href='#L293'>293</a>
-<a name='L294'></a><a href='#L294'>294</a>
-<a name='L295'></a><a href='#L295'>295</a>
-<a name='L296'></a><a href='#L296'>296</a>
-<a name='L297'></a><a href='#L297'>297</a>
-<a name='L298'></a><a href='#L298'>298</a>
-<a name='L299'></a><a href='#L299'>299</a>
-<a name='L300'></a><a href='#L300'>300</a>
-<a name='L301'></a><a href='#L301'>301</a>
-<a name='L302'></a><a href='#L302'>302</a>
-<a name='L303'></a><a href='#L303'>303</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L290'></a><a href='#L290'>290</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -426,11 +413,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -447,16 +429,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -679,25 +653,25 @@ type Doc = InstanceType&lt;typeof PDFDocument&gt;;
 export interface ColumnaPDF {
   encabezado: string;
   /** Nombre de la propiedad en el objeto fila */
-  propiedad:  string;
+  propiedad: string;
   /** Fracción del ancho total (0–1). Si se omite, se distribuye el espacio restante */
-  ancho?:     number;
-  alinear?:   'left' | 'center' | 'right';
+  ancho?: number;
+  alinear?: 'left' | 'center' | 'right';
 }
 &nbsp;
 export interface OpcionesTabla {
-  colorEncabezado?:  string;   // default: '#1a3c5e'
-  colorFilaAlterna?: string;   // default: '#f0f4f8'
-  colorTexto?:       string;   // default: '#333333'
-  alturaFilaMin?:    number;   // altura mínima de fila en pts. default: 22
-  paddingVertical?:  number;   // espacio interno arriba/abajo. default: 6
+  colorEncabezado?: string; // default: '#1a3c5e'
+  colorFilaAlterna?: string; // default: '#f0f4f8'
+  colorTexto?: string; // default: '#333333'
+  alturaFilaMin?: number; // altura mínima de fila en pts. default: 22
+  paddingVertical?: number; // espacio interno arriba/abajo. default: 6
 }
 &nbsp;
 export interface OpcionesDocumento {
-  titulo:     string;
+  titulo: string;
   subtitulo?: string;
-  autor?:     string;
-  margen?:    number;   // default: 50
+  autor?: string;
+  margen?: number; // default: 50
 }
 &nbsp;
 // ── Documento ─────────────────────────────────────────────────────────────────
@@ -708,12 +682,12 @@ export interface OpcionesDocumento {
  */
 export function <span class="fstat-no" title="function not covered" >crearDocumento(o</span>pciones: OpcionesDocumento): Doc {
 <span class="cstat-no" title="statement not covered" >  return new PDFDocument({</span>
-    size:        'A4',
-    margin:      opciones.margen ?? 50,
+    size: 'A4',
+    margin: opciones.margen ?? 50,
     bufferPages: true,
     info: {
-      Title:   opciones.titulo,
-      Author:  opciones.autor ?? 'Sistema de Restaurante Escolar',
+      Title: opciones.titulo,
+      Author: opciones.autor ?? 'Sistema de Restaurante Escolar',
       Creator: 'Sistema de Restaurante Escolar',
     },
   });
@@ -727,12 +701,7 @@ export function <span class="fstat-no" title="function not covered" >crearDocume
  *
  * @param descargar - true: descarga el archivo | false: lo muestra en el navegador
  */
-export function <span class="fstat-no" title="function not covered" >enviarPDF(</span>
-  res:           Response,
-  doc:           Doc,
-  nombreArchivo: string,
-  descargar = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
-): void {
+export function <span class="fstat-no" title="function not covered" >enviarPDF(r</span>es: Response, doc: Doc, nombreArchivo: string, descargar = <span class="branch-0 cbranch-no" title="branch not covered" >true): void {</span>
 <span class="cstat-no" title="statement not covered" >  res.setHeader('Content-Type', 'application/pdf');</span>
 <span class="cstat-no" title="statement not covered" >  res.setHeader(</span>
     'Content-Disposition',
@@ -747,18 +716,10 @@ export function <span class="fstat-no" title="function not covered" >enviarPDF(<
  * Encabezado estándar: título + subtítulo + línea divisoria.
  */
 export function <span class="fstat-no" title="function not covered" >escribirEncabezado(d</span>oc: Doc, titulo: string, subtitulo?: string): void {
-<span class="cstat-no" title="statement not covered" >  doc</span>
-    .fontSize(18)
-    .font('Helvetica-Bold')
-    .fillColor('#1a3c5e')
-    .text(titulo, { align: 'center' });
+<span class="cstat-no" title="statement not covered" >  doc.fontSize(18).font('Helvetica-Bold').fillColor('#1a3c5e').text(titulo, { align: 'center' });</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  if (subtitulo) {</span>
-<span class="cstat-no" title="statement not covered" >    doc</span>
-      .fontSize(11)
-      .font('Helvetica')
-      .fillColor('#666666')
-      .text(subtitulo, { align: 'center' });
+<span class="cstat-no" title="statement not covered" >    doc.fontSize(11).font('Helvetica').fillColor('#666666').text(subtitulo, { align: 'center' });</span>
   }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  doc</span>
@@ -779,9 +740,9 @@ export function <span class="fstat-no" title="function not covered" >escribirEnc
  * escribirCampo(doc, 'Total', '$245.00', { colorValor: '#2e7d32', negrita: true });
  */
 export function <span class="fstat-no" title="function not covered" >escribirCampo(</span>
-  doc:      Doc,
+  doc: Doc,
   etiqueta: string,
-  valor:    string,
+  valor: string,
   opciones: { colorValor?: string; negrita?: boolean } = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
 ): void {
 <span class="cstat-no" title="statement not covered" >  doc</span>
@@ -803,22 +764,22 @@ export function <span class="fstat-no" title="function not covered" >escribirCam
  * - Salto de página automático con encabezado repetido
  */
 export function <span class="fstat-no" title="function not covered" >escribirTabla&lt;T extends Record&lt;string, unknown&gt;&gt;(</span>
-  doc:      Doc,
+  doc: Doc,
   columnas: ColumnaPDF[],
-  filas:    T[],
+  filas: T[],
   opciones: OpcionesTabla = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
 ): void {
   const {
-    colorEncabezado  = <span class="branch-0 cbranch-no" title="branch not covered" >'#1a3c5e',</span>
+    colorEncabezado = <span class="branch-0 cbranch-no" title="branch not covered" >'#1a3c5e',</span>
     colorFilaAlterna = <span class="branch-0 cbranch-no" title="branch not covered" >'#f0f4f8',</span>
-    colorTexto       = <span class="branch-0 cbranch-no" title="branch not covered" >'#333333',</span>
-    alturaFilaMin    = <span class="branch-0 cbranch-no" title="branch not covered" >22,</span>
-    paddingVertical  = <span class="branch-0 cbranch-no" title="branch not covered" >6,</span>
+    colorTexto = <span class="branch-0 cbranch-no" title="branch not covered" >'#333333',</span>
+    alturaFilaMin = <span class="branch-0 cbranch-no" title="branch not covered" >22,</span>
+    paddingVertical = <span class="branch-0 cbranch-no" title="branch not covered" >6,</span>
   } = <span class="cstat-no" title="statement not covered" >opciones;</span>
 &nbsp;
-  const xInicio    = <span class="cstat-no" title="statement not covered" >doc.page.margins.left;</span>
+  const xInicio = <span class="cstat-no" title="statement not covered" >doc.page.margins.left;</span>
   const anchoTotal = <span class="cstat-no" title="statement not covered" >doc.page.width - doc.page.margins.left - doc.page.margins.right;</span>
-  const anchos     = <span class="cstat-no" title="statement not covered" >calcularAnchos(columnas, anchoTotal);</span>
+  const anchos = <span class="cstat-no" title="statement not covered" >calcularAnchos(columnas, anchoTotal);</span>
 &nbsp;
   // ── Función interna para dibujar el encabezado de la tabla ──
   const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >dibujarEncabezado = () =&gt; {</span></span>
@@ -831,8 +792,8 @@ export function <span class="fstat-no" title="function not covered" >escribirTab
     let x = <span class="cstat-no" title="statement not covered" >xInicio;</span>
 <span class="cstat-no" title="statement not covered" >    columnas.<span class="fstat-no" title="function not covered" >forEach((c</span>ol, i) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      doc.text(col.encabezado, x + 5, y + paddingVertical + 2, {</span>
-        width:     anchos[i]! - 10,
-        align:     col.alinear ?? 'left',
+        width: anchos[i]! - 10,
+        align: col.alinear ?? 'left',
         lineBreak: false,
       });
 <span class="cstat-no" title="statement not covered" >      x += anchos[i]!;</span>
@@ -881,11 +842,11 @@ export function <span class="fstat-no" title="function not covered" >escribirTab
     let x = <span class="cstat-no" title="statement not covered" >xInicio;</span>
 <span class="cstat-no" title="statement not covered" >    columnas.<span class="fstat-no" title="function not covered" >forEach((c</span>ol, i) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      doc.text(textos[i]!, x + 5, yFila + paddingVertical, {</span>
-        width:     anchos[i]! - 10,
-        height:    alturaReal - paddingVertical * 2, // limita el área de texto
-        align:     col.alinear ?? 'left',
-        lineBreak: true,  // permite salto de línea dentro de la celda
-        ellipsis:  true,  // si aun así no cabe, añade "…" al final
+        width: anchos[i]! - 10,
+        height: alturaReal - paddingVertical * 2, // limita el área de texto
+        align: col.alinear ?? 'left',
+        lineBreak: true, // permite salto de línea dentro de la celda
+        ellipsis: true, // si aun así no cabe, añade "…" al final
       });
 <span class="cstat-no" title="statement not covered" >      x += anchos[i]!;</span>
     });
@@ -917,21 +878,21 @@ export function <span class="fstat-no" title="function not covered" >escribirNum
 <span class="cstat-no" title="statement not covered" >    doc.switchToPage(rango.start + i);</span>
 &nbsp;
     const margenIzq = <span class="cstat-no" title="statement not covered" >doc.page.margins.left;</span>
-    const ancho     = <span class="cstat-no" title="statement not covered" >doc.page.width - doc.page.margins.left - doc.page.margins.right;</span>
+    const ancho = <span class="cstat-no" title="statement not covered" >doc.page.width - doc.page.margins.left - doc.page.margins.right;</span>
     // Escribe dentro del margen inferior (entre fin del contenido y borde físico)
     const y = <span class="cstat-no" title="statement not covered" >doc.page.height - doc.page.margins.bottom + 12;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    doc</span>
-      .save()                   // preserva estado: posición, fuente, color
+      .save() // preserva estado: posición, fuente, color
       .fontSize(8)
       .font('Helvetica')
       .fillColor('#999999')
       .text(`Página ${i + 1} de ${total}`, margenIzq, y, {
-        align:     'right',
-        width:     ancho,
-        lineBreak: false,       // impide que se cree una nueva página accidentalmente
+        align: 'right',
+        width: ancho,
+        lineBreak: false, // impide que se cree una nueva página accidentalmente
       })
-      .restore();               // restaura el estado del documento
+      .restore(); // restaura el estado del documento
   }
 }
 &nbsp;
@@ -942,9 +903,9 @@ export function <span class="fstat-no" title="function not covered" >escribirNum
  * Las columnas con `ancho` definido (0–1) se respetan; el resto se reparte a partes iguales.
  */
 function <span class="fstat-no" title="function not covered" >calcularAnchos(c</span>olumnas: ColumnaPDF[], anchoTotal: number): number[] {
-  const usados   = <span class="cstat-no" title="statement not covered" >columnas.<span class="fstat-no" title="function not covered" >reduce((s</span>, c) =&gt; <span class="cstat-no" title="statement not covered" >s + (c.ancho ?? 0), 0</span>);</span>
+  const usados = <span class="cstat-no" title="statement not covered" >columnas.<span class="fstat-no" title="function not covered" >reduce((s</span>, c) =&gt; <span class="cstat-no" title="statement not covered" >s + (c.ancho ?? 0), 0</span>);</span>
   const sinAncho = <span class="cstat-no" title="statement not covered" >columnas.<span class="fstat-no" title="function not covered" >filter((c</span>) =&gt; <span class="cstat-no" title="statement not covered" >c.ancho === undefined).</span>length;</span>
-  const resto    = <span class="cstat-no" title="statement not covered" >sinAncho &gt; 0 ? (anchoTotal * (1 - usados)) / sinAncho : 0;</span>
+  const resto = <span class="cstat-no" title="statement not covered" >sinAncho &gt; 0 ? (anchoTotal * (1 - usados)) / sinAncho : 0;</span>
 <span class="cstat-no" title="statement not covered" >  return columnas.<span class="fstat-no" title="function not covered" >map((c</span>) =&gt; (<span class="cstat-no" title="statement not covered" >c.ancho !== undefined ? c.ancho * anchoTotal : resto));</span></span>
 }
 &nbsp;
@@ -953,10 +914,10 @@ function <span class="fstat-no" title="function not covered" >calcularAnchos(c</
  * que mide exactamente cómo PDFKit va a renderizar el texto (respeta word-wrap).
  */
 function <span class="fstat-no" title="function not covered" >calcularAlturaFila(</span>
-  doc:             Doc,
-  textos:          string[],
-  anchos:          number[],
-  alturaMinima:    number,
+  doc: Doc,
+  textos: string[],
+  anchos: number[],
+  alturaMinima: number,
   paddingVertical: number,
 ): number {
   const alturaMaxCelda = <span class="cstat-no" title="statement not covered" >textos.<span class="fstat-no" title="function not covered" >reduce((m</span>ax, texto, i) =&gt; {</span>
@@ -976,7 +937,7 @@ function <span class="fstat-no" title="function not covered" >calcularAlturaFila
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T05:32:16.049Z
+                at 2026-04-06T08:35:57.220Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

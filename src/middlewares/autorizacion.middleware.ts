@@ -1,47 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
+import { ErrorNoAutorizado } from '@/utils/errores.utils';
 import { Permiso } from '@/types';
-import { ErrorNoAutenticado, ErrorNoAutorizado } from '@/utils/errores.utils';
 
 /**
- * Middleware para validar que el usuario tenga un permiso específico.
- * Debe usarse DESPUÉS del middleware de autenticación.
+ * Middleware que verifica si el usuario autenticado tiene el permiso requerido.
+ * Debe usarse después del middleware de autenticación.
  *
- * @param permisoRequerido El permiso necesario para acceder a la ruta.
+ * @param permiso El nombre del permiso que se requiere para acceder a la ruta.
+ * @example
+ * router.post('/', autenticado, tienePermiso('PLATILLOS_CREAR'), controller.crear);
  */
-export const tienePermiso = (permisoRequerido: Permiso) => {
-  return (req: Request, _res: Response, next: NextFunction) => {
+export const tienePermiso = (permiso: Permiso) => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     const usuario = req.usuario;
 
-    if (!usuario) {
-      throw new ErrorNoAutenticado('Usuario no identificado en la petición.');
-    }
-
-    const permisosDelUsuario = usuario.permisos || [];
-
-    if (!permisosDelUsuario.includes(permisoRequerido)) {
-      throw new ErrorNoAutorizado(`Acceso denegado. Se requiere el permiso: ${permisoRequerido}`);
-    }
-
-    next();
-  };
-};
-
-/**
- * Middleware para validar que el usuario tenga AL MENOS UNO de los permisos listados.
- */
-export const tieneCualquierPermiso = (permisos: Permiso[]) => {
-  return (req: Request, _res: Response, next: NextFunction) => {
-    const usuario = req.usuario;
-
-    if (!usuario) {
-      throw new ErrorNoAutenticado();
-    }
-
-    const permisosDelUsuario = usuario.permisos || [];
-    const tieneAlguno = permisos.some((p) => permisosDelUsuario.includes(p));
-
-    if (!tieneAlguno) {
-      throw new ErrorNoAutorizado('Acceso denegado. No cuentas con los permisos necesarios.');
+    // Si no hay usuario en la petición o no tiene el permiso buscado
+    if (!usuario || !usuario.permisos || !usuario.permisos.includes(permiso)) {
+      next(new ErrorNoAutorizado(`No tienes el permiso necesario: ${permiso}`));
+      return;
     }
 
     next();

@@ -38,8 +38,6 @@ export const swaggerSpec = generator.generateDocument({
     },
   ],
   tags: [
-    //{ name: 'Auth', description: 'Autenticación y sesión' },
     { name: 'Platillos', description: 'Catálogo de platillos' },
-    // { name: 'Email', description: 'Envío de correos' },
   ],
 });

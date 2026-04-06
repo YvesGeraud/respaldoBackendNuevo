@@ -14,7 +14,7 @@ services:
     command: >
       --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ['CMD', 'mariadb-admin', 'ping', '-h', '127.0.0.1', '-uroot', '-proot']
+      test: [ 'CMD', 'mariadb-admin', 'ping', '-h', '127.0.0.1', '-uroot', '-proot' ]
       interval: 5s
       timeout: 3s
       retries: 30
@@ -31,7 +31,7 @@ services:
       - DATABASE_URL=mysql://root:root@db:3306/restaurante
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_NAME=restaurante
+      - DBNAMES=restaurante
       - DB_USER=root
       - DB_PASSWORD=root
     env_file:
@@ -51,7 +51,7 @@ services:
       dockerfile: Dockerfile # ← usa tu Dockerfile de prod
     container_name: restaurante_backend_prod
     ports:
-      - '3001:3000'
+      - '3001:3001'
     environment:
       - PORT=3001
       - DATABASE_URL=mysql://root:root@db:3306/restaurante
@@ -62,6 +62,7 @@ services:
       - DB_PASSWORD=root
       - JWT_SECRET=UsetSistemas2025
       - JWT_REFRESH_SECRET=SecretoEnLaUset
+      - ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3001
     depends_on:
       db:
         condition: service_healthy

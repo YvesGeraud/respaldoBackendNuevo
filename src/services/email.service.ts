@@ -1,5 +1,5 @@
 import { prisma } from '@/config/database.config';
-import { sendEmail } from '@/utils/mailer.utils';
+import { sendEmail } from '@/utils/email.utils';
 import { logger } from '@/utils/logger.utils';
 
 /**

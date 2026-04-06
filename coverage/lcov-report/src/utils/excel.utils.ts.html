@@ -346,7 +346,10 @@
 <a name='L281'></a><a href='#L281'>281</a>
 <a name='L282'></a><a href='#L282'>282</a>
 <a name='L283'></a><a href='#L283'>283</a>
-<a name='L284'></a><a href='#L284'>284</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -554,6 +557,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -600,7 +604,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -608,6 +611,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -635,25 +641,25 @@ import type { Response } from 'express';
 // ExcelJS exporta Workbook/Worksheet como tipos y como valores.
 // Usamos las instancias directamente; los tipos los inferimos de ellas.
 type Libro = ExcelJS.Workbook;
-type Hoja  = ExcelJS.Worksheet;
+type Hoja = ExcelJS.Worksheet;
 &nbsp;
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 &nbsp;
 export interface ColumnaExcel {
   encabezado: string;
   /** Nombre de la propiedad en el objeto fila */
-  propiedad:  string;
+  propiedad: string;
   /**
    * Ancho en caracteres. Si se omite se calcula automáticamente según el contenido.
    * Rango útil: 10–60 caracteres.
    */
-  ancho?:    number;
+  ancho?: number;
   /**
    * Formato numérico de Excel (numFmt).
    * Ejemplos: '"$"#,##0.00'  |  'DD/MM/YYYY'  |  '0.00%'
    */
-  formato?:  string;
-  alinear?:  'left' | 'center' | 'right';
+  formato?: string;
+  alinear?: 'left' | 'center' | 'right';
 }
 &nbsp;
 export interface OpcionesHoja {
@@ -661,16 +667,16 @@ export interface OpcionesHoja {
    * Texto que se muestra en A1 como fila de título fusionada y destacada.
    * Si se omite, la primera fila es directamente el encabezado de columnas.
    */
-  titulo?:             string;
-  subtitulo?:          string;
+  titulo?: string;
+  subtitulo?: string;
   /** Congela la fila de encabezados para que siempre sea visible al hacer scroll. Default: true */
   congelarEncabezado?: boolean;
   /** Agrega auto-filtro a la fila de encabezados. Default: true */
-  autoFiltro?:         boolean;
+  autoFiltro?: boolean;
   /** Color de fondo del encabezado en hex sin #. Default: '1a3c5e' */
-  colorEncabezado?:    string;
+  colorEncabezado?: string;
   /** Color de fondo de filas alternas en hex sin #. Default: 'f0f4f8' */
-  colorFilaAlterna?:   string;
+  colorFilaAlterna?: string;
 }
 &nbsp;
 // ── Libro ─────────────────────────────────────────────────────────────────────
@@ -680,11 +686,11 @@ export interface OpcionesHoja {
  * Un libro puede contener múltiples hojas (agregarHoja).
  */
 export function <span class="fstat-no" title="function not covered" >crearLibro(): Libro {</span>
-  const libro        = <span class="cstat-no" title="statement not covered" >new ExcelJS.Workbook();</span>
-<span class="cstat-no" title="statement not covered" >  libro.creator      = 'Sistema de Restaurante Escolar';</span>
+  const libro = <span class="cstat-no" title="statement not covered" >new ExcelJS.Workbook();</span>
+<span class="cstat-no" title="statement not covered" >  libro.creator = 'Sistema de Restaurante Escolar';</span>
 <span class="cstat-no" title="statement not covered" >  libro.lastModifiedBy = 'Sistema de Restaurante Escolar';</span>
-<span class="cstat-no" title="statement not covered" >  libro.created      = new Date();</span>
-<span class="cstat-no" title="statement not covered" >  libro.modified     = new Date();</span>
+<span class="cstat-no" title="statement not covered" >  libro.created = new Date();</span>
+<span class="cstat-no" title="statement not covered" >  libro.modified = new Date();</span>
 <span class="cstat-no" title="statement not covered" >  return libro;</span>
 }
 &nbsp;
@@ -705,8 +711,8 @@ export function <span class="fstat-no" title="function not covered" >crearLibro(
  * await enviarExcel(res, libro, 'reporte-2026-03');
  */
 export async function <span class="fstat-no" title="function not covered" >enviarExcel(</span>
-  res:           Response,
-  libro:         Libro,
+  res: Response,
+  libro: Libro,
   nombreArchivo: string,
   descargar = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
 ): Promise&lt;void&gt; {
@@ -743,19 +749,19 @@ export async function <span class="fstat-no" title="function not covered" >envia
  * ], platillos, { titulo: 'Catálogo de Platillos' });
  */
 export function <span class="fstat-no" title="function not covered" >agregarHoja&lt;T extends Record&lt;string, unknown&gt;&gt;(</span>
-  libro:    Libro,
-  nombre:   string,
+  libro: Libro,
+  nombre: string,
   columnas: ColumnaExcel[],
-  datos:    T[],
+  datos: T[],
   opciones: OpcionesHoja = <span class="branch-0 cbranch-no" title="branch not covered" >{},</span>
 ): Hoja {
   const {
     titulo,
     subtitulo,
     congelarEncabezado = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
-    autoFiltro         = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
-    colorEncabezado    = <span class="branch-0 cbranch-no" title="branch not covered" >'1a3c5e',</span>
-    colorFilaAlterna   = <span class="branch-0 cbranch-no" title="branch not covered" >'f0f4f8',</span>
+    autoFiltro = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
+    colorEncabezado = <span class="branch-0 cbranch-no" title="branch not covered" >'1a3c5e',</span>
+    colorFilaAlterna = <span class="branch-0 cbranch-no" title="branch not covered" >'f0f4f8',</span>
   } = <span class="cstat-no" title="statement not covered" >opciones;</span>
 &nbsp;
   const hoja = <span class="cstat-no" title="statement not covered" >libro.addWorksheet(nombre, {</span>
@@ -768,9 +774,9 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
   // ── Fila de título ────────────────────────────────────────────────────────
 <span class="cstat-no" title="statement not covered" >  if (titulo) {</span>
 <span class="cstat-no" title="statement not covered" >    hoja.mergeCells(filaActual, 1, filaActual, columnas.length);</span>
-    const celda   = <span class="cstat-no" title="statement not covered" >hoja.getCell(filaActual, 1);</span>
-<span class="cstat-no" title="statement not covered" >    celda.value   = titulo;</span>
-<span class="cstat-no" title="statement not covered" >    celda.font    = { bold: true, size: 14, color: { argb: 'FF' + colorEncabezado } };</span>
+    const celda = <span class="cstat-no" title="statement not covered" >hoja.getCell(filaActual, 1);</span>
+<span class="cstat-no" title="statement not covered" >    celda.value = titulo;</span>
+<span class="cstat-no" title="statement not covered" >    celda.font = { bold: true, size: 14, color: { argb: 'FF' + colorEncabezado } };</span>
 <span class="cstat-no" title="statement not covered" >    celda.alignment = { horizontal: 'center', vertical: 'middle' };</span>
 <span class="cstat-no" title="statement not covered" >    hoja.getRow(filaActual).height = 32;</span>
 <span class="cstat-no" title="statement not covered" >    filaActual++;</span>
@@ -779,9 +785,9 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
   // ── Fila de subtítulo ─────────────────────────────────────────────────────
 <span class="cstat-no" title="statement not covered" >  if (subtitulo) {</span>
 <span class="cstat-no" title="statement not covered" >    hoja.mergeCells(filaActual, 1, filaActual, columnas.length);</span>
-    const celda   = <span class="cstat-no" title="statement not covered" >hoja.getCell(filaActual, 1);</span>
-<span class="cstat-no" title="statement not covered" >    celda.value   = subtitulo;</span>
-<span class="cstat-no" title="statement not covered" >    celda.font    = { italic: true, size: 10, color: { argb: 'FF666666' } };</span>
+    const celda = <span class="cstat-no" title="statement not covered" >hoja.getCell(filaActual, 1);</span>
+<span class="cstat-no" title="statement not covered" >    celda.value = subtitulo;</span>
+<span class="cstat-no" title="statement not covered" >    celda.font = { italic: true, size: 10, color: { argb: 'FF666666' } };</span>
 <span class="cstat-no" title="statement not covered" >    celda.alignment = { horizontal: 'center', vertical: 'middle' };</span>
 <span class="cstat-no" title="statement not covered" >    hoja.getRow(filaActual).height = 20;</span>
 <span class="cstat-no" title="statement not covered" >    filaActual++;</span>
@@ -794,19 +800,19 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
 <span class="cstat-no" title="statement not covered" >  rowEnc.height = 26;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  columnas.<span class="fstat-no" title="function not covered" >forEach((c</span>ol, i) =&gt; {</span>
-    const celda     = <span class="cstat-no" title="statement not covered" >rowEnc.getCell(i + 1);</span>
-<span class="cstat-no" title="statement not covered" >    celda.value     = col.encabezado;</span>
-<span class="cstat-no" title="statement not covered" >    celda.font      = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };</span>
-<span class="cstat-no" title="statement not covered" >    celda.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + colorEncabezado } };</span>
+    const celda = <span class="cstat-no" title="statement not covered" >rowEnc.getCell(i + 1);</span>
+<span class="cstat-no" title="statement not covered" >    celda.value = col.encabezado;</span>
+<span class="cstat-no" title="statement not covered" >    celda.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };</span>
+<span class="cstat-no" title="statement not covered" >    celda.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + colorEncabezado } };</span>
 <span class="cstat-no" title="statement not covered" >    celda.alignment = { horizontal: col.alinear ?? 'center', vertical: 'middle', wrapText: false };</span>
-<span class="cstat-no" title="statement not covered" >    celda.border    = { bottom: { style: 'medium', color: { argb: 'FF' + colorEncabezado } } };</span>
+<span class="cstat-no" title="statement not covered" >    celda.border = { bottom: { style: 'medium', color: { argb: 'FF' + colorEncabezado } } };</span>
   });
 &nbsp;
   // ── Auto-filtro ───────────────────────────────────────────────────────────
 <span class="cstat-no" title="statement not covered" >  if (autoFiltro) {</span>
 <span class="cstat-no" title="statement not covered" >    hoja.autoFilter = {</span>
       from: { row: filaEncabezado, column: 1 },
-      to:   { row: filaEncabezado, column: columnas.length },
+      to: { row: filaEncabezado, column: columnas.length },
     };
   }
 &nbsp;
@@ -817,7 +823,7 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
 &nbsp;
   // ── Filas de datos ────────────────────────────────────────────────────────
 <span class="cstat-no" title="statement not covered" >  datos.<span class="fstat-no" title="function not covered" >forEach((f</span>ila, idx) =&gt; {</span>
-    const numFila  = <span class="cstat-no" title="statement not covered" >filaEncabezado + 1 + idx;</span>
+    const numFila = <span class="cstat-no" title="statement not covered" >filaEncabezado + 1 + idx;</span>
     const excelRow = <span class="cstat-no" title="statement not covered" >hoja.getRow(numFila);</span>
     const esAlterna = <span class="cstat-no" title="statement not covered" >idx % 2 === 1;</span>
 &nbsp;
@@ -827,12 +833,13 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
       // Asignar valor directamente — ExcelJS maneja string, number, Date, boolean
 <span class="cstat-no" title="statement not covered" >      celda.value = (fila[col.propiedad] ?? null) as ExcelJS.CellValue;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      if (col.formato)  <span class="cstat-no" title="statement not covered" >celda.numFmt    = col.formato;</span></span>
-<span class="cstat-no" title="statement not covered" >      if (col.alinear)  <span class="cstat-no" title="statement not covered" >celda.alignment = { horizontal: col.alinear, vertical: 'middle' };</span></span>
+<span class="cstat-no" title="statement not covered" >      if (col.formato) <span class="cstat-no" title="statement not covered" >celda.numFmt = col.formato;</span></span>
+<span class="cstat-no" title="statement not covered" >      if (col.alinear) <span class="cstat-no" title="statement not covered" >celda.alignment = { horizontal: col.alinear, vertical: 'middle' };</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      if (esAlterna) {</span>
 <span class="cstat-no" title="statement not covered" >        celda.fill = {</span>
-          type: 'pattern', pattern: 'solid',
+          type: 'pattern',
+          pattern: 'solid',
           fgColor: { argb: 'FF' + colorFilaAlterna },
         };
       }
@@ -846,7 +853,7 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
   // ── Anchos de columna ─────────────────────────────────────────────────────
   // Si no se especifica ancho, se calcula basado en el contenido más largo
 <span class="cstat-no" title="statement not covered" >  hoja.columns = columnas.<span class="fstat-no" title="function not covered" >map((c</span>ol, i) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
-    key:   String(i + 1),
+    key: String(i + 1),
     width: col.ancho ?? calcularAncho(col, datos),
   }));
 &nbsp;
@@ -864,11 +871,11 @@ export function <span class="fstat-no" title="function not covered" >agregarHoja
  * ]);
  */
 export function <span class="fstat-no" title="function not covered" >agregarPie(</span>
-  hoja:          Hoja,
+  hoja: Hoja,
   totalColumnas: number,
   celdas: Array&lt;{
-    col:      number;
-    texto:    string;
+    col: number;
+    texto: string;
     negrita?: boolean;
     cursiva?: boolean;
     alinear?: 'left' | 'center' | 'right';
@@ -876,7 +883,7 @@ export function <span class="fstat-no" title="function not covered" >agregarPie(
 ): void {
   // La fila siguiente a la última con datos
   const ultimaFila = <span class="cstat-no" title="statement not covered" >hoja.lastRow?.number ?? 1;</span>
-  const filaPie    = <span class="cstat-no" title="statement not covered" >hoja.getRow(ultimaFila + 2);</span> // dejamos una fila de espacio
+  const filaPie = <span class="cstat-no" title="statement not covered" >hoja.getRow(ultimaFila + 2);</span> // dejamos una fila de espacio
 &nbsp;
   // Separador visual
 <span class="cstat-no" title="statement not covered" >  for (let c = <span class="cstat-no" title="statement not covered" >1; c</span> &lt;= totalColumnas; c++) {</span>
@@ -884,9 +891,14 @@ export function <span class="fstat-no" title="function not covered" >agregarPie(
   }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  celdas.<span class="fstat-no" title="function not covered" >forEach(({</span> col, texto, negrita, cursiva, alinear }) =&gt; {</span>
-    const celda     = <span class="cstat-no" title="statement not covered" >filaPie.getCell(col);</span>
-<span class="cstat-no" title="statement not covered" >    celda.value     = texto;</span>
-<span class="cstat-no" title="statement not covered" >    celda.font      = { bold: negrita ?? false, italic: cursiva ?? false, color: { argb: 'FF555555' }, size: 9 };</span>
+    const celda = <span class="cstat-no" title="statement not covered" >filaPie.getCell(col);</span>
+<span class="cstat-no" title="statement not covered" >    celda.value = texto;</span>
+<span class="cstat-no" title="statement not covered" >    celda.font = {</span>
+      bold: negrita ?? false,
+      italic: cursiva ?? false,
+      color: { argb: 'FF555555' },
+      size: 9,
+    };
 <span class="cstat-no" title="statement not covered" >    celda.alignment = { horizontal: alinear ?? 'left' };</span>
   });
 }
@@ -899,10 +911,7 @@ export function <span class="fstat-no" title="function not covered" >agregarPie(
  *   - El valor más largo en los datos
  * Resultado limitado entre 10 y 60 para evitar columnas absurdamente anchas.
  */
-function <span class="fstat-no" title="function not covered" >calcularAncho&lt;T extends Record&lt;string, unknown&gt;&gt;(</span>
-  col:   ColumnaExcel,
-  datos: T[],
-): number {
+function <span class="fstat-no" title="function not covered" >calcularAncho&lt;T extends Record&lt;string, unknown&gt;&gt;(c</span>ol: ColumnaExcel, datos: T[]): number {
   const anchoEncabezado = <span class="cstat-no" title="statement not covered" >col.encabezado.length;</span>
   const anchoMax = <span class="cstat-no" title="statement not covered" >datos.<span class="fstat-no" title="function not covered" >reduce((m</span>ax, fila) =&gt; {</span>
     const val = <span class="cstat-no" title="statement not covered" >String(fila[col.propiedad] ?? '');</span>
@@ -919,7 +928,7 @@ function <span class="fstat-no" title="function not covered" >calcularAncho&lt;T
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T05:32:16.049Z
+                at 2026-04-06T08:35:57.220Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

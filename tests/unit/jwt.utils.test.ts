@@ -60,7 +60,9 @@ describe('verificarAccessToken', () => {
 
   it('lanza TokenExpiredError con un token ya expirado', () => {
     // expiresIn: 0 → expira inmediatamente
-    const tokenExpirado = jwt.sign(PAYLOAD, process.env['JWT_SECRET']!, { expiresIn: 0 });
+    const tokenExpirado = jwt.sign(PAYLOAD, process.env['JWT_SECRET']!, {
+      expiresIn: 0,
+    });
     expect(() => verificarAccessToken(tokenExpirado)).toThrow(TokenExpiredError);
   });
 });

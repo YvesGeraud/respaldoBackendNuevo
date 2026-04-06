@@ -16,3 +16,8 @@ process.env['JWT_REFRESH_EXPIRES_IN'] = '7d';
 // DATABASE_URL es requerida por servidor.config — valor falso está bien
 // porque en tests la BD se mockea y nunca se usa para conectar
 process.env['DATABASE_URL'] = 'mysql://test:test@localhost:3306/test_restaurante';
+process.env['DB_HOST'] = 'localhost';
+process.env['DB_PORT'] = '3306';
+process.env['DBNAMES'] = 'test_restaurante';
+process.env['DB_USER'] = 'test';
+process.env['DB_PASSWORD'] = 'test';
