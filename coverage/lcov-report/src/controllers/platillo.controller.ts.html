@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">76.92% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>10/13</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">76.92% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>10/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -129,7 +129,11 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,34 +151,38 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,36 +219,40 @@ import type {
  * Si el service lanza ErrorNoEncontrado, ErrorDuplicado, etc., llegan solos.
  */
 class PlatilloController {
-  async <span class="fstat-no" title="function not covered" >listar(r</span>eq: Request, res: Response): Promise&lt;void&gt; {
+  async listar(req: Request, res: Response): Promise&lt;void&gt; {
     // req.query ya fue validado y coercionado por validar(filtrosPlatillosSchema)
-    const { datos, ...meta } = <span class="cstat-no" title="statement not covered" >await platilloService.obtenerTodos(</span>
+    const { datos, ...meta } = await platilloService.obtenerTodos(
       req.query as unknown as FiltrosPlatillos,
     );
-<span class="cstat-no" title="statement not covered" >    responder.paginado(res, datos, meta);</span>
+    responder.paginado(res, datos, meta);
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >obtenerPorId(r</span>eq: Request, res: Response): Promise&lt;void&gt; {
+  async obtenerPorId(req: Request, res: Response): Promise&lt;void&gt; {
     // req.params.id ya es número en runtime gracias a z.coerce.number() en el schema
-    const platillo = <span class="cstat-no" title="statement not covered" >await platilloService.obtenerPorId(Number(req.params['id']));</span>
-<span class="cstat-no" title="statement not covered" >    responder.ok(res, platillo);</span>
+    const platillo = await platilloService.obtenerPorId(Number(req.params['id']));
+    responder.ok(res, platillo);
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >crear(r</span>eq: Request, res: Response): Promise&lt;void&gt; {
-    const platillo = <span class="cstat-no" title="statement not covered" >await platilloService.crear(req.body as CrearPlatilloDTO);</span>
-<span class="cstat-no" title="statement not covered" >    responder.creado(res, platillo, 'Platillo creado exitosamente');</span>
+  async crear(req: Request, res: Response): Promise&lt;void&gt; {
+    const platillo = await platilloService.crear(
+      req.usuario!.id_ct_usuario,
+      req.body as CrearPlatilloDTO,
+    );
+    responder.creado(res, platillo, 'Platillo creado exitosamente');
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >actualizar(r</span>eq: Request, res: Response): Promise&lt;void&gt; {
-    const platillo = <span class="cstat-no" title="statement not covered" >await platilloService.actualizar(</span>
+  async actualizar(req: Request, res: Response): Promise&lt;void&gt; {
+    const platillo = await platilloService.actualizar(
+      req.usuario!.id_ct_usuario,
       Number(req.params['id']),
       req.body as ActualizarPlatilloDTO,
     );
-<span class="cstat-no" title="statement not covered" >    responder.ok(res, platillo, 'Platillo actualizado exitosamente');</span>
+    responder.ok(res, platillo, 'Platillo actualizado exitosamente');
   }
 &nbsp;
-  async <span class="fstat-no" title="function not covered" >eliminar(r</span>eq: Request, res: Response): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >    await platilloService.eliminar(Number(req.params['id']));</span>
-<span class="cstat-no" title="statement not covered" >    responder.sinContenido(res);</span>
+  async eliminar(req: Request, res: Response): Promise&lt;void&gt; {
+    await platilloService.eliminar(req.usuario!.id_ct_usuario, Number(req.params['id']));
+    responder.ok(res, null, 'Platillo eliminado exitosamente');
   }
 &nbsp;
   /**
@@ -251,7 +263,7 @@ class PlatilloController {
    */
   async <span class="fstat-no" title="function not covered" >crearLote(r</span>eq: Request, res: Response): Promise&lt;void&gt; {
     const datos = <span class="cstat-no" title="statement not covered" >req.body as CrearPlatillosLoteDTO;</span>
-    const resultado = <span class="cstat-no" title="statement not covered" >await platilloService.crearMuchos(datos);</span>
+    const resultado = <span class="cstat-no" title="statement not covered" >await platilloService.crearMuchos(req.usuario!.id_ct_usuario, datos);</span>
 <span class="cstat-no" title="statement not covered" >    responder.creado(</span>
       res,
       resultado,
@@ -268,7 +280,7 @@ export default new PlatilloController();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-06T08:35:57.220Z
+                at 2026-04-26T07:17:15.299Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

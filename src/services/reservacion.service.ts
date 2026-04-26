@@ -4,6 +4,7 @@ import type { OpcionesPaginacion } from '@/utils/paginacion.utils';
 import { paginar } from '@/utils/paginacion.utils';
 import { buscarOError } from '@/utils/prisma.utils';
 import { PAGINACION } from '@/constants';
+import { ErrorNoEncontrado } from '@/utils/errores.utils';
 import type { ResultadoPaginado } from '@/types';
 import {
   FiltrosReservaciones,
@@ -59,6 +60,15 @@ class ReservacionService {
    * Crea una nueva reservación.
    */
   async crear(id_ct_usuario_reg: number, datos: CrearReservacionDTO): Promise<ReservacionCompleta> {
+    // Validar que el cliente exista
+    const cliente = await prisma.ct_cliente.findUnique({
+      where: { id_ct_cliente: datos.id_ct_cliente },
+    });
+
+    if (!cliente) {
+      throw new ErrorNoEncontrado('Cliente');
+    }
+
     return prisma.rl_reservacion.create({
       data: {
         ...datos,

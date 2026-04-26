@@ -11,6 +11,7 @@ import {
   CAMPOS_ORDENABLES_CLIENTE,
 } from '@/schemas/cliente.schema';
 import { PAGINACION } from '@/constants';
+import { ErrorDuplicado } from '@/utils/errores.utils';
 
 class ClienteService {
   async obtenerTodos(filtros: FiltrosClientes): Promise<ResultadoPaginado<Prisma.ct_clienteGetPayload<object>>> {
@@ -49,6 +50,15 @@ class ClienteService {
   }
 
   async crear(id_ct_usuario_reg: number, datos: CrearClienteDTO): Promise<Prisma.ct_clienteGetPayload<object>> {
+    // Verificar si el correo ya existe
+    const existente = await prisma.ct_cliente.findFirst({
+      where: { correo: datos.correo },
+    });
+
+    if (existente) {
+      throw new ErrorDuplicado('Ya existe un cliente registrado con ese correo.');
+    }
+
     return prisma.ct_cliente.create({
       data: {
         ...datos,
