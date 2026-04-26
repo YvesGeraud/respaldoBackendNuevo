@@ -57,7 +57,7 @@ class PlatilloService {
     );
   }
 
-  async crear(datos: CrearPlatilloDTO): Promise<PlatilloConCategoria> {
+  async crear(id_ct_usuario_reg: number, datos: CrearPlatilloDTO): Promise<PlatilloConCategoria> {
     // Verifica unicidad solo entre platillos activos — permite reusar nombres de inactivos
     await verificarNoExiste(
       prisma.ct_platillo.findFirst({
@@ -73,12 +73,17 @@ class PlatilloService {
         descripcion: datos.descripcion,
         precio: datos.precio,
         imagen_url: datos.imagen_url,
+        id_ct_usuario_reg,
       },
       include: INCLUDE_PLATILLO_CATEGORIA,
     });
   }
 
-  async actualizar(id: number, datos: ActualizarPlatilloDTO): Promise<PlatilloConCategoria> {
+  async actualizar(
+    id_ct_usuario_mod: number,
+    id: number,
+    datos: ActualizarPlatilloDTO,
+  ): Promise<PlatilloConCategoria> {
     // Verifica existencia antes de intentar el update (P2025 evitado con mensaje claro)
     await buscarOError(
       prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }),
@@ -87,12 +92,12 @@ class PlatilloService {
 
     return prisma.ct_platillo.update({
       where: { id_ct_platillo: id },
-      data: datos,
+      data: { ...datos, id_ct_usuario_mod, fecha_mod: new Date() },
       include: INCLUDE_PLATILLO_CATEGORIA,
     });
   }
 
-  async eliminar(id: number): Promise<void> {
+  async eliminar(id_ct_usuario_mod: number, id: number): Promise<void> {
     await buscarOError(
       prisma.ct_platillo.findUnique({ where: { id_ct_platillo: id } }),
       'Platillo',
@@ -101,7 +106,7 @@ class PlatilloService {
     // Soft delete — preserva historial en dt_detalle_orden
     await prisma.ct_platillo.update({
       where: { id_ct_platillo: id },
-      data: { estado: false },
+      data: { estado: false, id_ct_usuario_mod, fecha_mod: new Date() },
     });
   }
 
@@ -117,7 +122,7 @@ class PlatilloService {
    * POST /api/platillos/batch
    * Body: [{ nombre: "Tacos", precio: 25, ... }, ...]
    */
-  async crearMuchos(datos: CrearPlatilloDTO[]): Promise<ResultadoBatch> {
+  async crearMuchos(id_ct_usuario_reg: number, datos: CrearPlatilloDTO[]): Promise<ResultadoBatch> {
     return insertarEnLotes(
       prisma.ct_platillo,
       datos.map((d) => ({
@@ -126,6 +131,7 @@ class PlatilloService {
         descripcion: d.descripcion,
         precio: d.precio,
         imagen_url: d.imagen_url,
+        id_ct_usuario_reg,
       })),
       { tamanioLote: 50 },
     );

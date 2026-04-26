@@ -121,10 +121,8 @@ export const auditExtension = Prisma.defineExtension((client) => {
                         : 'DELETE',
                   ip_address: context.ip,
                   user_agent: context.user_agent,
-                  datos_anteriores: auditAnteriores
-                    ? JSON.parse(JSON.stringify(auditAnteriores))
-                    : null,
-                  datos_nuevos: auditNuevos ? JSON.parse(JSON.stringify(auditNuevos)) : null,
+                  datos_anteriores: auditAnteriores ? JSON.stringify(auditAnteriores) : null,
+                  datos_nuevos: auditNuevos ? JSON.stringify(auditNuevos) : null,
                 },
               });
             } catch (auditError) {

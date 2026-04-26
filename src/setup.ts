@@ -4,7 +4,7 @@ import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import { rateLimit } from 'express-rate-limit';
+import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
 import { StatusCodes } from 'http-status-codes';
 
 import { config } from '@/config/servidor.config';
@@ -22,6 +22,10 @@ import { swaggerSpec } from '@/docs/swagger.docs';
 // ── App ───────────────────────────────────────────────────────────────────────
 
 const app = express();
+
+// Confiar en el proxy inverso (Nginx, AWS, etc.) para obtener la IP real del cliente.
+// Sin esto, TODAS las peticiones parecerían venir de la IP del proxy, bloqueando a todos al instante.
+app.set('trust proxy', 1);
 
 // ── Seguridad ─────────────────────────────────────────────────────────────────
 
@@ -52,29 +56,69 @@ app.use(
 );
 
 // Rate limiting global — protege contra abuso y ataques de fuerza bruta
-// Para el sistema escolar: 200 req / 15 min por IP es razonable para uso normal
+// Aumentado a 1000 para soportar múltiples usuarios detrás de la misma IP pública (NAT de gobierno/escuelas)
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 1000,
     standardHeaders: 'draft-8', // RateLimit headers estándar (RFC)
     legacyHeaders: false,
     message: {
       exito: false,
-      mensaje: 'Demasiadas peticiones desde esta IP. Intenta de nuevo en 15 minutos.',
+      mensaje: 'Demasiadas peticiones desde esta red. Intenta de nuevo en 15 minutos.',
       codigo: 'TOO_MANY_REQUESTS',
+    },
+    handler: (req, res, _next, options) => {
+      // Guardar bloqueo global de forma asíncrona sin frenar la respuesta (Fuego y olvido)
+      prisma.dt_bloqueo_seguridad
+        .create({
+          data: {
+            ip_address: req.ip || 'desconocida',
+            endpoint: req.originalUrl,
+            usuario_intentado: null,
+            limite_alcanzado: typeof options.max === 'number' ? options.max : 1000,
+            user_agent: req.get('user-agent') || null,
+          },
+        })
+        .catch((e) => console.error('[Seguridad] Error al registrar bloqueo global:', e));
+
+      res.status(options.statusCode).json(options.message);
     },
   }),
 );
 
 // Rate limiting estricto para rutas de autenticación (login, refresh)
+// Como es un sistema gubernamental (muchos usuarios bajo la misma IP de un edificio),
+// usamos un 'keyGenerator' que agrupa por IP + Usuario.
+// De esta forma, si "Juan" olvida su clave 20 veces, se bloquea a "Juan", pero no a "María" que está en el mismo edificio.
 const limitarAuth = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20, // solo 20 intentos de login por IP cada 15 min
+  max: 30, // 30 intentos cada 15 min por combinación (IP + Usuario)
+  keyGenerator: (req) => {
+    const usuario = req.body?.usuario ? `_${String(req.body.usuario).toLowerCase()}` : '';
+    // Usamos ipKeyGenerator(req.ip) en vez de req.ip directamente para cumplir con la validación IPv6 de la librería
+    return `${ipKeyGenerator(req.ip || '')}${usuario}`;
+  },
   message: {
     exito: false,
     mensaje: 'Demasiados intentos de autenticación. Intenta de nuevo en 15 minutos.',
     codigo: 'TOO_MANY_REQUESTS',
+  },
+  handler: (req, res, _next, options) => {
+    // Guardar bloqueo de autenticación
+    prisma.dt_bloqueo_seguridad
+      .create({
+        data: {
+          ip_address: req.ip || 'desconocida',
+          endpoint: req.originalUrl,
+          usuario_intentado: req.body?.usuario ? String(req.body.usuario) : null,
+          limite_alcanzado: typeof options.max === 'number' ? options.max : 30,
+          user_agent: req.get('user-agent') || null,
+        },
+      })
+      .catch((e) => console.error('[Seguridad] Error al registrar bloqueo auth:', e));
+
+    res.status(options.statusCode).json(options.message);
   },
 });
 
@@ -130,7 +174,7 @@ app.get(`${base}health`, async (_req, res) => {
 
 // Auth con rate limiting estricto (limitarAuth) — debe montarse ANTES de /api/v1
 // para que el rate limiter se aplique antes del router general
-app.use('/api/auth', limitarAuth, authRouter);
+app.use(`${base}api/auth`, limitarAuth, authRouter);
 
 // Resto de módulos centralizados en routes/index.ts
 app.use(`${base}api/`, router);

@@ -63,7 +63,7 @@ class ArchivoController {
     const nombreArchivo = req.params['nombre'] as string;
 
     await archivoService.eliminar(nombreArchivo, subtipo);
-    responder.sinContenido(res);
+    responder.ok(res, null, 'Archivo eliminado exitosamente');
   }
 }
 

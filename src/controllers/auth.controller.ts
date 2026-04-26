@@ -98,7 +98,7 @@ class AuthController {
 
     res.clearCookie('accessToken', BASE_COOKIE);
     res.clearCookie('refreshToken', BASE_COOKIE);
-    responder.sinContenido(res);
+    responder.ok(res, null, 'Sesión cerrada exitosamente');
   }
 }
 

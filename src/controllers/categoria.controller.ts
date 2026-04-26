@@ -21,12 +21,16 @@ class CategoriaController {
   }
 
   async crear(req: Request, res: Response): Promise<void> {
-    const categoria = await categoriaService.crear(req.body as CrearCategoriaDTO);
+    const categoria = await categoriaService.crear(
+      req.usuario!.id_ct_usuario,
+      req.body as CrearCategoriaDTO,
+    );
     responder.creado(res, categoria, 'Categoría creada exitosamente');
   }
 
   async actualizar(req: Request, res: Response): Promise<void> {
     const categoria = await categoriaService.actualizar(
+      req.usuario!.id_ct_usuario,
       Number(req.params['id']),
       req.body as ActualizarCategoriaDTO,
     );
@@ -34,8 +38,8 @@ class CategoriaController {
   }
 
   async eliminar(req: Request, res: Response): Promise<void> {
-    await categoriaService.eliminar(Number(req.params['id']));
-    responder.sinContenido(res);
+    await categoriaService.eliminar(req.usuario!.id_ct_usuario, Number(req.params['id']));
+    responder.ok(res, null, 'Categoría eliminada exitosamente');
   }
 }
 

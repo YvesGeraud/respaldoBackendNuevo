@@ -29,12 +29,16 @@ class PlatilloController {
   }
 
   async crear(req: Request, res: Response): Promise<void> {
-    const platillo = await platilloService.crear(req.body as CrearPlatilloDTO);
+    const platillo = await platilloService.crear(
+      req.usuario!.id_ct_usuario,
+      req.body as CrearPlatilloDTO,
+    );
     responder.creado(res, platillo, 'Platillo creado exitosamente');
   }
 
   async actualizar(req: Request, res: Response): Promise<void> {
     const platillo = await platilloService.actualizar(
+      req.usuario!.id_ct_usuario,
       Number(req.params['id']),
       req.body as ActualizarPlatilloDTO,
     );
@@ -42,8 +46,8 @@ class PlatilloController {
   }
 
   async eliminar(req: Request, res: Response): Promise<void> {
-    await platilloService.eliminar(Number(req.params['id']));
-    responder.sinContenido(res);
+    await platilloService.eliminar(req.usuario!.id_ct_usuario, Number(req.params['id']));
+    responder.ok(res, null, 'Platillo eliminado exitosamente');
   }
 
   /**
@@ -54,7 +58,7 @@ class PlatilloController {
    */
   async crearLote(req: Request, res: Response): Promise<void> {
     const datos = req.body as CrearPlatillosLoteDTO;
-    const resultado = await platilloService.crearMuchos(datos);
+    const resultado = await platilloService.crearMuchos(req.usuario!.id_ct_usuario, datos);
     responder.creado(
       res,
       resultado,

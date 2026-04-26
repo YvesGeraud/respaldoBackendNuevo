@@ -37,7 +37,5 @@ export const swaggerSpec = generator.generateDocument({
       description: config.esProduccion ? 'Producción' : 'Desarrollo',
     },
   ],
-  tags: [
-    { name: 'Platillos', description: 'Catálogo de platillos' },
-  ],
+  tags: [{ name: 'Platillos', description: 'Catálogo de platillos' }],
 });

@@ -93,7 +93,7 @@ class ArchivoService {
           hash: resultado.hash,
           modulo: subtipo,
           id_ct_tipo_documento: tipoDato.id_ct_tipo_documento,
-          id_ct_usuario_in: id_usuario,
+          id_ct_usuario_reg: id_usuario,
         },
       });
     }

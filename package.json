@@ -10,6 +10,7 @@
     "db:generate": "prisma generate",
     "db:migrate:init": "prisma migrate dev --name init",
     "db:migrate": "prisma migrate dev",
+    "db:pull": "prisma db pull",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",

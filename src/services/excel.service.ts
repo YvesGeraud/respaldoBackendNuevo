@@ -12,7 +12,7 @@ class ExcelService {
   async menuDelDia(res: Response): Promise<void> {
     const platillos = await prisma.ct_platillo.findMany({
       where: { estado: true },
-      include: { categoria: { select: { nombre: true } } },
+      include: { ct_categoria: { select: { nombre: true } } },
       orderBy: [{ id_ct_categoria: 'asc' }, { nombre: 'asc' }],
     });
 
@@ -45,7 +45,7 @@ class ExcelService {
       // Aplanamos la relación anidada — igual que en el PDF
       platillos.map((p) => ({
         nombre: p.nombre,
-        categoria_nombre: p.categoria?.nombre ?? '—',
+        categoria_nombre: p.ct_categoria?.nombre ?? '—',
         descripcion: p.descripcion ?? '',
         precio: Number(p.precio), // número real para que aplique el formato de Excel
         disponible: p.estado ? 'Sí' : 'No',

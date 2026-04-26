@@ -31,7 +31,7 @@ class AuthService {
   }> {
     const encontrado = await prisma.ct_usuario.findUnique({
       where: { usuario },
-      include: { rol: true },
+      include: { ct_rol: true },
     });
 
     // Mismo mensaje para usuario no encontrado y contraseña incorrecta
@@ -50,7 +50,7 @@ class AuthService {
       usuario: encontrado.usuario,
       email: encontrado.email,
       id_ct_rol: encontrado.id_ct_rol,
-      rol: encontrado.rol.nombre,
+      rol: encontrado.ct_rol.nombre,
     };
 
     // Actualizar contexto de auditoría para que el CREATE del refresh token tenga el ID
@@ -110,7 +110,7 @@ class AuthService {
     // 3 — Verificar que el usuario sigue activo en BD
     const usuario = await prisma.ct_usuario.findUnique({
       where: { id_ct_usuario: registro.id_ct_usuario },
-      include: { rol: true },
+      include: { ct_rol: true },
     });
 
     if (!usuario || !usuario.estado) {
@@ -123,7 +123,7 @@ class AuthService {
       usuario: usuario.usuario,
       email: usuario.email,
       id_ct_rol: usuario.id_ct_rol,
-      rol: usuario.rol.nombre,
+      rol: usuario.ct_rol.nombre,
     };
 
     // Actualizar contexto de auditoría
@@ -176,7 +176,7 @@ class AuthService {
   async obtenerSesionActual(id_ct_usuario: number): Promise<UsuarioSanitizado> {
     const usuario = await prisma.ct_usuario.findUnique({
       where: { id_ct_usuario },
-      include: { rol: true },
+      include: { ct_rol: true },
     });
 
     if (!usuario || !usuario.estado) {
@@ -198,16 +198,16 @@ class AuthService {
    * Obtiene la lista de códigos de permisos asociados a un rol directamente de la base de datos.
    */
   async obtenerPermisosPorRolId(id_ct_rol: number): Promise<Permiso[]> {
-    const relaciones = await prisma.dt_rol_permiso.findMany({
+    const relaciones = await prisma.rl_rol_permiso.findMany({
       where: { id_ct_rol },
       include: {
-        permiso: {
+        ct_permiso: {
           select: { codigo: true },
         },
       },
     });
 
-    return relaciones.map((r) => r.permiso.codigo as Permiso);
+    return relaciones.map((r) => r.ct_permiso.codigo as Permiso);
   }
 
   // ── Privados ──────────────────────────────────────────────────────────────
@@ -233,7 +233,7 @@ class AuthService {
 
   /** Elimina la contraseña y devuelve solo los campos seguros para el cliente. */
   private sanitizarUsuario(
-    usuario: ct_usuario & { rol: { nombre: string }; permisos?: Permiso[] },
+    usuario: ct_usuario & { ct_rol: { nombre: string }; permisos?: Permiso[] },
   ): UsuarioSanitizado {
     return {
       id_ct_usuario: usuario.id_ct_usuario,
@@ -241,7 +241,7 @@ class AuthService {
       email: usuario.email,
       nombre_completo: usuario.nombre_completo,
       id_ct_rol: usuario.id_ct_rol,
-      rol: usuario.rol.nombre,
+      rol: usuario.ct_rol.nombre,
       permisos: usuario.permisos || [],
     };
   }

@@ -1,284 +1,397 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "mysql"
 }
 
-// ── Enums ─────────────────────────────────────────────────────────────────────
+model ct_categoria {
+  id_ct_categoria      Int           @id @default(autoincrement())
+  nombre               String        @unique @db.VarChar(100)
+  descripcion          String?       @db.VarChar(500)
+  estado               Boolean       @default(true)
+  fecha_reg            DateTime      @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?     @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario?   @relation("ct_categoria_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_categoria_ct_usuario_mod")
+  usuario_registro     ct_usuario    @relation("ct_categoria_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_categoria_ct_usuario_reg")
+  ct_platillo          ct_platillo[]
 
-enum EstadoOrden {
+  @@index([id_ct_usuario_mod], map: "FK_ct_categoria_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_categoria_ct_usuario_reg")
+  @@index([estado])
+}
+
+model ct_cliente {
+  id_ct_cliente        Int              @id @default(autoincrement())
+  nombre               String           @db.VarChar(100)
+  correo               String           @db.VarChar(255)
+  telefono             Int
+  estado               Boolean          @default(true)
+  fecha_reg            DateTime         @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?        @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario?      @relation("ct_cliente_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_cliente_ct_usuario_mod")
+  usuario_registro     ct_usuario       @relation("ct_cliente_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_cliente_ct_usuario_reg")
+  rl_reservacion       rl_reservacion[]
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_cliente_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_cliente_ct_usuario_reg")
+  @@index([estado], map: "estado")
+}
+
+model ct_mesa {
+  id_ct_mesa           Int              @id @default(autoincrement())
+  codigo               String           @unique @db.VarChar(50)
+  capacidad            Int
+  estado               Boolean          @default(true)
+  fecha_reg            DateTime         @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?        @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario?      @relation("ct_mesa_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_mesa_ct_usuario_mod")
+  usuario_registro     ct_usuario       @relation("ct_mesa_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_mesa_ct_usuario_reg")
+  rl_orden             rl_orden[]
+  rl_reservacion       rl_reservacion[]
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_mesa_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_mesa_ct_usuario_reg")
+  @@index([estado])
+}
+
+model ct_permiso {
+  id_ct_permiso        Int              @id @default(autoincrement())
+  nombre               String           @unique @db.VarChar(100)
+  codigo               String           @unique @db.VarChar(100)
+  descripcion          String?          @db.VarChar(255)
+  estado               Boolean          @default(true)
+  fecha_reg            DateTime         @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?        @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario?      @relation("ct_permiso_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_permiso_ct_usuario_mod")
+  usuario_registro     ct_usuario       @relation("ct_permiso_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_permiso_ct_usuario_reg")
+  rl_rol_permiso       rl_rol_permiso[]
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_permiso_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_permiso_ct_usuario_reg")
+  @@index([estado], map: "estado")
+}
+
+model ct_plantilla_correo {
+  id_ct_plantilla_correo Int         @id @default(autoincrement())
+  clave                  String      @unique @db.VarChar(50)
+  nombre                 String      @db.VarChar(100)
+  asunto                 String      @db.VarChar(200)
+  contenido_html         String      @db.MediumText
+  estado                 Boolean     @default(true)
+  fecha_reg              DateTime    @default(now()) @db.DateTime(0)
+  fecha_mod              DateTime?   @db.DateTime(0)
+  id_ct_usuario_reg      Int?
+  id_ct_usuario_mod      Int?
+  usuario_modificacion   ct_usuario? @relation("ct_plantilla_correo_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_plantilla_correo_ct_usuario_mod")
+  usuario_registro       ct_usuario? @relation("ct_plantilla_correo_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_plantilla_correo_ct_usuario_reg")
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_plantilla_correo_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_plantilla_correo_ct_usuario_reg")
+  @@index([estado], map: "estado")
+}
+
+model ct_platillo {
+  id_ct_platillo       Int                @id @default(autoincrement())
+  id_ct_categoria      Int
+  nombre               String             @db.VarChar(200)
+  descripcion          String?            @db.VarChar(500)
+  precio               Decimal            @db.Decimal(10, 2)
+  imagen_url           String?            @db.VarChar(500)
+  estado               Boolean            @default(true)
+  fecha_reg            DateTime           @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?          @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario?        @relation("ct_platillo_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_platillo_ct_usuario_mod")
+  usuario_registro     ct_usuario         @relation("ct_platillo_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_platillo_ct_usuario_reg")
+  ct_categoria         ct_categoria       @relation(fields: [id_ct_categoria], references: [id_ct_categoria])
+  dt_detalle_orden     dt_detalle_orden[]
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_platillo_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_platillo_ct_usuario_reg")
+  @@index([estado])
+  @@index([id_ct_categoria, estado])
+}
+
+model ct_rol {
+  id_ct_rol                               Int              @id @default(autoincrement())
+  nombre                                  String           @unique @db.VarChar(100)
+  descripcion                             String?          @db.VarChar(255)
+  estado                                  Boolean          @default(true)
+  fecha_reg                               DateTime         @default(now()) @db.DateTime(0)
+  fecha_mod                               DateTime?        @db.DateTime(0)
+  id_ct_usuario_reg                       Int
+  id_ct_usuario_mod                       Int?
+  usuario_modificacion                    ct_usuario?      @relation("ct_rol_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_rol_ct_usuario_mod")
+  usuario_registro                        ct_usuario       @relation("ct_rol_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_rol_ct_usuario_reg")
+  ct_usuario_ct_usuario_id_ct_rolToct_rol ct_usuario[]     @relation("ct_usuario_id_ct_rolToct_rol")
+  rl_rol_permiso                          rl_rol_permiso[]
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_rol_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_rol_ct_usuario_reg")
+  @@index([estado], map: "estado")
+}
+
+model ct_tipo_documento {
+  id_ct_tipo_documento   Int            @id @default(autoincrement())
+  clave                  String         @unique(map: "clave") @default("") @db.VarChar(50)
+  descripcion            String         @default("") @db.VarChar(255)
+  max_size_bytes         Int
+  extensiones_permitidas String         @default("pdf,jpg,png") @db.VarChar(255)
+  estado                 Boolean        @default(true)
+  fecha_reg              DateTime       @default(now()) @db.DateTime(0)
+  fecha_mod              DateTime?      @db.DateTime(0)
+  id_ct_usuario_reg      Int
+  id_ct_usuario_mod      Int?
+  usuario_modificacion   ct_usuario?    @relation("ct_tipo_documento_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_tipo_documento_ct_usuario_mod")
+  usuario_registro       ct_usuario     @relation("ct_tipo_documento_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_tipo_documento_ct_usuario_reg")
+  dt_documento           dt_documento[]
+
+  @@index([id_ct_usuario_reg], map: "ct_usuario_in")
+  @@index([id_ct_usuario_mod], map: "ct_usuario_up")
+  @@index([estado], map: "estado")
+}
+
+model ct_usuario {
+  id_ct_usuario                   Int                   @id @default(autoincrement())
+  usuario                         String                @unique @db.VarChar(100)
+  contrasena                      String                @db.VarChar(255)
+  email                           String?               @unique @db.VarChar(255)
+  nombre_completo                 String                @db.VarChar(200)
+  id_ct_rol                       Int                   @default(1)
+  estado                          Boolean               @default(true)
+  fecha_reg                       DateTime              @default(now()) @db.DateTime(0)
+  fecha_mod                       DateTime?             @db.DateTime(0)
+  id_ct_usuario_reg               Int
+  id_ct_usuario_mod               Int?
+  ct_categoria_modificados        ct_categoria[]        @relation("ct_categoria_id_ct_usuario_modToct_usuario")
+  ct_categoria_registrados        ct_categoria[]        @relation("ct_categoria_id_ct_usuario_regToct_usuario")
+  ct_cliente_modificados          ct_cliente[]          @relation("ct_cliente_id_ct_usuario_modToct_usuario")
+  ct_cliente_registrados          ct_cliente[]          @relation("ct_cliente_id_ct_usuario_regToct_usuario")
+  ct_mesa_modificados             ct_mesa[]             @relation("ct_mesa_id_ct_usuario_modToct_usuario")
+  ct_mesa_registrados             ct_mesa[]             @relation("ct_mesa_id_ct_usuario_regToct_usuario")
+  ct_permiso_modificados          ct_permiso[]          @relation("ct_permiso_id_ct_usuario_modToct_usuario")
+  ct_permiso_registrados          ct_permiso[]          @relation("ct_permiso_id_ct_usuario_regToct_usuario")
+  ct_plantilla_correo_modificados ct_plantilla_correo[] @relation("ct_plantilla_correo_id_ct_usuario_modToct_usuario")
+  ct_plantilla_correo_registrados ct_plantilla_correo[] @relation("ct_plantilla_correo_id_ct_usuario_regToct_usuario")
+  ct_platillo_modificados         ct_platillo[]         @relation("ct_platillo_id_ct_usuario_modToct_usuario")
+  ct_platillo_registrados         ct_platillo[]         @relation("ct_platillo_id_ct_usuario_regToct_usuario")
+  ct_rol_modificados              ct_rol[]              @relation("ct_rol_id_ct_usuario_modToct_usuario")
+  ct_rol_registrados              ct_rol[]              @relation("ct_rol_id_ct_usuario_regToct_usuario")
+  ct_tipo_documento_modificados   ct_tipo_documento[]   @relation("ct_tipo_documento_id_ct_usuario_modToct_usuario")
+  ct_tipo_documento_registrados   ct_tipo_documento[]   @relation("ct_tipo_documento_id_ct_usuario_regToct_usuario")
+  usuario_modificacion            ct_usuario?           @relation("ct_usuario_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_usuario_ct_usuario_mod")
+  other_ct_usuario_modificados    ct_usuario[]          @relation("ct_usuario_id_ct_usuario_modToct_usuario")
+  usuario_registro                ct_usuario            @relation("ct_usuario_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_usuario_ct_usuario_reg")
+  other_usuario_registro          ct_usuario[]          @relation("ct_usuario_id_ct_usuario_regToct_usuario")
+  ct_rol                          ct_rol                @relation("ct_usuario_id_ct_rolToct_rol", fields: [id_ct_rol], references: [id_ct_rol])
+  dt_detalle_orden_modificados    dt_detalle_orden[]    @relation("dt_detalle_orden_id_ct_usuario_modToct_usuario")
+  dt_detalle_orden_registrados    dt_detalle_orden[]    @relation("dt_detalle_orden_id_ct_usuario_regToct_usuario")
+  dt_documento_modificados        dt_documento[]        @relation("dt_documento_id_ct_usuario_modToct_usuario")
+  dt_documento_registrados        dt_documento[]        @relation("dt_documento_id_ct_usuario_regToct_usuario")
+  dt_refresh_token                dt_refresh_token[]
+  rl_orden_modificados            rl_orden[]            @relation("rl_orden_id_ct_usuario_modToct_usuario")
+  rl_orden_registrados            rl_orden[]            @relation("rl_orden_id_ct_usuario_regToct_usuario")
+  ordenes                         rl_orden[]            @relation("rl_orden_id_ct_usuarioToct_usuario")
+  rl_reservacion_modificados      rl_reservacion[]      @relation("rl_reservacion_id_ct_usuario_modToct_usuario")
+  rl_reservacion_registrados      rl_reservacion[]      @relation("rl_reservacion_id_ct_usuario_regToct_usuario")
+  rl_rol_permiso_modificados      rl_rol_permiso[]      @relation("rl_rol_permiso_id_ct_usuario_modToct_usuario")
+  rl_rol_permiso_registrados      rl_rol_permiso[]      @relation("rl_rol_permiso_id_ct_usuario_regToct_usuario")
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_usuario_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_ct_usuario_ct_usuario_reg")
+  @@index([estado])
+  @@index([id_ct_rol], map: "ct_usuario_id_ct_rol_fkey")
+}
+
+model dt_bitacora {
+  id_dt_bitacora   Int      @id @default(autoincrement())
+  id_ct_usuario    Int?
+  accion           String
+  modelo           String
+  registro_id      String?
+  endpoint         String
+  metodo           String
+  ip_address       String?
+  user_agent       String?
+  datos_anteriores String?  @db.LongText
+  datos_nuevos     String?  @db.LongText
+  createdAt        DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([id_ct_usuario])
+  @@index([modelo, registro_id])
+}
+
+model dt_bloqueo_seguridad {
+  id_dt_bloqueo     Int      @id @default(autoincrement())
+  ip_address        String   @db.VarChar(50)
+  endpoint          String   @db.VarChar(255)
+  usuario_intentado String?  @db.VarChar(100)
+  limite_alcanzado  Int
+  user_agent        String?  @db.Text
+  fecha_bloqueo     DateTime @default(now()) @db.DateTime(0)
+
+  @@index([fecha_bloqueo])
+  @@index([ip_address])
+}
+
+model dt_detalle_orden {
+  id_dt_detalle_orden  Int         @id @default(autoincrement())
+  id_rl_orden          Int
+  id_ct_platillo       Int
+  cantidad             Int
+  precio_unitario      Decimal     @db.Decimal(10, 2)
+  subtotal             Decimal     @db.Decimal(10, 2)
+  estado               Boolean     @default(true)
+  fecha_reg            DateTime    @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?   @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  ct_platillo          ct_platillo @relation(fields: [id_ct_platillo], references: [id_ct_platillo], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_detalle_orden_ct_platillo")
+  usuario_modificacion ct_usuario? @relation("dt_detalle_orden_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_detalle_orden_ct_usuario_mod")
+  usuario_registro     ct_usuario  @relation("dt_detalle_orden_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_detalle_orden_ct_usuario_reg")
+  rl_orden             rl_orden    @relation(fields: [id_rl_orden], references: [id_rl_orden], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_detalle_orden_rl_orden")
+
+  @@index([id_ct_usuario_mod], map: "FK_dt_detalle_orden_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_dt_detalle_orden_ct_usuario_reg")
+  @@index([id_ct_platillo], map: "dt_detalle_orden_id_ct_platillo_fkey")
+  @@index([id_rl_orden], map: "dt_detalle_orden_id_orden_fkey")
+  @@index([estado], map: "estado")
+}
+
+model dt_documento {
+  id_dt_documento      Int               @id @default(autoincrement())
+  nombre_original      String            @db.VarChar(255)
+  nombre_sistema       String            @db.VarChar(255)
+  ruta_relativa        String            @db.VarChar(500)
+  mime_type            String            @db.VarChar(100)
+  tama_o_bytes         Int               @map("tamaño_bytes")
+  hash                 String            @db.VarChar(64)
+  id_ct_tipo_documento Int
+  modulo               String            @db.VarChar(100)
+  estado               Boolean           @default(true)
+  fecha_reg            DateTime          @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?         @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  ct_tipo_documento    ct_tipo_documento @relation(fields: [id_ct_tipo_documento], references: [id_ct_tipo_documento], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_documento_ct_tipo_documento")
+  usuario_modificacion ct_usuario?       @relation("dt_documento_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_documento_ct_usuario_mod")
+  usuario_registro     ct_usuario        @relation("dt_documento_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_dt_documento_ct_usuario_reg")
+
+  @@index([estado], map: "estado")
+  @@index([id_ct_usuario_reg], map: "id_ct_usuario_in")
+  @@index([id_ct_usuario_mod], map: "id_ct_usuario_up")
+  @@index([hash], map: "idx_hash")
+  @@index([id_ct_tipo_documento], map: "idx_id_ct_tipo_documento")
+}
+
+model dt_refresh_token {
+  id_dt_refresh_token Int        @id @default(autoincrement())
+  token_hash          String     @unique(map: "token_hash") @db.VarChar(64)
+  id_ct_usuario       Int
+  expira_en           DateTime   @db.DateTime(6)
+  revocado            Boolean    @default(false)
+  revocado_en         DateTime?  @db.DateTime(0)
+  reemplazado_por     Int?
+  creado_en           DateTime   @default(now()) @db.DateTime(6)
+  ct_usuario          ct_usuario @relation(fields: [id_ct_usuario], references: [id_ct_usuario], onDelete: Cascade)
+
+  @@index([expira_en])
+  @@index([id_ct_usuario])
+  @@index([revocado, expira_en])
+}
+
+model rl_orden {
+  id_rl_orden          Int                @id @default(autoincrement())
+  id_ct_usuario        Int
+  id_ct_mesa           Int?
+  estado               rl_orden_estado    @default(PENDIENTE)
+  total                Decimal            @db.Decimal(10, 2)
+  fecha_reg            DateTime           @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?          @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  dt_detalle_orden     dt_detalle_orden[]
+  usuario_modificacion ct_usuario?        @relation("rl_orden_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_orden_ct_usuario_mod")
+  usuario_registro     ct_usuario         @relation("rl_orden_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_orden_ct_usuario_reg")
+  ct_mesa              ct_mesa?           @relation(fields: [id_ct_mesa], references: [id_ct_mesa], map: "dt_orden_id_ct_mesa_fkey")
+  usuario              ct_usuario         @relation("rl_orden_id_ct_usuarioToct_usuario", fields: [id_ct_usuario], references: [id_ct_usuario], map: "dt_orden_id_ct_usuario_fkey")
+
+  @@index([id_ct_usuario_mod], map: "FK_rl_orden_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_rl_orden_ct_usuario_reg")
+  @@index([estado], map: "dt_orden_estado_idx")
+  @@index([id_ct_mesa, estado], map: "dt_orden_id_ct_mesa_estado_idx")
+  @@index([id_ct_usuario, estado], map: "dt_orden_id_ct_usuario_estado_idx")
+}
+
+model rl_reservacion {
+  id_rl_reservacion    Int                   @id @default(autoincrement())
+  id_ct_cliente        Int
+  id_ct_mesa           Int?
+  fecha_reservacion    DateTime              @db.DateTime(0)
+  num_personas         Int
+  estado               rl_reservacion_estado @default(PENDIENTE)
+  notas                String?               @db.VarChar(500)
+  fecha_reg            DateTime              @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?             @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  ct_cliente           ct_cliente            @relation(fields: [id_ct_cliente], references: [id_ct_cliente], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_cliente")
+  ct_mesa              ct_mesa?              @relation(fields: [id_ct_mesa], references: [id_ct_mesa], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_mesa")
+  usuario_modificacion ct_usuario?           @relation("rl_reservacion_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_usuario_mod")
+  usuario_registro     ct_usuario            @relation("rl_reservacion_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_usuario_reg")
+
+  @@index([id_ct_usuario_mod], map: "FK_rl_reservacion_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_rl_reservacion_ct_usuario_reg")
+  @@index([estado], map: "dt_reservacion_estado_idx")
+  @@index([fecha_reservacion, estado], map: "dt_reservacion_fecha_reservacion_estado_idx")
+  @@index([id_ct_mesa], map: "dt_reservacion_id_ct_mesa_fkey")
+  @@index([id_ct_cliente], map: "dt_reservacion_id_ct_usuario_fkey")
+}
+
+model rl_rol_permiso {
+  id_rl_rol_permiso    Int         @id @default(autoincrement())
+  id_ct_rol            Int
+  id_ct_permiso        Int
+  estado               Boolean     @default(true)
+  fecha_reg            DateTime    @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?   @db.DateTime(0)
+  id_ct_usuario_reg    Int
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario? @relation("rl_rol_permiso_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_rol_permiso_ct_usuario_mod")
+  usuario_registro     ct_usuario  @relation("rl_rol_permiso_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_rol_permiso_ct_usuario_reg")
+  ct_permiso           ct_permiso  @relation(fields: [id_ct_permiso], references: [id_ct_permiso], onDelete: Cascade, map: "dt_rol_permiso_id_ct_permiso_fkey")
+  ct_rol               ct_rol      @relation(fields: [id_ct_rol], references: [id_ct_rol], onDelete: Cascade, map: "dt_rol_permiso_id_ct_rol_fkey")
+
+  @@unique([id_ct_rol, id_ct_permiso], map: "dt_rol_permiso_id_ct_rol_id_ct_permiso_key")
+  @@index([id_ct_usuario_mod], map: "FK_rl_rol_permiso_ct_usuario_mod")
+  @@index([id_ct_usuario_reg], map: "FK_rl_rol_permiso_ct_usuario_reg")
+  @@index([id_ct_permiso], map: "dt_rol_permiso_id_ct_permiso_fkey")
+  @@index([estado], map: "estado")
+}
+
+enum rl_orden_estado {
   PENDIENTE
   EN_PROCESO
   LISTO
   ENTREGADO
   CANCELADO
-
-  @@map("estado_orden")
 }
 
-enum EstadoReservacion {
+enum rl_reservacion_estado {
   PENDIENTE
   CONFIRMADA
   CANCELADA
   COMPLETADA
-
-  @@map("estado_reservacion")
-}
-
-// ── Catálogos ─────────────────────────────────────────────────────────────────
-
-model ct_rol {
-  id_ct_rol   Int       @id @default(autoincrement())
-  nombre      String    @unique @db.VarChar(100)
-  descripcion String?   @db.VarChar(255)
-  estado      Boolean   @default(true)
-  fecha_in    DateTime  @default(now()) @db.DateTime(6)
-  fecha_up    DateTime? @updatedAt @db.DateTime(6)
-
-  usuarios  ct_usuario[]
-  permisos  dt_rol_permiso[]
-
-  @@map("ct_rol")
-}
-
-model ct_permiso {
-  id_ct_permiso Int       @id @default(autoincrement())
-  nombre        String    @unique @db.VarChar(100)
-  codigo        String    @unique @db.VarChar(100) // Ej: "PLATILLOS_VER"
-  descripcion   String?   @db.VarChar(255)
-  estado        Boolean   @default(true)
-  fecha_in      DateTime  @default(now()) @db.DateTime(6)
-
-  roles dt_rol_permiso[]
-
-  @@map("ct_permiso")
-}
-
-model dt_rol_permiso {
-  id_dt_rol_permiso Int @id @default(autoincrement())
-  id_ct_rol         Int
-  id_ct_permiso     Int
-
-  rol     ct_rol     @relation(fields: [id_ct_rol], references: [id_ct_rol], onDelete: Cascade)
-  permiso ct_permiso @relation(fields: [id_ct_permiso], references: [id_ct_permiso], onDelete: Cascade)
-
-  @@unique([id_ct_rol, id_ct_permiso])
-  @@map("dt_rol_permiso")
-}
-
-model ct_usuario {
-  id_ct_usuario      Int       @id @default(autoincrement())
-  usuario            String    @unique @db.VarChar(100)
-  contrasena         String    @db.VarChar(255)
-  email              String?   @unique @db.VarChar(255)
-  nombre_completo    String    @db.VarChar(200)
-  id_ct_rol          Int       @default(1)
-  estado             Boolean   @default(true)
-  fecha_registro     DateTime  @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
-
-  rol           ct_rol             @relation(fields: [id_ct_rol], references: [id_ct_rol])
-  ordenes       dt_orden[]         @relation("UsuarioOrden")
-  reservaciones dt_reservacion[]   @relation("UsuarioReservacion")
-  tokens        dt_refresh_token[]
-
-  @@index([estado])
-  @@map("ct_usuario")
-}
-
-model ct_categoria {
-  id_ct_categoria    Int       @id @default(autoincrement())
-  nombre             String    @unique @db.VarChar(100)
-  descripcion        String?   @db.VarChar(500)
-  estado             Boolean   @default(true)
-  fecha_registro     DateTime  @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
-
-  platillos ct_platillo[]
-
-  @@index([estado])
-  @@map("ct_categoria")
-}
-
-model ct_platillo {
-  id_ct_platillo     Int       @id @default(autoincrement())
-  id_ct_categoria    Int
-  nombre             String    @db.VarChar(200)
-  descripcion        String?   @db.VarChar(500)
-  precio             Decimal   @db.Decimal(10, 2)
-  imagen_url         String?   @db.VarChar(500)
-  estado             Boolean   @default(true)
-  fecha_registro     DateTime  @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime? @updatedAt @db.DateTime(6)
-
-  categoria ct_categoria       @relation(fields: [id_ct_categoria], references: [id_ct_categoria])
-  detalles  dt_detalle_orden[]
-
-  // FK id_categoria ya tiene índice automático por la relación
-  @@index([estado])
-  @@index([id_ct_categoria, estado])
-  @@map("ct_platillo")
-}
-
-// ── Transacciones ─────────────────────────────────────────────────────────────
-
-model dt_orden {
-  id_orden           Int         @id @default(autoincrement())
-  id_ct_usuario      Int
-  id_mesa            Int?
-  estado             EstadoOrden @default(PENDIENTE)
-  total              Decimal     @db.Decimal(10, 2)
-  fecha_registro     DateTime    @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime?   @updatedAt @db.DateTime(6)
-
-  usuario  ct_usuario         @relation("UsuarioOrden", fields: [id_ct_usuario], references: [id_ct_usuario])
-  detalles dt_detalle_orden[]
-
-  // Consultas frecuentes: órdenes activas, órdenes por usuario, por mesa
-  @@index([estado])
-  @@index([id_ct_usuario, estado])
-  @@index([id_mesa, estado])
-  @@map("dt_orden")
-}
-
-model dt_detalle_orden {
-  id_detalle      Int     @id @default(autoincrement())
-  id_orden        Int
-  id_ct_platillo  Int
-  cantidad        Int
-  precio_unitario Decimal @db.Decimal(10, 2)
-  subtotal        Decimal @db.Decimal(10, 2)
-
-  orden    dt_orden    @relation(fields: [id_orden], references: [id_orden])
-  platillo ct_platillo @relation(fields: [id_ct_platillo], references: [id_ct_platillo])
-
-  // FK id_orden e id_platillo ya tienen índices automáticos por las relaciones
-  @@map("dt_detalle_orden")
-}
-
-// ── Sesiones / Auth ───────────────────────────────────────────────────────────
-
-model dt_refresh_token {
-  id_dt_refresh_token Int       @id @default(autoincrement())
-  /// SHA-256 hex del refresh token — nunca se almacena el token en texto claro
-  token_hash          String    @unique(map: "token_hash") @db.VarChar(64)
-  id_ct_usuario       Int
-  expira_en           DateTime  @db.DateTime(6)
-  revocado            Boolean   @default(false)
-  revocado_en         DateTime? @db.DateTime(0)
-  /// ID del siguiente token en la cadena de rotación.
-  /// Permite trazar toda la familia y detectar reutilización (token ya girado).
-  reemplazado_por     Int?
-  creado_en           DateTime  @default(now()) @db.DateTime(6)
-
-  usuario ct_usuario @relation(fields: [id_ct_usuario], references: [id_ct_usuario], onDelete: Cascade)
-
-  @@index([id_ct_usuario])
-  @@index([expira_en])
-  @@index([revocado, expira_en]) // el job de limpieza filtra por ambos
-  @@map("dt_refresh_token")
-}
-
-model dt_reservacion {
-  id_reservacion     Int               @id @default(autoincrement())
-  id_ct_usuario      Int
-  nombre_cliente     String            @db.VarChar(200)
-  fecha              DateTime          @db.DateTime(6)
-  num_personas       Int
-  estado             EstadoReservacion @default(PENDIENTE)
-  notas              String?           @db.VarChar(500)
-  fecha_registro     DateTime          @default(now()) @db.DateTime(6)
-  fecha_modificacion DateTime?         @updatedAt @db.DateTime(6)
-
-  usuario ct_usuario @relation("UsuarioReservacion", fields: [id_ct_usuario], references: [id_ct_usuario])
-
-  // Consultas frecuentes: reservaciones del día, pendientes
-  @@index([estado])
-  @@index([fecha, estado])
-  @@map("dt_reservacion")
-}
-
-model dt_bitacora {
-  id_dt_bitacora   Int      @id @default(autoincrement())
-  id_ct_usuario    Int? // Relación con el usuario que hizo el cambio
-  accion           String // ej. "CREATE", "UPDATE", "DELETE"
-  modelo           String // Nombre de la tabla/modelo afectado
-  registro_id      String? // ID del registro afectado (en string para soportar UUIDs o Ints)
-  endpoint         String // URL de la API
-  metodo           String // Método HTTP (POST, PUT, DELETE)
-  ip_address       String?
-  user_agent       String?
-  datos_anteriores Json? // Estado del registro ANTES del cambio
-  datos_nuevos     Json? // Estado del registro DESPUÉS del cambio
-  createdAt        DateTime @default(now())
-
-  @@index([id_ct_usuario])
-  @@index([modelo, registro_id])
-  @@index([createdAt])
-  @@map("dt_bitacora")
-}
-
-
-// ── Archivos y Documentos ─────────────────────────────────────────────────────
-
-model ct_tipo_documento {
-  id_ct_tipo_documento   Int       @id @default(autoincrement())
-  clave                  String    @unique(map: "clave") @default("") @db.VarChar(50)
-  descripcion            String    @default("") @db.VarChar(255)
-  max_size_bytes         Int
-  extensiones_permitidas String    @default("pdf,jpg,png") @db.VarChar(255)
-  estado                 Boolean   @default(true)
-  fecha_in               DateTime  @default(now()) @db.DateTime(0)
-  fecha_up               DateTime? @db.DateTime(0)
-  id_ct_usuario_in       Int
-  id_ct_usuario_up       Int?
-
-  documentos dt_documento[]
-
-  @@index([id_ct_usuario_in], map: "ct_usuario_in")
-  @@index([id_ct_usuario_up], map: "ct_usuario_up")
-  @@index([estado], map: "estado")
-}
-
-model dt_documento {
-  id_dt_documento      Int       @id @default(autoincrement())
-  nombre_original      String    @db.VarChar(255)
-  nombre_sistema       String    @db.VarChar(255)
-  ruta_relativa        String    @db.VarChar(500)
-  mime_type            String    @db.VarChar(100)
-  tama_o_bytes         Int       @map("tamaño_bytes")
-  hash                 String    @db.VarChar(64)
-  id_ct_tipo_documento Int
-  modulo               String    @db.VarChar(100)
-  estado               Boolean   @default(true)
-  fecha_in             DateTime  @default(now()) @db.DateTime(0)
-  fecha_up             DateTime? @db.DateTime(0)
-  id_ct_usuario_in     Int
-  id_ct_usuario_up     Int?
-
-  ct_tipo_documento ct_tipo_documento @relation(fields: [id_ct_tipo_documento], references: [id_ct_tipo_documento], map: "fk_dt_documento_tipo")
-
-  @@index([hash], map: "idx_hash")
-  @@index([estado], map: "estado")
-  @@index([id_ct_tipo_documento], map: "idx_id_ct_tipo_documento")
-  @@index([id_ct_usuario_in], map: "id_ct_usuario_in")
-  @@index([id_ct_usuario_up], map: "id_ct_usuario_up")
-}
-
-model ct_plantilla_correo {
-  id_ct_plantilla_correo Int       @id @default(autoincrement())
-  clave                  String    @unique @db.VarChar(50)
-  nombre                 String    @db.VarChar(100)
-  asunto                 String    @db.VarChar(200)
-  contenido_html         String    @db.MediumText
-  estado                 Boolean   @default(true)
-  fecha_in               DateTime  @default(now()) @db.DateTime(0)
-  fecha_up               DateTime? @updatedAt @db.DateTime(0)
-  id_ct_usuario_in       Int?
-  id_ct_usuario_up       Int?
-
-  @@map("ct_plantilla_correo")
 }

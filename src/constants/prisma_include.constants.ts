@@ -9,22 +9,22 @@ import { Prisma } from '@prisma/client';
  * Consulta un Platillo junto con su Categoría.
  */
 export const INCLUDE_PLATILLO_CATEGORIA = Prisma.validator<Prisma.ct_platilloInclude>()({
-  categoria: true,
+  ct_categoria: true,
 });
 
 /**
  * Consulta una Orden con el usuario que la realizó y sus detalles.
  */
-export const INCLUDE_ORDEN_USUARIO_DETALLES = Prisma.validator<Prisma.dt_ordenInclude>()({
-  usuario: {
+export const INCLUDE_ORDEN_USUARIO_DETALLES = Prisma.validator<Prisma.rl_ordenInclude>()({
+  usuario_registro: {
     select: {
       nombre_completo: true,
       usuario: true,
     },
   },
-  detalles: {
+  dt_detalle_orden: {
     include: {
-      platillo: {
+      ct_platillo: {
         select: {
           nombre: true,
           precio: true,
@@ -39,5 +39,20 @@ export const INCLUDE_ORDEN_USUARIO_DETALLES = Prisma.validator<Prisma.dt_ordenIn
  * Consulta un Usuario con su Rol.
  */
 export const INCLUDE_USUARIO_ROL = Prisma.validator<Prisma.ct_usuarioInclude>()({
-  rol: true,
+  ct_rol: true,
+});
+
+/**
+ * Consulta una Reservación con Cliente, Mesa y Usuario.
+ */
+export const INCLUDE_RESERVACION_TODO = Prisma.validator<Prisma.rl_reservacionInclude>()({
+  ct_cliente: true,
+  ct_mesa: true,
+  usuario_registro: {
+    select: {
+      id_ct_usuario: true,
+      usuario: true,
+      nombre_completo: true,
+    },
+  },
 });

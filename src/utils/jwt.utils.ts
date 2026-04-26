@@ -16,9 +16,11 @@ export function generarAccessToken(payload: PayloadJWT): string {
 /**
  * Genera el refresh token de larga vida (7 días por defecto).
  * Solo se usa para renovar el access token silenciosamente.
+ * Incluye un `jti` (JWT ID) único para garantizar que dos tokens
+ * generados en el mismo segundo nunca tengan el mismo hash en BD.
  */
 export function generarRefreshToken(payload: PayloadJWT): string {
-  return jwt.sign(payload, config.jwt.refreshSecret, {
+  return jwt.sign({ ...payload, jti: crypto.randomUUID() }, config.jwt.refreshSecret, {
     expiresIn: config.jwt.refreshExpiracion,
   } as jwt.SignOptions);
 }

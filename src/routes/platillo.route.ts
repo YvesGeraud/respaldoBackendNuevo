@@ -35,7 +35,7 @@ router.post(
   platilloController.crear,
 );
 
-router.put(
+router.patch(
   '/:id',
   autenticado,
   tienePermiso('PLATILLOS_EDITAR'),

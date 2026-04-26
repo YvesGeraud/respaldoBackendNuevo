@@ -1,8 +1,9 @@
 import { z } from '@/zod-extended';
 import { MSG } from '@/constants';
 
-export const CAMPOS_ORDENABLES_CATEGORIA = ['nombre', 'fecha_registro'] as const;
+export const CAMPOS_ORDENABLES_CATEGORIA = ['nombre', 'fecha_reg'] as const;
 
+// ── Campos base reutilizables ─────────────────────────────────────────────────
 const campos = {
   nombre: z
     .string()
@@ -13,6 +14,7 @@ const campos = {
   descripcion: z.string().trim().max(500, MSG.VAL_MAX('descripción', 500)).optional(),
 };
 
+// ── Schemas ───────────────────────────────────────────────────────────────────
 export const crearCategoriaSchema = z.object({
   body: z.object(campos),
 });
@@ -32,6 +34,7 @@ export const actualizarCategoriaSchema = z.object({
     }),
 });
 
+// ── Schemas de parámetros ──────────────────────────────────────────────────
 export const idParamCategoriaSchema = z.object({
   params: z.object({
     id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),

@@ -48,29 +48,44 @@ class CategoriaService {
     );
   }
 
-  async crear(data: CrearCategoriaDTO) {
+  async crear(id_ct_usuario_reg: number, data: CrearCategoriaDTO) {
     return prisma.ct_categoria.create({
-      data,
+      data: {
+        ...data,
+        id_ct_usuario_reg,
+      },
     });
   }
 
-  async actualizar(id_ct_categoria: number, data: ActualizarCategoriaDTO) {
+  async actualizar(
+    id_ct_usuario_mod: number,
+    id_ct_categoria: number,
+    data: ActualizarCategoriaDTO,
+  ) {
     // Verificar existencia
     await this.obtenerPorId(id_ct_categoria);
 
     return prisma.ct_categoria.update({
       where: { id_ct_categoria },
-      data,
+      data: {
+        ...data,
+        id_ct_usuario_mod,
+        fecha_mod: new Date(),
+      },
     });
   }
 
-  async eliminar(id_ct_categoria: number) {
+  async eliminar(id_ct_usuario_mod: number, id_ct_categoria: number) {
     // En lugar de borrar físico, usualmente se hace borrado lógico (estado = false)
     // Pero si quieren borrar, sería esto. Acá usamos borrado lógico según schema.
     await this.obtenerPorId(id_ct_categoria);
     await prisma.ct_categoria.update({
       where: { id_ct_categoria },
-      data: { estado: false },
+      data: {
+        estado: false,
+        id_ct_usuario_mod,
+        fecha_mod: new Date(),
+      },
     });
   }
 }

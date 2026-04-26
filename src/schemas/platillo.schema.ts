@@ -10,7 +10,7 @@ import { MSG } from '@/constants';
 export const CAMPOS_ORDENABLES_PLATILLO = [
   'nombre',
   'precio',
-  'fecha_registro',
+  'fecha_reg',
   'id_ct_categoria',
 ] as const;
 

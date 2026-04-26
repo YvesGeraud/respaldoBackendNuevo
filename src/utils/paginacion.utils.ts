@@ -31,7 +31,7 @@ type ModeloPaginable<T> = {
  *
  * @param camposOrdenables - Whitelist de columnas permitidas para ordenar.
  *   IMPORTANTE: siempre pasar esta lista para evitar exponer columnas internas.
- *   Ejemplo: ['nombre', 'precio', 'fecha_registro']
+ *   Ejemplo: ['nombre', 'precio', 'fecha_reg']
  */
 export function parsearPaginacion(
   query: Record<string, unknown>,
