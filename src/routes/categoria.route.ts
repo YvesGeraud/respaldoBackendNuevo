@@ -4,9 +4,9 @@ import { validar } from '@/middlewares/validar.middlewares';
 import {
   crearCategoriaSchema,
   actualizarCategoriaSchema,
-  idParamCategoriaSchema,
   filtrosCategoriasSchema,
 } from '@/schemas/categoria.schema';
+import { idParamSchema } from '@/schemas/comun.schema';
 
 import { autenticado } from '@/middlewares/autenticacion.middleware';
 // Asumiendo que queremos que todo el mundo autenticado pueda ver categorías, pero solo admin las edite.
@@ -19,13 +19,13 @@ const router = Router();
 
 // Rutas protegidas (Requieren al menos login para verlas en el dropdown)
 router.get('/', validar(filtrosCategoriasSchema), categoriaController.listar);
-router.get('/:id', validar(idParamCategoriaSchema), categoriaController.obtenerPorId);
+router.get('/:id', validar(idParamSchema), categoriaController.obtenerPorId);
 
 // Creación, actualización y borrado
 router.post('/', autenticado, validar(crearCategoriaSchema), categoriaController.crear);
 
 router.put('/:id', autenticado, validar(actualizarCategoriaSchema), categoriaController.actualizar);
 
-router.delete('/:id', autenticado, validar(idParamCategoriaSchema), categoriaController.eliminar);
+router.delete('/:id', autenticado, validar(idParamSchema), categoriaController.eliminar);
 
 export { router as categoriaRouter };

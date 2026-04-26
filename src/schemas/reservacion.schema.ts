@@ -77,11 +77,7 @@ export const filtrosReservacionesSchema = z.object({
   }),
 });
 
-export const idParamSchema = z.object({
-  params: z.object({
-    id: z.coerce.number({ error: 'El ID debe ser un número' }).int().positive(),
-  }),
-});
+
 
 // ── Tipos inferidos ───────────────────────────────────────────────────────────
 

@@ -35,11 +35,7 @@ export const actualizarCategoriaSchema = z.object({
 });
 
 // ── Schemas de parámetros ──────────────────────────────────────────────────
-export const idParamCategoriaSchema = z.object({
-  params: z.object({
-    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
-  }),
-});
+
 
 export const filtrosCategoriasSchema = z.object({
   query: z.object({

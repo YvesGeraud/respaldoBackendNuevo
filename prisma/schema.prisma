@@ -207,6 +207,7 @@ model ct_usuario {
   rl_reservacion_registrados      rl_reservacion[]      @relation("rl_reservacion_id_ct_usuario_regToct_usuario")
   rl_rol_permiso_modificados      rl_rol_permiso[]      @relation("rl_rol_permiso_id_ct_usuario_modToct_usuario")
   rl_rol_permiso_registrados      rl_rol_permiso[]      @relation("rl_rol_permiso_id_ct_usuario_regToct_usuario")
+  ct_configuracion_modificados    ct_configuracion[]    @relation("ct_configuracion_id_ct_usuario_modToct_usuario")
 
   @@index([id_ct_usuario_mod], map: "FK_ct_usuario_ct_usuario_mod")
   @@index([id_ct_usuario_reg], map: "FK_ct_usuario_ct_usuario_reg")
@@ -395,3 +396,22 @@ enum rl_reservacion_estado {
   CANCELADA
   COMPLETADA
 }
+
+model ct_configuracion {
+  id_ct_configuracion  Int       @id @default(autoincrement())
+  nombre_restaurante   String    @db.VarChar(100)
+  logo_url             String?   @db.VarChar(500)
+  telefono             String?   @db.VarChar(20)
+  direccion            String?   @db.VarChar(255)
+  email_contacto       String?   @db.VarChar(255)
+  horario_apertura     String?   @db.VarChar(50) // Ej: "10:00"
+  horario_cierre       String?   @db.VarChar(50) // Ej: "22:00"
+  moneda               String    @default("$") @db.VarChar(10)
+  impuesto_porcentaje  Decimal   @default(0.16) @db.Decimal(5, 2)
+  fecha_mod            DateTime? @db.DateTime(0)
+  id_ct_usuario_mod    Int?
+  usuario_modificacion ct_usuario? @relation("ct_configuracion_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_configuracion_ct_usuario_mod")
+
+  @@index([id_ct_usuario_mod], map: "FK_ct_configuracion_ct_usuario_mod")
+}
+

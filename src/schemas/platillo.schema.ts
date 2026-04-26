@@ -64,11 +64,7 @@ export const actualizarPlatilloSchema = z.object({
     }),
 });
 
-export const idParamSchema = z.object({
-  params: z.object({
-    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
-  }),
-});
+
 
 export const filtrosPlatillosSchema = z.object({
   query: z.object({

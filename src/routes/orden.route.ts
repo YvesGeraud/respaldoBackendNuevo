@@ -6,9 +6,9 @@ import { validar } from '@/middlewares/validar.middlewares';
 import {
   crearOrdenSchema,
   actualizarEstadoOrdenSchema,
-  idParamSchema,
   filtrosOrdenesSchema,
 } from '@/schemas/orden.schema';
+import { idParamSchema } from '@/schemas/comun.schema';
 
 const router = Router();
 

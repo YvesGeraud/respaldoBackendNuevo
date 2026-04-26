@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import platilloController from '@/controllers/platillo.controller';
 import { validar } from '@/middlewares/validar.middlewares';
+import { idParamSchema } from '@/schemas/comun.schema';
 import {
   crearPlatilloSchema,
   actualizarPlatilloSchema,
-  idParamSchema,
   filtrosPlatillosSchema,
   crearPlatillosLoteSchema,
 } from '@/schemas/platillo.schema';

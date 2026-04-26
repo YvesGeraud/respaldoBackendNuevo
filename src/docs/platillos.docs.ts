@@ -5,10 +5,10 @@ import { z } from '@/zod-extended';
 import {
   crearPlatilloSchema,
   actualizarPlatilloSchema,
-  idParamSchema,
   filtrosPlatillosSchema,
   crearPlatillosLoteSchema,
 } from '@/schemas/platillo.schema';
+import { idParamSchema } from '@/schemas/comun.schema';
 
 // Helpers de respuesta (los que te enseñé)
 import { okResponse, paginatedResponse, errorResponse } from '@/docs/respuestas.docs';

@@ -337,6 +337,25 @@ CREATE TABLE `rl_rol_permiso` (
     PRIMARY KEY (`id_rl_rol_permiso`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `ct_configuracion` (
+    `id_ct_configuracion` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre_restaurante` VARCHAR(100) NOT NULL,
+    `logo_url` VARCHAR(500) NULL,
+    `telefono` VARCHAR(20) NULL,
+    `direccion` VARCHAR(255) NULL,
+    `email_contacto` VARCHAR(255) NULL,
+    `horario_apertura` VARCHAR(50) NULL,
+    `horario_cierre` VARCHAR(50) NULL,
+    `moneda` VARCHAR(10) NOT NULL DEFAULT '$',
+    `impuesto_porcentaje` DECIMAL(5, 2) NOT NULL DEFAULT 0.16,
+    `fecha_mod` DATETIME(0) NULL,
+    `id_ct_usuario_mod` INTEGER NULL,
+
+    INDEX `FK_ct_configuracion_ct_usuario_mod`(`id_ct_usuario_mod`),
+    PRIMARY KEY (`id_ct_configuracion`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `ct_categoria` ADD CONSTRAINT `FK_ct_categoria_ct_usuario_mod` FOREIGN KEY (`id_ct_usuario_mod`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
@@ -456,3 +475,6 @@ ALTER TABLE `rl_rol_permiso` ADD CONSTRAINT `dt_rol_permiso_id_ct_permiso_fkey` 
 
 -- AddForeignKey
 ALTER TABLE `rl_rol_permiso` ADD CONSTRAINT `dt_rol_permiso_id_ct_rol_fkey` FOREIGN KEY (`id_ct_rol`) REFERENCES `ct_rol`(`id_ct_rol`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ct_configuracion` ADD CONSTRAINT `FK_ct_configuracion_ct_usuario_mod` FOREIGN KEY (`id_ct_usuario_mod`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
