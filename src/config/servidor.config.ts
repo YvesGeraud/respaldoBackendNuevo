@@ -26,6 +26,7 @@ export const config = {
   uploadPath: env.UPLOAD_BASE_PATH,
   apiUrl: env.API_URL,
   basePath: env.HOST,
+  apiExternaUrl: env.API_EXTERNA_URL,
 
   db: {
     url: env.DATABASE_URL,

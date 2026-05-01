@@ -33,6 +33,9 @@ export const entornoSchema = z.object({
         .filter(Boolean),
     ),
 
+  // APIs externas
+  API_EXTERNA_URL: z.string().url('API_EXTERNA_URL debe ser una URL válida').optional(),
+
   // Autenticación
   JWT_SECRET: z.string().min(1, 'JWT_SECRET es obligatorio'),
   JWT_EXPIRES_IN: z.string().default('15m'),
