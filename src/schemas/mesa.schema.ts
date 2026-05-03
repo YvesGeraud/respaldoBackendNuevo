@@ -16,11 +16,18 @@ const campos = {
     .int()
     .positive(MSG.VAL_REQUERIDO('capacidad'))
     .max(20, 'La capacidad máxima es de 20 personas por mesa'),
+
+  status: z.enum(['libre', 'ocupada', 'reservada']).default('libre'),
+  estado: z.boolean().default(true),
 };
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 export const crearMesaSchema = z.object({
-  body: z.object(campos),
+  body: z.object({
+    ...campos,
+    status: campos.status.optional(),
+    estado: campos.estado.optional(),
+  }),
 });
 
 export const actualizarMesaSchema = z.object({
@@ -28,8 +35,9 @@ export const actualizarMesaSchema = z.object({
     id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
   }),
   body: z.object({
-    codigo: campos.codigo.optional(),
-    capacidad: campos.capacidad.optional(),
+    codigo: z.string().trim().max(50).optional(),
+    capacidad: z.coerce.number().int().positive().max(20).optional(),
+    status: z.enum(['libre', 'ocupada', 'reservada']).optional(),
     estado: z.boolean().optional(),
   }).refine((data) => Object.values(data).some((v) => v !== undefined), {
     message: 'Debes enviar al menos un campo para actualizar',
@@ -41,6 +49,8 @@ export const filtrosMesasSchema = z.object({
     pagina: z.coerce.number().int().positive().optional(),
     limite: z.coerce.number().int().positive().max(100).optional(),
     codigo: z.string().trim().optional(),
+    busqueda: z.string().trim().optional(),
+    status: z.string().trim().optional(),
     estado: z
       .enum(['true', 'false'])
       .transform((v) => v === 'true')

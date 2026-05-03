@@ -51,12 +51,12 @@ export const actualizarPlatilloSchema = z.object({
   }),
   body: z
     .object({
-      id_ct_categoria: campos.id_ct_categoria.optional(),
-      nombre: campos.nombre.optional(),
-      descripcion: campos.descripcion,
-      precio: campos.precio.optional(),
+      id_ct_categoria: z.number().int().positive().optional(),
+      nombre: z.string().trim().min(1).max(200).optional(),
+      descripcion: z.string().trim().max(500).optional(),
+      precio: z.number().positive().optional(),
       // null = eliminar imagen explícitamente | undefined = no tocar el campo
-      imagen_url: campos.imagen_url.or(z.null()).optional(),
+      imagen_url: z.string().url().nullable().optional(),
       estado: z.boolean().optional(),
     })
     .refine((data) => Object.values(data).some((v) => v !== undefined), {

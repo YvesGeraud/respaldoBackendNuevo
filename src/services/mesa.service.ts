@@ -27,7 +27,15 @@ class MesaService {
     if (filtros.codigo) {
       where.codigo = { contains: filtros.codigo };
     }
+
+    if (filtros.busqueda) {
+      where.OR = [
+        { codigo: { contains: filtros.busqueda } },
+        // Aquí podrías agregar más campos de búsqueda si existieran
+      ];
+    }
     
+    if (filtros.status !== undefined) where.status = filtros.status;
     if (filtros.estado !== undefined) where.estado = filtros.estado;
 
     return paginar(

@@ -47,6 +47,7 @@ model ct_mesa {
   id_ct_mesa           Int              @id @default(autoincrement())
   codigo               String           @unique @db.VarChar(50)
   capacidad            Int
+  status               String           @default("libre") @db.VarChar(20)
   estado               Boolean          @default(true)
   fecha_reg            DateTime         @default(now()) @db.DateTime(0)
   fecha_mod            DateTime?        @db.DateTime(0)

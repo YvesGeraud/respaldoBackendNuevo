@@ -2,16 +2,17 @@ import type { Request, Response } from 'express';
 import mesaService from '@/services/mesa.service';
 import { responder } from '@/utils/respuestas.utils';
 import {
-  FiltrosMesas,
+  filtrosMesasSchema,
   CrearMesaDTO,
   ActualizarMesaDTO,
 } from '@/schemas/mesa.schema';
 
 class MesaController {
   async listar(req: Request, res: Response): Promise<void> {
-    const { datos, ...meta } = await mesaService.obtenerTodas(
-      req.query as unknown as FiltrosMesas,
-    );
+    // Validamos y transformamos los filtros usando el schema (p.ej. "true" -> true)
+    const filtros = filtrosMesasSchema.parse({ query: req.query }).query;
+    
+    const { datos, ...meta } = await mesaService.obtenerTodas(filtros);
     responder.paginado(res, datos, meta);
   }
 

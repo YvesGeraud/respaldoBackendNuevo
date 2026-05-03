@@ -39,7 +39,7 @@ CREATE TABLE `ct_mesa` (
     `id_ct_mesa` INTEGER NOT NULL AUTO_INCREMENT,
     `codigo` VARCHAR(50) NOT NULL,
     `capacidad` INTEGER NOT NULL,
-    `estado` BOOLEAN NOT NULL DEFAULT true,
+    `estado` VARCHAR(20) NOT NULL DEFAULT 'libre',
     `fecha_reg` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `fecha_mod` DATETIME(0) NULL,
     `id_ct_usuario_reg` INTEGER NOT NULL,
