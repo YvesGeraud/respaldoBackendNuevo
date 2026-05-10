@@ -21,7 +21,8 @@ class ReservacionController {
   }
 
   async crear(req: Request, res: Response): Promise<void> {
-    const id_ct_usuario = req.usuario!.id_ct_usuario;
+    // Si es una petición pública, req.usuario será undefined. Asignamos ID 1 (Sistema/Público)
+    const id_ct_usuario = req.usuario?.id_ct_usuario || 1;
     const datos = req.body as CrearReservacionDTO;
 
     const nuevaReservacion = await reservacionService.crear(id_ct_usuario, datos);

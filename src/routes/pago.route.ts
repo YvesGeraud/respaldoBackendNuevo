@@ -33,8 +33,7 @@ webhookRouter.post(
 // Estas rutas son para que el admin/staff gestione pagos desde el sistema.
 const pagoRouter = Router();
 
-// Todas las rutas de este router requieren autenticación JWT
-pagoRouter.use(autenticado);
+// Rutas públicas y protegidas de gestión de pagos
 
 /**
  * @route   POST /api/reservaciones/:id/pago
@@ -43,7 +42,7 @@ pagoRouter.use(autenticado);
  */
 pagoRouter.post(
   '/:id/pago',
-  tienePermiso('RESERVACIONES_CREAR'),
+  // Público: cualquier persona con el ID de su reservación puede iniciar el pago
   validar(iniciarPagoSchema),
   pagoController.iniciarPago,
 );
@@ -55,6 +54,7 @@ pagoRouter.post(
  */
 pagoRouter.post(
   '/:id/cancelar',
+  autenticado,
   tienePermiso('RESERVACIONES_EDITAR'),
   validar(cancelarReservacionSchema),
   pagoController.cancelar,
@@ -67,6 +67,7 @@ pagoRouter.post(
  */
 pagoRouter.patch(
   '/:id/completar',
+  autenticado,
   tienePermiso('RESERVACIONES_EDITAR'),
   validar(idParamSchema),
   pagoController.completar,

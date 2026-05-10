@@ -37,6 +37,15 @@ const campos = {
         return horas >= 10 && horas < 24;
       },
       { message: 'La hora de reservación debe estar entre las 10:00 y las 23:59' },
+    )
+    .refine(
+      (fecha) => {
+        const ahora = new Date();
+        // Margen de 2 horas desde el momento actual
+        const margenMinimo = new Date(ahora.getTime() + 2 * 60 * 60 * 1000);
+        return fecha > margenMinimo;
+      },
+      { message: 'Las reservaciones deben hacerse con al menos 2 horas de anticipación' }
     ),
 
   id_ct_mesa: z

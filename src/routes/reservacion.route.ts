@@ -12,8 +12,7 @@ import { idParamSchema } from '@/schemas/comun.schema';
 
 const router = Router();
 
-// Todas las rutas de reservaciones requieren autenticación
-router.use(autenticado);
+// Rutas públicas y protegidas de reservaciones
 
 /**
  * @route   GET /api/reservaciones
@@ -21,6 +20,7 @@ router.use(autenticado);
  */
 router.get(
   '/',
+  autenticado,
   tienePermiso('RESERVACIONES_VER'),
   validar(filtrosReservacionesSchema),
   reservacionController.obtenerTodos,
@@ -32,6 +32,7 @@ router.get(
  */
 router.get(
   '/:id',
+  autenticado,
   tienePermiso('RESERVACIONES_VER'),
   validar(idParamSchema),
   reservacionController.obtenerPorId,
@@ -43,7 +44,7 @@ router.get(
  */
 router.post(
   '/',
-  tienePermiso('RESERVACIONES_CREAR'),
+  // Público: cualquier persona puede crear una reservación desde la web
   validar(crearReservacionSchema),
   reservacionController.crear,
 );
@@ -54,6 +55,7 @@ router.post(
  */
 router.patch(
   '/:id',
+  autenticado,
   tienePermiso('RESERVACIONES_EDITAR'),
   validar(actualizarReservacionSchema),
   reservacionController.actualizar,
@@ -65,6 +67,7 @@ router.patch(
  */
 router.delete(
   '/:id',
+  autenticado,
   tienePermiso('RESERVACIONES_BORRAR'),
   validar(idParamSchema),
   reservacionController.eliminar,

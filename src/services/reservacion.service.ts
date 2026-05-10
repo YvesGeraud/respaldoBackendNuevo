@@ -4,7 +4,7 @@ import type { OpcionesPaginacion } from '@/utils/paginacion.utils';
 import { paginar } from '@/utils/paginacion.utils';
 import { buscarOError } from '@/utils/prisma.utils';
 import { PAGINACION } from '@/constants';
-import { ErrorNoEncontrado } from '@/utils/errores.utils';
+import { ErrorNoEncontrado, ErrorNegocio } from '@/utils/errores.utils';
 import type { ResultadoPaginado } from '@/types';
 import {
   FiltrosReservaciones,
@@ -70,7 +70,35 @@ class ReservacionService {
    * complete el proceso de pago via el endpoint POST /reservaciones/:id/pago.
    */
   async crear(id_ct_usuario_reg: number, datos: CrearReservacionDTO): Promise<ReservacionCompleta> {
-    // Validar que el cliente exista
+    // 1. Validar solapamiento de horarios (± 2 horas)
+    if (datos.id_ct_mesa && datos.fecha_reservacion) {
+      const fechaNueva = new Date(datos.fecha_reservacion);
+      const fechaInicio = new Date(fechaNueva.getTime() - 2 * 60 * 60 * 1000);
+      const fechaFin = new Date(fechaNueva.getTime() + 2 * 60 * 60 * 1000);
+
+      const reservacionEmpalmada = await prisma.rl_reservacion.findFirst({
+        where: {
+          id_ct_mesa: datos.id_ct_mesa,
+          fecha_reservacion: {
+            gte: fechaInicio,
+            lt: fechaFin,
+          },
+          ct_estado_reservacion: {
+            clave: {
+              in: [ESTADO_RESERVACION.PENDIENTE_PAGO, ESTADO_RESERVACION.CONFIRMADA]
+            }
+          }
+        }
+      });
+
+      if (reservacionEmpalmada) {
+        throw new ErrorNegocio(
+          'La mesa seleccionada ya tiene una reservación cercana a ese horario. Por favor elige otra mesa u otro horario.'
+        );
+      }
+    }
+
+    // 2. Validar que el cliente exista
     const cliente = await prisma.ct_cliente.findUnique({
       where: { id_ct_cliente: datos.id_ct_cliente },
     });
