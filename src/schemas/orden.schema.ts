@@ -39,6 +39,16 @@ export const actualizarEstadoOrdenSchema = z.object({
   }),
 });
 
+export const actualizarOrdenSchema = z.object({
+  params: z.object({
+    id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
+  }),
+  body: z.object({
+    id_mesa: z.number().int().positive().optional().nullable(),
+    detalles: z.array(detalleOrdenSchema).min(1, 'La orden debe contener al menos un platillo').optional(),
+  }),
+});
+
 export const filtrosOrdenesSchema = z.object({
   query: z.object({
     pagina: z.coerce.number().int().positive().optional(),
@@ -57,4 +67,5 @@ export const filtrosOrdenesSchema = z.object({
 export type DetalleOrdenDTO = z.infer<typeof detalleOrdenSchema>;
 export type CrearOrdenDTO = z.infer<typeof crearOrdenSchema>['body'];
 export type ActualizarEstadoOrdenDTO = z.infer<typeof actualizarEstadoOrdenSchema>['body'];
+export type ActualizarOrdenDTO = z.infer<typeof actualizarOrdenSchema>['body'];
 export type FiltrosOrdenes = z.infer<typeof filtrosOrdenesSchema>['query'];

@@ -463,6 +463,7 @@ enum rl_orden_estado {
   EN_PROCESO
   LISTO
   ENTREGADO
+  PAGADA
   CANCELADO
 }
 

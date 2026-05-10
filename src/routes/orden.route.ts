@@ -6,6 +6,7 @@ import { validar } from '@/middlewares/validar.middlewares';
 import {
   crearOrdenSchema,
   actualizarEstadoOrdenSchema,
+  actualizarOrdenSchema,
   filtrosOrdenesSchema,
 } from '@/schemas/orden.schema';
 import { idParamSchema } from '@/schemas/comun.schema';
@@ -26,6 +27,13 @@ router.patch(
   tienePermiso('ORDENES_ESTADO'),
   validar(actualizarEstadoOrdenSchema),
   ordenController.actualizarEstado,
+);
+
+router.put(
+  '/:id',
+  tienePermiso('ORDENES_EDITAR'),
+  validar(actualizarOrdenSchema),
+  ordenController.actualizar,
 );
 
 router.delete(

@@ -5,6 +5,7 @@ import type {
   FiltrosOrdenes,
   CrearOrdenDTO,
   ActualizarEstadoOrdenDTO,
+  ActualizarOrdenDTO,
 } from '@/schemas/orden.schema';
 
 class OrdenController {
@@ -41,6 +42,15 @@ class OrdenController {
 
     await ordenService.cancelar(id_ct_usuario, id);
     responder.ok(res, null, 'Orden cancelada exitosamente');
+  }
+
+  async actualizar(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params['id']);
+    const datos = req.body as ActualizarOrdenDTO;
+    const id_ct_usuario = req.usuario!.id_ct_usuario;
+
+    const ordenActualizada = await ordenService.actualizar(id_ct_usuario, id, datos);
+    responder.ok(res, ordenActualizada, 'Orden actualizada exitosamente');
   }
 }
 

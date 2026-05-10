@@ -7,6 +7,7 @@ import type { ResultadoPaginado } from '@/types';
 import type {
   CrearOrdenDTO,
   ActualizarEstadoOrdenDTO,
+  ActualizarOrdenDTO,
   FiltrosOrdenes,
 } from '@/schemas/orden.schema';
 import { CAMPOS_ORDENABLES_ORDEN } from '@/schemas/orden.schema';
@@ -193,6 +194,82 @@ class OrdenService {
   async cancelar(id_ct_usuario_mod: number, id_rl_orden: number): Promise<OrdenCompleta> {
     // Reutilizamos la lógica de actualizar estado
     return this.actualizarEstado(id_ct_usuario_mod, id_rl_orden, { estado: 'CANCELADO' });
+  }
+
+  /**
+   * Actualizar una orden completa (Mesa y Detalles).
+   * Solo permitido si la orden está en estado PENDIENTE.
+   */
+  async actualizar(
+    id_ct_usuario_mod: number,
+    id_rl_orden: number,
+    datos: ActualizarOrdenDTO,
+  ): Promise<OrdenCompleta> {
+    // 1. Validar existencia y estado (Solo PENDIENTE se puede editar detalles)
+    const ordenDb = await buscarOError(
+      prisma.rl_orden.findUnique({ where: { id_rl_orden } }),
+      'Orden',
+    );
+
+    if (ordenDb.estado !== 'PENDIENTE' && datos.detalles) {
+      throw new ErrorValidacion(
+        'No se pueden editar los platillos de una orden que ya está en proceso.',
+      );
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      let totalOrden = Number(ordenDb.total);
+
+      // 2. Si se envían detalles, reemplazarlos todos
+      if (datos.detalles) {
+        // Validar platillos
+        const idsPlatillos = datos.detalles.map((d) => d.id_ct_platillo);
+        const platillosDb = await tx.ct_platillo.findMany({
+          where: { id_ct_platillo: { in: idsPlatillos }, estado: true },
+        });
+
+        if (platillosDb.length !== idsPlatillos.length) {
+          throw new ErrorValidacion('Uno o más platillos no existen o están inactivos.');
+        }
+
+        const mapaPlatillos = new Map(platillosDb.map((p) => [p.id_ct_platillo, p.precio]));
+
+        // Eliminar detalles anteriores
+        await tx.dt_detalle_orden.deleteMany({ where: { id_rl_orden } });
+
+        // Calcular nuevo total y preparar nuevos detalles
+        totalOrden = 0;
+        const detallesNuevos = datos.detalles.map((detalle) => {
+          const precioUnitario = Number(mapaPlatillos.get(detalle.id_ct_platillo));
+          const subtotal = precioUnitario * detalle.cantidad;
+          totalOrden += subtotal;
+
+          return {
+            id_rl_orden,
+            id_ct_platillo: detalle.id_ct_platillo,
+            cantidad: detalle.cantidad,
+            precio_unitario: precioUnitario,
+            subtotal: subtotal,
+            id_ct_usuario_reg: id_ct_usuario_mod,
+          };
+        });
+
+        // Insertar nuevos detalles
+        await tx.dt_detalle_orden.createMany({ data: detallesNuevos });
+      }
+
+      // 3. Actualizar Cabecera
+      return await tx.rl_orden.update({
+        where: { id_rl_orden },
+        data: {
+          id_ct_mesa: datos.id_mesa !== undefined ? datos.id_mesa : undefined,
+          total: totalOrden,
+          id_ct_usuario_mod,
+          fecha_mod: new Date(),
+        },
+        include: INCLUDE_ORDEN_COMPLETA,
+      });
+    });
   }
 }
 
