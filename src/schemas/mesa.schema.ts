@@ -5,12 +5,8 @@ export const CAMPOS_ORDENABLES_MESA = ['id_ct_mesa', 'codigo', 'capacidad', 'fec
 
 // ── Campos base reutilizables ─────────────────────────────────────────────────
 const campos = {
-  codigo: z
-    .string()
-    .trim()
-    .min(1, MSG.VAL_REQUERIDO('código'))
-    .max(50, MSG.VAL_MAX('código', 50)),
-  
+  codigo: z.string().trim().min(1, MSG.VAL_REQUERIDO('código')).max(50, MSG.VAL_MAX('código', 50)),
+
   capacidad: z.coerce
     .number()
     .int()
@@ -34,14 +30,16 @@ export const actualizarMesaSchema = z.object({
   params: z.object({
     id: z.coerce.number().int().positive(MSG.VAL_REQUERIDO('id')),
   }),
-  body: z.object({
-    codigo: z.string().trim().max(50).optional(),
-    capacidad: z.coerce.number().int().positive().max(20).optional(),
-    status: z.enum(['libre', 'ocupada', 'reservada']).optional(),
-    estado: z.boolean().optional(),
-  }).refine((data) => Object.values(data).some((v) => v !== undefined), {
-    message: 'Debes enviar al menos un campo para actualizar',
-  }),
+  body: z
+    .object({
+      codigo: z.string().trim().max(50).optional(),
+      capacidad: z.coerce.number().int().positive().max(20).optional(),
+      status: z.enum(['libre', 'ocupada', 'reservada']).optional(),
+      estado: z.boolean().optional(),
+    })
+    .refine((data) => Object.values(data).some((v) => v !== undefined), {
+      message: 'Debes enviar al menos un campo para actualizar',
+    }),
 });
 
 export const filtrosMesasSchema = z.object({

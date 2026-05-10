@@ -14,7 +14,9 @@ import { PAGINACION } from '@/constants';
 import { ErrorDuplicado } from '@/utils/errores.utils';
 
 class MesaService {
-  async obtenerTodas(filtros: FiltrosMesas): Promise<ResultadoPaginado<Prisma.ct_mesaGetPayload<object>>> {
+  async obtenerTodas(
+    filtros: FiltrosMesas,
+  ): Promise<ResultadoPaginado<Prisma.ct_mesaGetPayload<object>>> {
     const opciones: OpcionesPaginacion = {
       pagina: Number(filtros.pagina) || PAGINACION.PAGINA_POR_DEFECTO,
       limite: Number(filtros.limite) || PAGINACION.LIMITE_POR_DEFECTO,
@@ -34,15 +36,13 @@ class MesaService {
         // Aquí podrías agregar más campos de búsqueda si existieran
       ];
     }
-    
+
     if (filtros.status !== undefined) where.status = filtros.status;
     if (filtros.estado !== undefined) where.estado = filtros.estado;
 
-    return paginar(
-      prisma.ct_mesa,
-      where,
-      opciones
-    ) as Promise<ResultadoPaginado<Prisma.ct_mesaGetPayload<object>>>;
+    return paginar(prisma.ct_mesa, where, opciones) as Promise<
+      ResultadoPaginado<Prisma.ct_mesaGetPayload<object>>
+    >;
   }
 
   async obtenerPorId(id: number): Promise<Prisma.ct_mesaGetPayload<object>> {
@@ -54,7 +54,10 @@ class MesaService {
     );
   }
 
-  async crear(id_ct_usuario_reg: number, datos: CrearMesaDTO): Promise<Prisma.ct_mesaGetPayload<object>> {
+  async crear(
+    id_ct_usuario_reg: number,
+    datos: CrearMesaDTO,
+  ): Promise<Prisma.ct_mesaGetPayload<object>> {
     // Validar código único
     const existe = await prisma.ct_mesa.findUnique({ where: { codigo: datos.codigo } });
     if (existe) throw new ErrorDuplicado(`Ya existe una mesa con el código ${datos.codigo}`);
@@ -70,7 +73,7 @@ class MesaService {
   async actualizar(
     id_ct_usuario_mod: number,
     id: number,
-    datos: ActualizarMesaDTO
+    datos: ActualizarMesaDTO,
   ): Promise<Prisma.ct_mesaGetPayload<object>> {
     await this.obtenerPorId(id);
 
@@ -97,10 +100,10 @@ class MesaService {
     // Soft delete para mesas
     await prisma.ct_mesa.update({
       where: { id_ct_mesa: id },
-      data: { 
-        estado: false, 
-        id_ct_usuario_mod, 
-        fecha_mod: new Date() 
+      data: {
+        estado: false,
+        id_ct_usuario_mod,
+        fecha_mod: new Date(),
       },
     });
   }

@@ -55,8 +55,10 @@ export async function procesarNoShows(): Promise<void> {
     });
 
     if (!estadoConfirmada) {
-      logger.error('[noshow.job] Estado CONFIRMADA no encontrado en ct_estado_reservacion. ' +
-        'Verifica que el seed se ejecutó correctamente.');
+      logger.error(
+        '[noshow.job] Estado CONFIRMADA no encontrado en ct_estado_reservacion. ' +
+          'Verifica que el seed se ejecutó correctamente.',
+      );
       return;
     }
 

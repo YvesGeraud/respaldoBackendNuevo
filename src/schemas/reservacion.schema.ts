@@ -83,8 +83,6 @@ export const filtrosReservacionesSchema = z.object({
   }),
 });
 
-
-
 // ── Tipos inferidos ───────────────────────────────────────────────────────────
 
 export type CrearReservacionDTO = z.infer<typeof crearReservacionSchema>['body'];

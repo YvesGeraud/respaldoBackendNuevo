@@ -64,8 +64,6 @@ export const actualizarPlatilloSchema = z.object({
     }),
 });
 
-
-
 export const filtrosPlatillosSchema = z.object({
   query: z.object({
     pagina: z.coerce.number().int().positive().optional(),

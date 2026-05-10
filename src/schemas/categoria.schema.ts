@@ -36,7 +36,6 @@ export const actualizarCategoriaSchema = z.object({
 
 // ── Schemas de parámetros ──────────────────────────────────────────────────
 
-
 export const filtrosCategoriasSchema = z.object({
   query: z.object({
     pagina: z.coerce.number().int().positive().optional(),

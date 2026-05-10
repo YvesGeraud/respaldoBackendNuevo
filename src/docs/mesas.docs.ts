@@ -1,10 +1,6 @@
 import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import { z } from '@/zod-extended';
-import {
-  crearMesaSchema,
-  actualizarMesaSchema,
-  filtrosMesasSchema,
-} from '@/schemas/mesa.schema';
+import { crearMesaSchema, actualizarMesaSchema, filtrosMesasSchema } from '@/schemas/mesa.schema';
 import { idParamSchema } from '@/schemas/comun.schema';
 import { okResponse, paginatedResponse } from '@/docs/respuestas.docs';
 

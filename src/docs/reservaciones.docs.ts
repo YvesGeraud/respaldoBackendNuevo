@@ -21,9 +21,11 @@ const ReservacionSchema = z.object({
     nombre: z.string(),
     correo: z.string(),
   }),
-  ct_mesa: z.object({
-    codigo: z.string(),
-  }).nullable(),
+  ct_mesa: z
+    .object({
+      codigo: z.string(),
+    })
+    .nullable(),
 });
 
 export const registerReservacionesDocs = (registry: OpenAPIRegistry) => {

@@ -25,7 +25,7 @@ class ConfiguracionService {
 
   async actualizar(
     id_ct_usuario_mod: number,
-    datos: ActualizarConfiguracionDTO
+    datos: ActualizarConfiguracionDTO,
   ): Promise<Prisma.ct_configuracionGetPayload<object>> {
     const configActual = await this.obtener();
 

@@ -14,7 +14,9 @@ import { PAGINACION } from '@/constants';
 import { ErrorDuplicado } from '@/utils/errores.utils';
 
 class ClienteService {
-  async obtenerTodos(filtros: FiltrosClientes): Promise<ResultadoPaginado<Prisma.ct_clienteGetPayload<object>>> {
+  async obtenerTodos(
+    filtros: FiltrosClientes,
+  ): Promise<ResultadoPaginado<Prisma.ct_clienteGetPayload<object>>> {
     const opciones: OpcionesPaginacion = {
       pagina: Number(filtros.pagina) || PAGINACION.PAGINA_POR_DEFECTO,
       limite: Number(filtros.limite) || PAGINACION.LIMITE_POR_DEFECTO,
@@ -30,14 +32,12 @@ class ClienteService {
         { correo: { contains: filtros.busqueda } },
       ];
     }
-    
+
     if (filtros.estado !== undefined) where.estado = filtros.estado;
 
-    return paginar(
-      prisma.ct_cliente,
-      where,
-      opciones
-    ) as Promise<ResultadoPaginado<Prisma.ct_clienteGetPayload<object>>>;
+    return paginar(prisma.ct_cliente, where, opciones) as Promise<
+      ResultadoPaginado<Prisma.ct_clienteGetPayload<object>>
+    >;
   }
 
   async obtenerPorId(id: number): Promise<Prisma.ct_clienteGetPayload<object>> {
@@ -49,7 +49,10 @@ class ClienteService {
     );
   }
 
-  async crear(id_ct_usuario_reg: number, datos: CrearClienteDTO): Promise<Prisma.ct_clienteGetPayload<object>> {
+  async crear(
+    id_ct_usuario_reg: number,
+    datos: CrearClienteDTO,
+  ): Promise<Prisma.ct_clienteGetPayload<object>> {
     // Verificar si el correo ya existe
     const existente = await prisma.ct_cliente.findFirst({
       where: { correo: datos.correo },
@@ -70,7 +73,7 @@ class ClienteService {
   async actualizar(
     id_ct_usuario_mod: number,
     id: number,
-    datos: ActualizarClienteDTO
+    datos: ActualizarClienteDTO,
   ): Promise<Prisma.ct_clienteGetPayload<object>> {
     await this.obtenerPorId(id);
 
@@ -90,10 +93,10 @@ class ClienteService {
     // Soft delete para clientes
     await prisma.ct_cliente.update({
       where: { id_ct_cliente: id },
-      data: { 
-        estado: false, 
-        id_ct_usuario_mod, 
-        fecha_mod: new Date() 
+      data: {
+        estado: false,
+        id_ct_usuario_mod,
+        fecha_mod: new Date(),
       },
     });
   }

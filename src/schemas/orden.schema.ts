@@ -39,8 +39,6 @@ export const actualizarEstadoOrdenSchema = z.object({
   }),
 });
 
-
-
 export const filtrosOrdenesSchema = z.object({
   query: z.object({
     pagina: z.coerce.number().int().positive().optional(),

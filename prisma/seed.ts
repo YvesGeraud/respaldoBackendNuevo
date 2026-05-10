@@ -186,19 +186,61 @@ async function main() {
   // 6. Platillos
   console.log('🍕 Creando platillos...');
   const platillosData = [
-    { nombre: 'Nachos con Queso', desc: 'Crujientes nachos', imagen_url:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s', precio: 85.0, cat: 0 },
-    { nombre: 'Alitas BBQ', desc: '10 alitas BBQ',  imagen_url: 'https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg', precio: 120.0, cat: 0 },
-    { nombre: 'Hamburguesa Clásica', desc: 'Carne de res, queso', imagen_url:
-        'https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg', precio: 150.0, cat: 1 },
-    { nombre: 'Pasta Alfredo', desc: 'Fettuccine en salsa', imagen_url:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s', precio: 165.0, cat: 1 },
-    { nombre: 'Pastel de Chocolate', desc: 'Delicioso pastel', imagen_url:
-        'https://www.verybestbaking.com/sites/g/files/jgfbjl326/files/styles/large/public/recipe-thumbnail/103679-2020_06_09T08_18_01_mrs_ImageRecipes_1810lrg.jpg?itok=DR3HQYQ1', precio: 85.0, cat: 2 },
-    { nombre: 'Brownie con Helado', desc: 'Con helado',  imagen_url:
-        'https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg', precio: 75.0, cat: 2 },
-    { nombre: 'Limonada Natural', desc: 'Recién exprimida', imagen_url:
-        'https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094', precio: 35.0, cat: 3 },
+    {
+      nombre: 'Nachos con Queso',
+      desc: 'Crujientes nachos',
+      imagen_url:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDqPcmsUGWLPqXuwR5UZQUd-MYn0UanMESTg&s',
+      precio: 85.0,
+      cat: 0,
+    },
+    {
+      nombre: 'Alitas BBQ',
+      desc: '10 alitas BBQ',
+      imagen_url: 'https://cdn7.kiwilimon.com/recetaimagen/33623/960x640/39037.jpg.jpg',
+      precio: 120.0,
+      cat: 0,
+    },
+    {
+      nombre: 'Hamburguesa Clásica',
+      desc: 'Carne de res, queso',
+      imagen_url:
+        'https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/FBB73F91-2A4F-475E-BB25-CE12D72C9D19/Derivates/d1eddcbc-5604-4592-bb85-1ef70ee15f96.jpg',
+      precio: 150.0,
+      cat: 1,
+    },
+    {
+      nombre: 'Pasta Alfredo',
+      desc: 'Fettuccine en salsa',
+      imagen_url:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR99DLttbqSdmIrf6Amem4EePZJ_kZRE92Elw&s',
+      precio: 165.0,
+      cat: 1,
+    },
+    {
+      nombre: 'Pastel de Chocolate',
+      desc: 'Delicioso pastel',
+      imagen_url:
+        'https://www.verybestbaking.com/sites/g/files/jgfbjl326/files/styles/large/public/recipe-thumbnail/103679-2020_06_09T08_18_01_mrs_ImageRecipes_1810lrg.jpg?itok=DR3HQYQ1',
+      precio: 85.0,
+      cat: 2,
+    },
+    {
+      nombre: 'Brownie con Helado',
+      desc: 'Con helado',
+      imagen_url:
+        'https://mandolina.co/wp-content/uploads/2020/11/brownie-con-helado-destacada.jpg',
+      precio: 75.0,
+      cat: 2,
+    },
+    {
+      nombre: 'Limonada Natural',
+      desc: 'Recién exprimida',
+      imagen_url:
+        'https://cdnx.jumpseller.com/magnifique1/image/65465114/thumb/1079/1439?1752774094',
+      precio: 35.0,
+      cat: 3,
+    },
   ];
 
   for (const p of platillosData) {
@@ -374,7 +416,8 @@ async function main() {
     {
       clave: 'CONFIRMADA',
       nombre: 'Confirmada',
-      descripcion: 'Pago autorizado por Stripe (fondos reservados). El cliente se presenta el día acordado.',
+      descripcion:
+        'Pago autorizado por Stripe (fondos reservados). El cliente se presenta el día acordado.',
       implica_pago_activo: true,
     },
     {

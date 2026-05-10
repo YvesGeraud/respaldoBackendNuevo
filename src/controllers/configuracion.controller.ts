@@ -12,7 +12,7 @@ class ConfiguracionController {
   async actualizar(req: Request, res: Response): Promise<void> {
     const config = await configuracionService.actualizar(
       req.usuario!.id_ct_usuario,
-      req.body as ActualizarConfiguracionDTO
+      req.body as ActualizarConfiguracionDTO,
     );
     responder.ok(res, config, 'Configuración actualizada exitosamente');
   }

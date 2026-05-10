@@ -5,11 +5,7 @@ import { AppError } from '@/utils/errores.utils';
 // ── Validación de URL ─────────────────────────────────────────────────────────
 
 if (!config.apiExternaUrl) {
-  throw new AppError(
-    'API_EXTERNA_URL no está definida en el archivo .env',
-    500,
-    'INTERNAL_ERROR',
-  );
+  throw new AppError('API_EXTERNA_URL no está definida en el archivo .env', 500, 'INTERNAL_ERROR');
 }
 
 // ── Cliente HTTP preconfigurado ───────────────────────────────────────────────

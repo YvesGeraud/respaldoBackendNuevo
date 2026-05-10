@@ -10,17 +10,13 @@ const router = Router();
 // Todas las rutas de configuración requieren estar autenticado
 router.use(autenticado);
 
-router.get(
-  '/',
-  tienePermiso('CONFIG_VER'),
-  configuracionController.obtener
-);
+router.get('/', tienePermiso('CONFIG_VER'), configuracionController.obtener);
 
 router.patch(
   '/',
   tienePermiso('CONFIG_VER'), // Usamos el mismo permiso para editar ya que es configuración crítica
   validar(actualizarConfiguracionSchema),
-  configuracionController.actualizar
+  configuracionController.actualizar,
 );
 
 export { router as configuracionRouter };

@@ -5,11 +5,11 @@ import { z } from '@/zod-extended';
 // en la tabla ct_estado_reservacion).
 // Se definen aquí como constantes para evitar magic strings en todo el código.
 export const ESTADO_RESERVACION = {
-  PENDIENTE_PAGO: 'PENDIENTE_PAGO',    // Formulario enviado, esperando pago
-  CONFIRMADA: 'CONFIRMADA',             // Pago autorizado por Stripe (webhook recibido)
-  COMPLETADA: 'COMPLETADA',             // Cliente asistió, autorización liberada
-  NO_SHOW: 'NO_SHOW',                   // No se presentó, penalización capturada
-  CANCELADA: 'CANCELADA',               // Canceló a tiempo, sin cargo
+  PENDIENTE_PAGO: 'PENDIENTE_PAGO', // Formulario enviado, esperando pago
+  CONFIRMADA: 'CONFIRMADA', // Pago autorizado por Stripe (webhook recibido)
+  COMPLETADA: 'COMPLETADA', // Cliente asistió, autorización liberada
+  NO_SHOW: 'NO_SHOW', // No se presentó, penalización capturada
+  CANCELADA: 'CANCELADA', // Canceló a tiempo, sin cargo
   CANCELADA_CON_CARGO: 'CANCELADA_CON_CARGO', // Canceló tarde, penalización capturada
 } as const;
 

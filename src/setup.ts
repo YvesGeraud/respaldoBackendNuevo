@@ -134,6 +134,13 @@ const limitarAuth = rateLimit({
 // Comprime respuestas con gzip (reduce ~70% el tamaño en JSON grandes)
 app.use(compression());
 
+// Prefijo base para todas las rutas (útil cuando el proxy no reescribe la ruta)
+// local: "/" -> "/health" | servidor: "/app/dms/" -> "/app/dms/health"
+const base = config.basePath.endsWith('/') ? config.basePath : `${config.basePath}/`;
+
+// ⚠️ DEBE ir antes de express.json() para preservar el buffer en webhook
+app.use(`${base}api/webhooks`, webhookRouter);
+
 // ── Parseo de peticiones ──────────────────────────────────────────────────────
 
 app.use(express.json({ limit: '10kb' })); // límite para evitar payloads gigantes
@@ -150,17 +157,6 @@ app.use(morgan(config.esProduccion ? 'combined' : 'dev', { stream: morganStream 
 app.use(middlewareAuditoria);
 
 // ── Rutas ─────────────────────────────────────────────────────────────────────
-
-// Prefijo base para todas las rutas (útil cuando el proxy no reescribe la ruta)
-// local: "/" -> "/health" | servidor: "/app/dms/" -> "/app/dms/health"
-const base = config.basePath.endsWith('/') ? config.basePath : `${config.basePath}/`;
-
-// ── Swagger UI ───────────────────────────────────────────────────────────────
-
-// ⚠️ Webhook de Stripe: se monta aquí (después de declarar 'base') con express.raw() en la ruta
-// interna, por lo que aunque express.json() ya esté registrado globalmente arriba,
-// Express aplica el middleware correcto por ruta: el webhook recibe el body como Buffer.
-app.use(`${base}api/webhooks`, webhookRouter);
 
 // Se sirve en /docs (o según configuración)
 app.use(`${base}docs`, swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -23,7 +23,7 @@ router.get(
   '/',
   tienePermiso('RESERVACIONES_VER'),
   validar(filtrosReservacionesSchema),
-  reservacionController.obtenerTodos
+  reservacionController.obtenerTodos,
 );
 
 /**
@@ -34,7 +34,7 @@ router.get(
   '/:id',
   tienePermiso('RESERVACIONES_VER'),
   validar(idParamSchema),
-  reservacionController.obtenerPorId
+  reservacionController.obtenerPorId,
 );
 
 /**
@@ -45,7 +45,7 @@ router.post(
   '/',
   tienePermiso('RESERVACIONES_CREAR'),
   validar(crearReservacionSchema),
-  reservacionController.crear
+  reservacionController.crear,
 );
 
 /**
@@ -56,7 +56,7 @@ router.patch(
   '/:id',
   tienePermiso('RESERVACIONES_EDITAR'),
   validar(actualizarReservacionSchema),
-  reservacionController.actualizar
+  reservacionController.actualizar,
 );
 
 /**
@@ -67,7 +67,7 @@ router.delete(
   '/:id',
   tienePermiso('RESERVACIONES_BORRAR'),
   validar(idParamSchema),
-  reservacionController.eliminar
+  reservacionController.eliminar,
 );
 
 export { router as reservacionesRouter };

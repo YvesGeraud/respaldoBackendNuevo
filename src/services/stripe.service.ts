@@ -67,10 +67,7 @@ class StripeService {
    * @param claveIntentoPago - El ID del PaymentIntent en Stripe (pi_...)
    * @param montoCentavos - Monto a capturar. Si es undefined, captura el total.
    */
-  async capturarPago(
-    claveIntentoPago: string,
-    montoCentavos?: number,
-  ) {
+  async capturarPago(claveIntentoPago: string, montoCentavos?: number) {
     logger.info('[StripeService] Capturando pago', { claveIntentoPago, montoCentavos });
 
     const opciones: Parameters<typeof stripe.paymentIntents.capture>[1] = {};

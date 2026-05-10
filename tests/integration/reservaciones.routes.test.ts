@@ -23,7 +23,7 @@ vi.mock('@/config/database.config', () => ({
     },
     rl_rol_permiso: {
       findMany: vi.fn(),
-    }
+    },
   },
 }));
 
@@ -33,35 +33,54 @@ import { prisma } from '@/config/database.config';
 const SECRET = process.env['JWT_SECRET']!;
 
 const getAuthCookie = (id = 1, rol = 'ADMIN', permisos: string[] = []) => {
-  const token = jwt.sign(
-    { id_ct_usuario: id, usuario: 'admin', rol, permisos },
-    SECRET,
-    { expiresIn: '15m' }
-  );
+  const token = jwt.sign({ id_ct_usuario: id, usuario: 'admin', rol, permisos }, SECRET, {
+    expiresIn: '15m',
+  });
   return `accessToken=${token}`;
 };
 
 describe('Módulo de Reservaciones — Rutas de Integración', () => {
-  
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock por defecto para permisos
-    vi.mocked(prisma.rl_rol_permiso.findMany).mockResolvedValue([{"ct_permiso":{"codigo":"USUARIOS_VER"}},{"ct_permiso":{"codigo":"USUARIOS_CREAR"}},{"ct_permiso":{"codigo":"USUARIOS_EDITAR"}},{"ct_permiso":{"codigo":"USUARIOS_BORRAR"}},{"ct_permiso":{"codigo":"CLIENTES_VER"}},{"ct_permiso":{"codigo":"CLIENTES_CREAR"}},{"ct_permiso":{"codigo":"CLIENTES_EDITAR"}},{"ct_permiso":{"codigo":"CLIENTES_BORRAR"}},{"ct_permiso":{"codigo":"PLATILLOS_VER"}},{"ct_permiso":{"codigo":"PLATILLOS_CREAR"}},{"ct_permiso":{"codigo":"PLATILLOS_EDITAR"}},{"ct_permiso":{"codigo":"PLATILLOS_BORRAR"}},{"ct_permiso":{"codigo":"MESAS_VER"}},{"ct_permiso":{"codigo":"MESAS_CREAR"}},{"ct_permiso":{"codigo":"MESAS_EDITAR"}},{"ct_permiso":{"codigo":"MESAS_BORRAR"}},{"ct_permiso":{"codigo":"CONFIG_VER"}},{"ct_permiso":{"codigo":"CONFIG_EDITAR"}},{"ct_permiso":{"codigo":"RESERVACIONES_VER"}},{"ct_permiso":{"codigo":"RESERVACIONES_CREAR"}},{"ct_permiso":{"codigo":"RESERVACIONES_EDITAR"}},{"ct_permiso":{"codigo":"RESERVACIONES_BORRAR"}},{"ct_permiso":{"codigo":"ORDENES_CREAR"}},{"ct_permiso":{"codigo":"ORDENES_ESTADO"}},{"ct_permiso":{"codigo":"ORDENES_CANCELAR"}}] as any);
+    vi.mocked(prisma.rl_rol_permiso.findMany).mockResolvedValue([
+      { ct_permiso: { codigo: 'USUARIOS_VER' } },
+      { ct_permiso: { codigo: 'USUARIOS_CREAR' } },
+      { ct_permiso: { codigo: 'USUARIOS_EDITAR' } },
+      { ct_permiso: { codigo: 'USUARIOS_BORRAR' } },
+      { ct_permiso: { codigo: 'CLIENTES_VER' } },
+      { ct_permiso: { codigo: 'CLIENTES_CREAR' } },
+      { ct_permiso: { codigo: 'CLIENTES_EDITAR' } },
+      { ct_permiso: { codigo: 'CLIENTES_BORRAR' } },
+      { ct_permiso: { codigo: 'PLATILLOS_VER' } },
+      { ct_permiso: { codigo: 'PLATILLOS_CREAR' } },
+      { ct_permiso: { codigo: 'PLATILLOS_EDITAR' } },
+      { ct_permiso: { codigo: 'PLATILLOS_BORRAR' } },
+      { ct_permiso: { codigo: 'MESAS_VER' } },
+      { ct_permiso: { codigo: 'MESAS_CREAR' } },
+      { ct_permiso: { codigo: 'MESAS_EDITAR' } },
+      { ct_permiso: { codigo: 'MESAS_BORRAR' } },
+      { ct_permiso: { codigo: 'CONFIG_VER' } },
+      { ct_permiso: { codigo: 'CONFIG_EDITAR' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_VER' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_CREAR' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_EDITAR' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_BORRAR' } },
+      { ct_permiso: { codigo: 'ORDENES_CREAR' } },
+      { ct_permiso: { codigo: 'ORDENES_ESTADO' } },
+      { ct_permiso: { codigo: 'ORDENES_CANCELAR' } },
+    ] as any);
   });
 
   describe('GET /api/reservaciones', () => {
     it('debe retornar lista de reservaciones', async () => {
-      const mockReservaciones = [
-        { id_rl_reservacion: 1, estado: 'PENDIENTE' },
-      ];
+      const mockReservaciones = [{ id_rl_reservacion: 1, estado: 'PENDIENTE' }];
 
       vi.mocked(prisma.rl_reservacion.findMany).mockResolvedValue(mockReservaciones as any);
       vi.mocked(prisma.rl_reservacion.count).mockResolvedValue(1);
 
-      const res = await request(app)
-        .get('/api/reservaciones')
-        .set('Cookie', getAuthCookie());
+      const res = await request(app).get('/api/reservaciones').set('Cookie', getAuthCookie());
 
       expect(res.status).toBe(200);
       expect(res.body.datos).toHaveLength(1);
@@ -78,7 +97,7 @@ describe('Módulo de Reservaciones — Rutas de Integración', () => {
     const nuevaReservacion = {
       id_ct_cliente: 1,
       fecha_reservacion: fechaStr,
-      num_personas: 4
+      num_personas: 4,
     };
 
     it('debe crear una reservación si el cliente existe', async () => {
@@ -112,8 +131,14 @@ describe('Módulo de Reservaciones — Rutas de Integración', () => {
 
   describe('PATCH /api/reservaciones/:id', () => {
     it('debe actualizar el estado de una reservación', async () => {
-      vi.mocked(prisma.rl_reservacion.findUnique).mockResolvedValue({ id_rl_reservacion: 1, estado: 'PENDIENTE' } as any);
-      vi.mocked(prisma.rl_reservacion.update).mockResolvedValue({ id_rl_reservacion: 1, estado: 'CONFIRMADA' } as any);
+      vi.mocked(prisma.rl_reservacion.findUnique).mockResolvedValue({
+        id_rl_reservacion: 1,
+        estado: 'PENDIENTE',
+      } as any);
+      vi.mocked(prisma.rl_reservacion.update).mockResolvedValue({
+        id_rl_reservacion: 1,
+        estado: 'CONFIRMADA',
+      } as any);
 
       const res = await request(app)
         .patch('/api/reservaciones/1')
@@ -127,17 +152,23 @@ describe('Módulo de Reservaciones — Rutas de Integración', () => {
 
   describe('DELETE /api/reservaciones/:id', () => {
     it('debe cambiar el estado a CANCELADA', async () => {
-      vi.mocked(prisma.rl_reservacion.findUnique).mockResolvedValue({ id_rl_reservacion: 1, estado: 'PENDIENTE' } as any);
-      vi.mocked(prisma.rl_reservacion.update).mockResolvedValue({ id_rl_reservacion: 1, estado: 'CANCELADA' } as any);
+      vi.mocked(prisma.rl_reservacion.findUnique).mockResolvedValue({
+        id_rl_reservacion: 1,
+        estado: 'PENDIENTE',
+      } as any);
+      vi.mocked(prisma.rl_reservacion.update).mockResolvedValue({
+        id_rl_reservacion: 1,
+        estado: 'CANCELADA',
+      } as any);
 
-      const res = await request(app)
-        .delete('/api/reservaciones/1')
-        .set('Cookie', getAuthCookie());
+      const res = await request(app).delete('/api/reservaciones/1').set('Cookie', getAuthCookie());
 
       expect(res.status).toBe(200);
-      expect(prisma.rl_reservacion.update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ estado: 'CANCELADA' })
-      }));
+      expect(prisma.rl_reservacion.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ estado: 'CANCELADA' }),
+        }),
+      );
     });
   });
 });

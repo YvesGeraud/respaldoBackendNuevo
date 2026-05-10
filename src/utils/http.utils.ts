@@ -43,7 +43,9 @@ export function crearClienteHttp(baseURL: string, opciones: OpcionesHttp = {}) {
   // Interceptor de respuesta: loguea y normaliza errores
   instancia.interceptors.response.use(
     (response: AxiosResponse) => {
-      logger.debug(`[${etiqueta}] ${response.config.method?.toUpperCase()} ${response.config.url} → ${response.status}`);
+      logger.debug(
+        `[${etiqueta}] ${response.config.method?.toUpperCase()} ${response.config.url} → ${response.status}`,
+      );
       return response;
     },
     (error: unknown) => {
@@ -65,8 +67,8 @@ export function crearClienteHttp(baseURL: string, opciones: OpcionesHttp = {}) {
 
         // El servicio externo respondió con un error (4xx / 5xx)
         const mensajeExterno: string =
-          (error.response.data as Record<string, unknown>)?.message as string ||
-          (error.response.data as Record<string, unknown>)?.error as string ||
+          ((error.response.data as Record<string, unknown>)?.message as string) ||
+          ((error.response.data as Record<string, unknown>)?.error as string) ||
           error.message ||
           'Error en servicio externo';
 
@@ -104,7 +106,11 @@ export async function httpGet<T>(url: string, config?: AxiosRequestConfig): Prom
  * @example
  * const resultado = await httpPost<RespuestaAPI>('https://api.ejemplo.com/items', payload);
  */
-export async function httpPost<T>(url: string, body: unknown, config?: AxiosRequestConfig): Promise<T> {
+export async function httpPost<T>(
+  url: string,
+  body: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
   const { data } = await clienteHttp.post<T>(url, body, config);
   return data;
 }
@@ -112,7 +118,11 @@ export async function httpPost<T>(url: string, body: unknown, config?: AxiosRequ
 /**
  * PUT tipado a una URL absoluta.
  */
-export async function httpPut<T>(url: string, body: unknown, config?: AxiosRequestConfig): Promise<T> {
+export async function httpPut<T>(
+  url: string,
+  body: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
   const { data } = await clienteHttp.put<T>(url, body, config);
   return data;
 }
@@ -120,7 +130,11 @@ export async function httpPut<T>(url: string, body: unknown, config?: AxiosReque
 /**
  * PATCH tipado a una URL absoluta.
  */
-export async function httpPatch<T>(url: string, body: unknown, config?: AxiosRequestConfig): Promise<T> {
+export async function httpPatch<T>(
+  url: string,
+  body: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
   const { data } = await clienteHttp.patch<T>(url, body, config);
   return data;
 }

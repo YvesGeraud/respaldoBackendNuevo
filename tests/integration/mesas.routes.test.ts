@@ -18,7 +18,7 @@ vi.mock('@/config/database.config', () => ({
     },
     rl_rol_permiso: {
       findMany: vi.fn(),
-    }
+    },
   },
 }));
 
@@ -29,22 +29,19 @@ const SECRET = process.env['JWT_SECRET']!;
 
 // Helper para generar cookie de acceso
 const getAuthCookie = (id = 1, rol = 'ADMIN', permisos: string[] = ['CONFIG_VER']) => {
-  const token = jwt.sign(
-    { id_ct_usuario: id, usuario: 'admin', rol, permisos },
-    SECRET,
-    { expiresIn: '15m' }
-  );
+  const token = jwt.sign({ id_ct_usuario: id, usuario: 'admin', rol, permisos }, SECRET, {
+    expiresIn: '15m',
+  });
   return `accessToken=${token}`;
 };
 
 describe('Módulo de Mesas — Rutas de Integración', () => {
-  
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock por defecto para permisos (Admin con CONFIG_VER)
     vi.mocked(prisma.rl_rol_permiso.findMany).mockResolvedValue([
-      { ct_permiso: { codigo: 'CONFIG_VER' } }
+      { ct_permiso: { codigo: 'CONFIG_VER' } },
     ] as any);
   });
 
@@ -58,9 +55,7 @@ describe('Módulo de Mesas — Rutas de Integración', () => {
       vi.mocked(prisma.ct_mesa.findMany).mockResolvedValue(mockMesas);
       vi.mocked(prisma.ct_mesa.count).mockResolvedValue(2);
 
-      const res = await request(app)
-        .get('/api/mesas')
-        .set('Cookie', getAuthCookie());
+      const res = await request(app).get('/api/mesas').set('Cookie', getAuthCookie());
 
       expect(res.status).toBe(200);
       expect(res.body.exito).toBe(true);
@@ -98,7 +93,7 @@ describe('Módulo de Mesas — Rutas de Integración', () => {
 
     it('debe retornar 403 si el usuario no tiene permisos (ej: CAJERO sin CONFIG_VER)', async () => {
       vi.mocked(prisma.rl_rol_permiso.findMany).mockResolvedValueOnce([]); // Sin permisos
-      
+
       const res = await request(app)
         .post('/api/mesas')
         .set('Cookie', getAuthCookie(2, 'CAJERO', ['CLIENTES_VER']))

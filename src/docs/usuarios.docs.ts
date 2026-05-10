@@ -46,11 +46,15 @@ export const registerUsuariosDocs = (registry: OpenAPIRegistry) => {
     summary: 'Listar roles disponibles',
     security: [{ bearerAuth: [] }],
     responses: {
-      200: okResponse(z.array(z.object({
-        id_ct_rol: z.number(),
-        nombre: z.string(),
-        descripcion: z.string().nullable(),
-      }))),
+      200: okResponse(
+        z.array(
+          z.object({
+            id_ct_rol: z.number(),
+            nombre: z.string(),
+            descripcion: z.string().nullable(),
+          }),
+        ),
+      ),
     },
   });
 

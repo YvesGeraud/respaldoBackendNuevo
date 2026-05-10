@@ -19,35 +19,35 @@ router.get(
   '/',
   tienePermiso('CLIENTES_VER'),
   validar(filtrosClientesSchema),
-  clienteController.listar
+  clienteController.listar,
 );
 
 router.get(
   '/:id',
   tienePermiso('CLIENTES_VER'),
   validar(idParamSchema),
-  clienteController.obtenerPorId
+  clienteController.obtenerPorId,
 );
 
 router.post(
   '/',
   tienePermiso('CLIENTES_CREAR'),
   validar(crearClienteSchema),
-  clienteController.crear
+  clienteController.crear,
 );
 
 router.patch(
   '/:id',
   tienePermiso('CLIENTES_EDITAR'),
   validar(actualizarClienteSchema),
-  clienteController.actualizar
+  clienteController.actualizar,
 );
 
 router.delete(
   '/:id',
   tienePermiso('CLIENTES_BORRAR'),
   validar(idParamSchema),
-  clienteController.eliminar
+  clienteController.eliminar,
 );
 
 export { router as clienteRouter };

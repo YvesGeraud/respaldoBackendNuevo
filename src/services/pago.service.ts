@@ -298,8 +298,7 @@ class PagoService {
     const fechaReservacion = new Date(reservacion.fecha_reservacion);
 
     // Calcular cuántas horas faltan para la reservación
-    const horasRestantes =
-      (fechaReservacion.getTime() - ahora.getTime()) / (1000 * 60 * 60);
+    const horasRestantes = (fechaReservacion.getTime() - ahora.getTime()) / (1000 * 60 * 60);
 
     // Determinar si aún está dentro del período de gracia
     const cancelacionEsGratuita = horasRestantes >= reservacion.horas_gracia_cancelacion;
@@ -347,16 +346,12 @@ class PagoService {
 
     try {
       const config = await prisma.ct_configuracion.findFirst();
-      await emailService.enviarConPlantillaPublica(
-        reservacion.ct_cliente.correo,
-        clavePlantilla,
-        {
-          nombreCliente: reservacion.ct_cliente.nombre,
-          monto: cancelacionEsGratuita
-            ? '$0'
-            : `$${((config?.monto_penalizacion_centavos ?? 20000) / 100).toFixed(2)} MXN`,
-        },
-      );
+      await emailService.enviarConPlantillaPublica(reservacion.ct_cliente.correo, clavePlantilla, {
+        nombreCliente: reservacion.ct_cliente.nombre,
+        monto: cancelacionEsGratuita
+          ? '$0'
+          : `$${((config?.monto_penalizacion_centavos ?? 20000) / 100).toFixed(2)} MXN`,
+      });
     } catch (errorEmail) {
       logger.warn('[PagoService] Email de cancelación no enviado', { errorEmail });
     }
@@ -373,9 +368,7 @@ class PagoService {
     const reservacion = await obtenerReservacionOError(idReservacion);
 
     if (reservacion.ct_estado_reservacion.clave !== ESTADO_RESERVACION.CONFIRMADA) {
-      throw new ErrorValidacion(
-        'Solo se pueden completar reservaciones en estado CONFIRMADA.',
-      );
+      throw new ErrorValidacion('Solo se pueden completar reservaciones en estado CONFIRMADA.');
     }
 
     // El cliente asistió → liberar la autorización (no cobrar nada)

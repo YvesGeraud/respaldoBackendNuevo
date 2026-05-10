@@ -17,7 +17,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest'; // Simula peticiones HTTP sin levantar un puerto real
-import jwt from 'jsonwebtoken';  // Para generar tokens de prueba válidos
+import jwt from 'jsonwebtoken'; // Para generar tokens de prueba válidos
 
 // ── Mock de Prisma ─────────────────────────────────────────────────────────────
 // IMPORTANTE: este vi.mock() DEBE ir antes de cualquier import que use Prisma.
@@ -29,16 +29,16 @@ import jwt from 'jsonwebtoken';  // Para generar tokens de prueba válidos
 vi.mock('@/config/database.config', () => ({
   prisma: {
     ct_platillo: {
-      findMany:   vi.fn(), // Usado por: obtenerTodos (listado paginado)
+      findMany: vi.fn(), // Usado por: obtenerTodos (listado paginado)
       findUnique: vi.fn(), // Usado por: obtenerPorId, actualizar, eliminar
-      findFirst:  vi.fn(), // Usado por: verificarNoExiste (unicidad de nombre)
-      count:      vi.fn(), // Usado por: paginar() — cuenta el total de registros
-      create:     vi.fn(), // Usado por: crear
-      update:     vi.fn(), // Usado por: actualizar, eliminar (soft delete)
+      findFirst: vi.fn(), // Usado por: verificarNoExiste (unicidad de nombre)
+      count: vi.fn(), // Usado por: paginar() — cuenta el total de registros
+      create: vi.fn(), // Usado por: crear
+      update: vi.fn(), // Usado por: actualizar, eliminar (soft delete)
     },
     rl_rol_permiso: {
       findMany: vi.fn(), // Usado por: autorizacion.middleware para cargar permisos del rol
-    }
+    },
   },
 }));
 
@@ -57,19 +57,20 @@ import { prisma } from '@/config/database.config';
 //   permisos=[…] → lista de códigos que el usuario tiene activos
 const SECRET = process.env['JWT_SECRET']!;
 
-const getAuthCookie = (id = 1, rol = 'ADMIN', permisos: string[] = ['PLATILLOS_VER', 'PLATILLOS_EDITAR']) => {
-  const token = jwt.sign(
-    { id_ct_usuario: id, usuario: 'admin', rol, permisos },
-    SECRET,
-    { expiresIn: '15m' }
-  );
+const getAuthCookie = (
+  id = 1,
+  rol = 'ADMIN',
+  permisos: string[] = ['PLATILLOS_VER', 'PLATILLOS_EDITAR'],
+) => {
+  const token = jwt.sign({ id_ct_usuario: id, usuario: 'admin', rol, permisos }, SECRET, {
+    expiresIn: '15m',
+  });
   // Formato de cookie que espera el middleware: "accessToken=<token>"
   return `accessToken=${token}`;
 };
 
 // ── Suite principal ────────────────────────────────────────────────────────────
 describe('Módulo de Platillos — Rutas de Integración', () => {
-
   // beforeEach se ejecuta ANTES de cada test individual (cada `it`).
   // Propósito: dejar el estado limpio para que los tests no se contaminen entre sí.
   beforeEach(() => {
@@ -81,7 +82,33 @@ describe('Módulo de Platillos — Rutas de Integración', () => {
     // para validar si el rol del usuario tiene el permiso requerido por la ruta.
     // Aquí simulamos que el rol ADMIN tiene TODOS los permisos del sistema,
     // así los tests de happy-path no fallan por falta de permiso.
-    vi.mocked(prisma.rl_rol_permiso.findMany).mockResolvedValue([{"ct_permiso":{"codigo":"USUARIOS_VER"}},{"ct_permiso":{"codigo":"USUARIOS_CREAR"}},{"ct_permiso":{"codigo":"USUARIOS_EDITAR"}},{"ct_permiso":{"codigo":"USUARIOS_BORRAR"}},{"ct_permiso":{"codigo":"CLIENTES_VER"}},{"ct_permiso":{"codigo":"CLIENTES_CREAR"}},{"ct_permiso":{"codigo":"CLIENTES_EDITAR"}},{"ct_permiso":{"codigo":"CLIENTES_BORRAR"}},{"ct_permiso":{"codigo":"PLATILLOS_VER"}},{"ct_permiso":{"codigo":"PLATILLOS_CREAR"}},{"ct_permiso":{"codigo":"PLATILLOS_EDITAR"}},{"ct_permiso":{"codigo":"PLATILLOS_BORRAR"}},{"ct_permiso":{"codigo":"MESAS_VER"}},{"ct_permiso":{"codigo":"MESAS_CREAR"}},{"ct_permiso":{"codigo":"MESAS_EDITAR"}},{"ct_permiso":{"codigo":"MESAS_BORRAR"}},{"ct_permiso":{"codigo":"CONFIG_VER"}},{"ct_permiso":{"codigo":"CONFIG_EDITAR"}},{"ct_permiso":{"codigo":"RESERVACIONES_VER"}},{"ct_permiso":{"codigo":"RESERVACIONES_CREAR"}},{"ct_permiso":{"codigo":"RESERVACIONES_EDITAR"}},{"ct_permiso":{"codigo":"RESERVACIONES_BORRAR"}},{"ct_permiso":{"codigo":"ORDENES_CREAR"}},{"ct_permiso":{"codigo":"ORDENES_ESTADO"}},{"ct_permiso":{"codigo":"ORDENES_CANCELAR"}}] as any);
+    vi.mocked(prisma.rl_rol_permiso.findMany).mockResolvedValue([
+      { ct_permiso: { codigo: 'USUARIOS_VER' } },
+      { ct_permiso: { codigo: 'USUARIOS_CREAR' } },
+      { ct_permiso: { codigo: 'USUARIOS_EDITAR' } },
+      { ct_permiso: { codigo: 'USUARIOS_BORRAR' } },
+      { ct_permiso: { codigo: 'CLIENTES_VER' } },
+      { ct_permiso: { codigo: 'CLIENTES_CREAR' } },
+      { ct_permiso: { codigo: 'CLIENTES_EDITAR' } },
+      { ct_permiso: { codigo: 'CLIENTES_BORRAR' } },
+      { ct_permiso: { codigo: 'PLATILLOS_VER' } },
+      { ct_permiso: { codigo: 'PLATILLOS_CREAR' } },
+      { ct_permiso: { codigo: 'PLATILLOS_EDITAR' } },
+      { ct_permiso: { codigo: 'PLATILLOS_BORRAR' } },
+      { ct_permiso: { codigo: 'MESAS_VER' } },
+      { ct_permiso: { codigo: 'MESAS_CREAR' } },
+      { ct_permiso: { codigo: 'MESAS_EDITAR' } },
+      { ct_permiso: { codigo: 'MESAS_BORRAR' } },
+      { ct_permiso: { codigo: 'CONFIG_VER' } },
+      { ct_permiso: { codigo: 'CONFIG_EDITAR' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_VER' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_CREAR' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_EDITAR' } },
+      { ct_permiso: { codigo: 'RESERVACIONES_BORRAR' } },
+      { ct_permiso: { codigo: 'ORDENES_CREAR' } },
+      { ct_permiso: { codigo: 'ORDENES_ESTADO' } },
+      { ct_permiso: { codigo: 'ORDENES_CANCELAR' } },
+    ] as any);
 
     // findFirst en null por defecto → simula que no hay platillo duplicado.
     // El service lo usa en verificarNoExiste() antes de crear.
@@ -91,14 +118,11 @@ describe('Módulo de Platillos — Rutas de Integración', () => {
 
   // ── GET /api/platillos ───────────────────────────────────────────────────────
   describe('GET /api/platillos', () => {
-
     it('debe retornar lista de platillos (endpoint público)', async () => {
       // Preparamos los datos que "devolvería" la BD.
       // El objeto mínimo necesario — solo los campos que el test verifica.
       // No necesitamos todos los campos del modelo real.
-      const mockPlatillos = [
-        { id_ct_platillo: 1, nombre: 'Tacos', precio: 50, estado: true },
-      ];
+      const mockPlatillos = [{ id_ct_platillo: 1, nombre: 'Tacos', precio: 50, estado: true }];
 
       // findMany → devuelve el arreglo de platillos (usado por paginar())
       vi.mocked(prisma.ct_platillo.findMany).mockResolvedValue(mockPlatillos as any);
@@ -111,19 +135,19 @@ describe('Módulo de Platillos — Rutas de Integración', () => {
       const res = await request(app).get('/api/platillos');
 
       expect(res.status).toBe(200);
-      expect(res.body.exito).toBe(true);          // Forma del envelope: { exito, mensaje, datos, meta }
-      expect(res.body.datos).toHaveLength(1);     // Llegó exactamente 1 platillo
+      expect(res.body.exito).toBe(true); // Forma del envelope: { exito, mensaje, datos, meta }
+      expect(res.body.datos).toHaveLength(1); // Llegó exactamente 1 platillo
     });
   });
 
   // ── GET /api/platillos/:id ───────────────────────────────────────────────────
   describe('GET /api/platillos/:id', () => {
-
     it('debe retornar el detalle de un platillo', async () => {
       // findUnique con el id solicitado → simula que el platillo SÍ existe en BD
-      vi.mocked(prisma.ct_platillo.findUnique).mockResolvedValue(
-        { id_ct_platillo: 1, nombre: 'Tacos' } as any
-      );
+      vi.mocked(prisma.ct_platillo.findUnique).mockResolvedValue({
+        id_ct_platillo: 1,
+        nombre: 'Tacos',
+      } as any);
 
       // Endpoint también público (solo lectura), sin cookie
       const res = await request(app).get('/api/platillos/1');
@@ -146,7 +170,6 @@ describe('Módulo de Platillos — Rutas de Integración', () => {
 
   // ── POST /api/platillos ──────────────────────────────────────────────────────
   describe('POST /api/platillos', () => {
-
     it('debe crear un platillo autenticado', async () => {
       // create retorna el platillo tal como lo devolvería Prisma tras el INSERT.
       // (findFirst ya está en null desde el beforeEach → no hay duplicado)
@@ -182,17 +205,15 @@ describe('Módulo de Platillos — Rutas de Integración', () => {
 
   // ── PATCH /api/platillos/:id ─────────────────────────────────────────────────
   describe('PATCH /api/platillos/:id', () => {
-
     it('debe actualizar un platillo', async () => {
       // El service primero llama findUnique para verificar que el platillo existe
       // (evita el error P2025 de Prisma con un mensaje claro).
-      vi.mocked(prisma.ct_platillo.findUnique).mockResolvedValue(
-        { id_ct_platillo: 1 } as any
-      );
+      vi.mocked(prisma.ct_platillo.findUnique).mockResolvedValue({ id_ct_platillo: 1 } as any);
       // Luego llama update y retorna el registro actualizado.
-      vi.mocked(prisma.ct_platillo.update).mockResolvedValue(
-        { id_ct_platillo: 1, precio: 120 } as any
-      );
+      vi.mocked(prisma.ct_platillo.update).mockResolvedValue({
+        id_ct_platillo: 1,
+        precio: 120,
+      } as any);
 
       const res = await request(app)
         .patch('/api/platillos/1')
@@ -206,21 +227,20 @@ describe('Módulo de Platillos — Rutas de Integración', () => {
 
   // ── DELETE /api/platillos/:id ────────────────────────────────────────────────
   describe('DELETE /api/platillos/:id', () => {
-
     it('debe desactivar un platillo', async () => {
       // El service verifica que exista antes de intentar el soft delete.
-      vi.mocked(prisma.ct_platillo.findUnique).mockResolvedValue(
-        { id_ct_platillo: 1, estado: true } as any
-      );
+      vi.mocked(prisma.ct_platillo.findUnique).mockResolvedValue({
+        id_ct_platillo: 1,
+        estado: true,
+      } as any);
       // El "eliminar" real es un UPDATE que pone estado=false (soft delete).
       // Así se preserva el historial en dt_detalle_orden.
-      vi.mocked(prisma.ct_platillo.update).mockResolvedValue(
-        { id_ct_platillo: 1, estado: false } as any
-      );
+      vi.mocked(prisma.ct_platillo.update).mockResolvedValue({
+        id_ct_platillo: 1,
+        estado: false,
+      } as any);
 
-      const res = await request(app)
-        .delete('/api/platillos/1')
-        .set('Cookie', getAuthCookie());
+      const res = await request(app).delete('/api/platillos/1').set('Cookie', getAuthCookie());
 
       // La ruta devuelve 200 con el registro desactivado (no 204)
       // porque el controller usa responder.ok() en vez de responder.sinContenido()

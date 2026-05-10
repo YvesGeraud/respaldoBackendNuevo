@@ -14,16 +14,18 @@ const OrdenSchema = z.object({
   total: z.number(),
   estado: z.string(),
   fecha_reg: z.date(),
-  detalles: z.array(z.object({
-    id_dt_detalle_orden: z.number(),
-    id_ct_platillo: z.number(),
-    cantidad: z.number(),
-    precio_unitario: z.number(),
-    subtotal: z.number(),
-    ct_platillo: z.object({
-      nombre: z.string(),
+  detalles: z.array(
+    z.object({
+      id_dt_detalle_orden: z.number(),
+      id_ct_platillo: z.number(),
+      cantidad: z.number(),
+      precio_unitario: z.number(),
+      subtotal: z.number(),
+      ct_platillo: z.object({
+        nombre: z.string(),
+      }),
     }),
-  })),
+  ),
 });
 
 export const registerOrdenesDocs = (registry: OpenAPIRegistry) => {

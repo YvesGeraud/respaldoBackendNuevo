@@ -85,7 +85,9 @@ class ReservacionService {
     });
 
     if (!estadoPendiente) {
-      throw new Error('Estado PENDIENTE_PAGO no encontrado en ct_estado_reservacion. Corre el seed.');
+      throw new Error(
+        'Estado PENDIENTE_PAGO no encontrado en ct_estado_reservacion. Corre el seed.',
+      );
     }
 
     // También obtener la configuración para copiar horas_gracia_cancelacion
