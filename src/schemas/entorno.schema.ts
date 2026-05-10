@@ -36,6 +36,20 @@ export const entornoSchema = z.object({
   // APIs externas
   API_EXTERNA_URL: z.string().url('API_EXTERNA_URL debe ser una URL válida').optional(),
 
+  // ── Stripe ──────────────────────────────────────────────────────────────────
+  // Clave secreta del servidor (sk_test_... en desarrollo, sk_live_... en producción).
+  // NUNCA exponer esta clave al cliente — solo se usa en el backend.
+  STRIPE_SECRET_KEY: z.string().min(1, 'STRIPE_SECRET_KEY es obligatorio'),
+
+  // Secreto del webhook: generado por Stripe al registrar el endpoint.
+  // Se usa para verificar la firma HMAC de cada evento entrante y asegurar
+  // que el request proviene realmente de Stripe y no de un tercero.
+  STRIPE_WEBHOOK_SECRET: z.string().min(1, 'STRIPE_WEBHOOK_SECRET es obligatorio'),
+
+  // Clave pública (pk_test_... / pk_live_...) — esta SÍ se puede enviar al frontend
+  // para que Stripe.js la use al tokenizar la tarjeta del cliente.
+  STRIPE_PUBLISHABLE_KEY: z.string().min(1, 'STRIPE_PUBLISHABLE_KEY es obligatorio'),
+
   // Autenticación
   JWT_SECRET: z.string().min(1, 'JWT_SECRET es obligatorio'),
   JWT_EXPIRES_IN: z.string().default('15m'),

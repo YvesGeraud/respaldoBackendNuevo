@@ -43,6 +43,41 @@ model ct_cliente {
   @@index([estado], map: "estado")
 }
 
+// ── Catálogo de estados de reservación ────────────────────────────────────────
+// Usa tabla catálogo en lugar de enum porque:
+//   - Más de 4 estados → mejor diseño normalizado
+//   - Permite agregar nuevos estados sin necesidad de una migración de schema
+//   - Los estados pueden tener metadatos (descripción, si implica pago activo, etc.)
+//   - El frontend puede consumir /api/estados-reservacion para renderizar dinero filtros
+model ct_estado_reservacion {
+  id_ct_estado_reservacion Int              @id @default(autoincrement())
+
+  // Clave técnica usada en el código para comparaciones (ej: 'PENDIENTE_PAGO')
+  clave                    String           @unique @db.VarChar(50)
+
+  // Nombre legible para mostrar en el frontend y panel de administración
+  nombre                   String           @db.VarChar(100)
+
+  // Descripción del estado: qué significa y cuándo ocurre
+  descripcion              String?          @db.VarChar(255)
+
+  // Indica si en este estado hay un intento de pago activo en Stripe
+  // (autorizado pero no capturado). Útil para que el cron job de no-shows
+  // filtre rápido qué reservaciones requieren acción de cobro.
+  implica_pago_activo      Boolean          @default(false)
+
+  // Soft-delete: false = estado desactivado (no aparece en el sistema)
+  estado                   Boolean          @default(true)
+  fecha_reg                DateTime         @default(now()) @db.DateTime(0)
+
+  // Relación inversa: reservaciones que actualmente tienen este estado
+  rl_reservacion           rl_reservacion[]
+
+  // Índices para búsqueda por clave (la más común) y por estado activo
+  @@index([clave])
+  @@index([estado])
+}
+
 model ct_mesa {
   id_ct_mesa           Int              @id @default(autoincrement())
   codigo               String           @unique @db.VarChar(50)
@@ -208,6 +243,7 @@ model ct_usuario {
   rl_reservacion_registrados      rl_reservacion[]      @relation("rl_reservacion_id_ct_usuario_regToct_usuario")
   rl_rol_permiso_modificados      rl_rol_permiso[]      @relation("rl_rol_permiso_id_ct_usuario_modToct_usuario")
   rl_rol_permiso_registrados      rl_rol_permiso[]      @relation("rl_rol_permiso_id_ct_usuario_regToct_usuario")
+  // Relación con ct_configuracion (solo modificaciones, no hay registro masivo de configuraciones)
   ct_configuracion_modificados    ct_configuracion[]    @relation("ct_configuracion_id_ct_usuario_modToct_usuario")
 
   @@index([id_ct_usuario_mod], map: "FK_ct_usuario_ct_usuario_mod")
@@ -337,29 +373,64 @@ model rl_orden {
   @@index([id_ct_usuario, estado], map: "dt_orden_id_ct_usuario_estado_idx")
 }
 
+// ── Reservaciones ─────────────────────────────────────────────────────────────
+// Tabla principal de reservaciones. El flujo de pago se maneja mediante
+// los campos de Stripe: cuando el cliente reserva, se crea un intento de
+// pago (clave_intento_pago) con capture_method: 'manual'. El cargo se
+// captura o libera según el comportamiento del cliente (no-show, cancelación).
 model rl_reservacion {
-  id_rl_reservacion    Int                   @id @default(autoincrement())
+  id_rl_reservacion    Int                    @id @default(autoincrement())
   id_ct_cliente        Int
   id_ct_mesa           Int?
-  fecha_reservacion    DateTime              @db.DateTime(0)
+  fecha_reservacion    DateTime               @db.DateTime(0)
   num_personas         Int
-  estado               rl_reservacion_estado @default(PENDIENTE)
-  notas                String?               @db.VarChar(500)
-  fecha_reg            DateTime              @default(now()) @db.DateTime(0)
-  fecha_mod            DateTime?             @db.DateTime(0)
+  notas                String?                @db.VarChar(500)
+
+  // FK al catálogo ct_estado_reservacion (reemplaza el enum rl_reservacion_estado)
+  // Se usa un catálogo porque los estados son más de 4 y tienen metadatos propios
+  id_ct_estado_reservacion Int
+
+  // ── Campos de pago Stripe ─────────────────────────────────────────────
+  // Identificador único del intento de pago en Stripe.
+  // Declarado @unique para garantizar idempotencia: si el webhook de Stripe
+  // llega más de una vez (reintento), la base de datos rechaza el duplicado.
+  clave_intento_pago       String?              @unique @db.VarChar(255)
+
+  // Estado técnico del pago según Stripe. Distinto al estado de negocio.
+  // Valores posibles: requires_capture | captured | released | canceled
+  // requires_capture = autorizado, esperando acción del restaurante
+  estado_pago_stripe       String?              @db.VarChar(50)
+
+  // Monto autorizado expresado en CENTAVOS (Stripe siempre usa enteros).
+  // $200 MXN = 20000. Se almacena para saber cuánto capturar en caso de no-show.
+  monto_deposito_centavos  Int?
+
+  // Horas antes de la reservación en que el cliente puede cancelar sin cargo.
+  // Se copia de ct_configuracion.horas_gracia_cancelacion al crear la reservación
+  // para que cambios futuros en la configuración no afecten reservaciones pasadas.
+  horas_gracia_cancelacion Int                  @default(24)
+
+  fecha_reg            DateTime               @default(now()) @db.DateTime(0)
+  fecha_mod            DateTime?              @db.DateTime(0)
   id_ct_usuario_reg    Int
   id_ct_usuario_mod    Int?
-  ct_cliente           ct_cliente            @relation(fields: [id_ct_cliente], references: [id_ct_cliente], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_cliente")
-  ct_mesa              ct_mesa?              @relation(fields: [id_ct_mesa], references: [id_ct_mesa], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_mesa")
-  usuario_modificacion ct_usuario?           @relation("rl_reservacion_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_usuario_mod")
-  usuario_registro     ct_usuario            @relation("rl_reservacion_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_usuario_reg")
+
+  // Relaciones
+  ct_cliente           ct_cliente             @relation(fields: [id_ct_cliente], references: [id_ct_cliente], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_cliente")
+  ct_mesa              ct_mesa?               @relation(fields: [id_ct_mesa], references: [id_ct_mesa], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_mesa")
+  ct_estado_reservacion ct_estado_reservacion @relation(fields: [id_ct_estado_reservacion], references: [id_ct_estado_reservacion], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_estado")
+  usuario_modificacion ct_usuario?            @relation("rl_reservacion_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_usuario_mod")
+  usuario_registro     ct_usuario             @relation("rl_reservacion_id_ct_usuario_regToct_usuario", fields: [id_ct_usuario_reg], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_rl_reservacion_ct_usuario_reg")
 
   @@index([id_ct_usuario_mod], map: "FK_rl_reservacion_ct_usuario_mod")
   @@index([id_ct_usuario_reg], map: "FK_rl_reservacion_ct_usuario_reg")
-  @@index([estado], map: "dt_reservacion_estado_idx")
-  @@index([fecha_reservacion, estado], map: "dt_reservacion_fecha_reservacion_estado_idx")
+  // Índice compuesto para el cron job de no-shows: busca reservaciones
+  // con estado CONFIRMADA cuya fecha ya pasó (fecha_reservacion < ahora)
+  @@index([fecha_reservacion, id_ct_estado_reservacion], map: "idx_reservacion_fecha_estado")
   @@index([id_ct_mesa], map: "dt_reservacion_id_ct_mesa_fkey")
   @@index([id_ct_cliente], map: "dt_reservacion_id_ct_usuario_fkey")
+  // Índice de idempotencia para lookup rápido del webhook de Stripe
+  @@index([clave_intento_pago], map: "idx_reservacion_intento_pago")
 }
 
 model rl_rol_permiso {
@@ -383,6 +454,10 @@ model rl_rol_permiso {
   @@index([estado], map: "estado")
 }
 
+// ── Enums ───────────────────────────────────────────────────────────────────────
+// Nota: rl_reservacion_estado fue reemplazado por la tabla catálogo
+// ct_estado_reservacion para soportar más de 4 estados con metadatos propios.
+
 enum rl_orden_estado {
   PENDIENTE
   EN_PROCESO
@@ -391,13 +466,7 @@ enum rl_orden_estado {
   CANCELADO
 }
 
-enum rl_reservacion_estado {
-  PENDIENTE
-  CONFIRMADA
-  CANCELADA
-  COMPLETADA
-}
-
+// ── Configuración del restaurante ───────────────────────────────────────────────
 model ct_configuracion {
   id_ct_configuracion  Int       @id @default(autoincrement())
   nombre_restaurante   String    @db.VarChar(100)
@@ -409,10 +478,21 @@ model ct_configuracion {
   horario_cierre       String?   @db.VarChar(50) // Ej: "22:00"
   moneda               String    @default("$") @db.VarChar(10)
   impuesto_porcentaje  Decimal   @default(0.16) @db.Decimal(5, 2)
+
+  // ── Configuración de pagos Stripe ──────────────────────────────────────────
+  // Monto cobrado al cliente si no se presenta (no-show).
+  // En centavos para compatibilidad directa con Stripe (que no acepta decimales).
+  // Default: 20000 centavos = $200 MXN
+  monto_penalizacion_centavos Int     @default(20000)
+
+  // Horas mínimas de antelación para cancelar sin cargo.
+  // Si el cliente cancela DESPUÉS de este umbral, se aplica la penalización.
+  // Default: 24 horas
+  horas_gracia_cancelacion    Int     @default(24)
+
   fecha_mod            DateTime? @db.DateTime(0)
   id_ct_usuario_mod    Int?
   usuario_modificacion ct_usuario? @relation("ct_configuracion_id_ct_usuario_modToct_usuario", fields: [id_ct_usuario_mod], references: [id_ct_usuario], onDelete: NoAction, onUpdate: NoAction, map: "FK_ct_configuracion_ct_usuario_mod")
 
   @@index([id_ct_usuario_mod], map: "FK_ct_configuracion_ct_usuario_mod")
 }
-

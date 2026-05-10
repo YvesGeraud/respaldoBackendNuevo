@@ -18,6 +18,11 @@ const PERMISOS = [
   'CONFIG_VER',
   'AUDITORIA_VER',
   'REPORTES_VER',
+  // Permisos del módulo de reservaciones
+  'RESERVACIONES_VER',
+  'RESERVACIONES_CREAR',
+  'RESERVACIONES_EDITAR',
+  'RESERVACIONES_BORRAR',
 ];
 
 const ROLES_CONFIG = {
@@ -62,6 +67,8 @@ async function main() {
     prisma.$executeRawUnsafe('TRUNCATE TABLE ct_rol;'),
     prisma.$executeRawUnsafe('TRUNCATE TABLE rl_orden;'),
     prisma.$executeRawUnsafe('TRUNCATE TABLE rl_reservacion;'),
+    // ct_estado_reservacion debe limpiarse DESPUÉS de rl_reservacion (FK)
+    prisma.$executeRawUnsafe('TRUNCATE TABLE ct_estado_reservacion;'),
     prisma.$executeRawUnsafe('TRUNCATE TABLE ct_cliente;'),
     prisma.$executeRawUnsafe('TRUNCATE TABLE ct_mesa;'),
     prisma.$executeRawUnsafe('TRUNCATE TABLE ct_tipo_documento;'),
@@ -286,8 +293,126 @@ async function main() {
     },
   });
 
+  // 9.1 Plantillas del flujo de pagos Stripe
+  // Cada plantilla usa {{variable}} como marcadores de posición que el
+  // email.service.ts reemplaza dinámicamente antes de enviar el correo.
+  console.log('💳 Creando plantillas de pago...');
+  const plantillasPago = [
+    {
+      clave: 'RESERVA_CONFIRMADA',
+      nombre: 'Reservación Confirmada',
+      asunto: '✅ Tu reservación está confirmada',
+      contenido_html: `
+        <h1>Hola, {{nombreCliente}}</h1>
+        <p>Tu reservación ha sido <strong>confirmada</strong>.</p>
+        <ul>
+          <li>📅 Fecha: {{fecha}}</li>
+          <li>⏰ Hora: {{hora}}</li>
+          <li>👥 Personas: {{numPersonas}}</li>
+        </ul>
+        <p>Tu tarjeta tiene fondos reservados como garantía.
+           Si no puedes venir, cáncela con <strong>24 horas de antelación</strong>.</p>
+      `,
+    },
+    {
+      clave: 'RESERVA_CANCELADA_SIN_CARGO',
+      nombre: 'Reservación Cancelada Sin Cargo',
+      asunto: '🟢 Reservación cancelada — sin cargo aplicado',
+      contenido_html: `
+        <h1>Hola, {{nombreCliente}}</h1>
+        <p>Tu reservación fue cancelada a tiempo.</p>
+        <p>✅ La autorización de tu tarjeta fue liberada. <strong>No se realizó ningún cargo.</strong></p>
+        <p>Esperamos verte pronto. ¡Puedes hacer una nueva reservación cuando quieras!</p>
+      `,
+    },
+    {
+      clave: 'RESERVA_CANCELADA_CON_CARGO',
+      nombre: 'Reservación Cancelada Con Cargo',
+      asunto: '🟡 Reservación cancelada — cargo de penalización aplicado',
+      contenido_html: `
+        <h1>Hola, {{nombreCliente}}</h1>
+        <p>Tu reservación fue cancelada después del período de gracia.</p>
+        <p>⚠️ De acuerdo a nuestra política de cancelación, se aplicó un cargo de
+           <strong>{{monto}}</strong> a tu tarjeta.</p>
+        <p>Si tienes dudas, contáctanos.</p>
+      `,
+    },
+    {
+      clave: 'RESERVA_NO_SHOW',
+      nombre: 'No-Show — Cargo Aplicado',
+      asunto: '🟥 No se presentó — cargo por reservación no cumplida',
+      contenido_html: `
+        <h1>Hola, {{nombreCliente}}</h1>
+        <p>Registramos que no se presentó a su reservación.</p>
+        <p>Conforme a nuestra política, se aplicó un cargo de
+           <strong>{{monto}}</strong> a su tarjeta como penalización.</p>
+        <p>Si cree que esto es un error, comuníquese con nosotros de inmediato.</p>
+      `,
+    },
+  ];
+
+  for (const plantilla of plantillasPago) {
+    await prisma.ct_plantilla_correo.upsert({
+      where: { clave: plantilla.clave },
+      update: { contenido_html: plantilla.contenido_html, asunto: plantilla.asunto },
+      create: { ...plantilla, estado: true, id_ct_usuario_reg: 1 },
+    });
+  }
+
+  // 10. Catálogo de estados de reservación
+  // Estos estados reemplazan el enum rl_reservacion_estado del schema anterior.
+  // Se insertan como datos de catálogo para que el frontend pueda
+  // consumirlos dinámicamente y para que tengan metadatos (¿implica pago activo?).
+  console.log('📊 Creando catálogo de estados de reservación...');
+  const estadosReservacion = [
+    {
+      clave: 'PENDIENTE_PAGO',
+      nombre: 'Pendiente de Pago',
+      descripcion: 'El cliente inició el proceso de reservación pero aún no autoriza su tarjeta.',
+      implica_pago_activo: true,
+    },
+    {
+      clave: 'CONFIRMADA',
+      nombre: 'Confirmada',
+      descripcion: 'Pago autorizado por Stripe (fondos reservados). El cliente se presenta el día acordado.',
+      implica_pago_activo: true,
+    },
+    {
+      clave: 'COMPLETADA',
+      nombre: 'Completada',
+      descripcion: 'El cliente asistió. La autorización fue liberada sin cargo.',
+      implica_pago_activo: false,
+    },
+    {
+      clave: 'NO_SHOW',
+      nombre: 'No Se Presentó',
+      descripcion: 'El cliente no se presentó. Se capturó el cargo de penalización.',
+      implica_pago_activo: false,
+    },
+    {
+      clave: 'CANCELADA',
+      nombre: 'Cancelada',
+      descripcion: 'Cancelación dentro del período de gracia. Sin cargo al cliente.',
+      implica_pago_activo: false,
+    },
+    {
+      clave: 'CANCELADA_CON_CARGO',
+      nombre: 'Cancelada con Cargo',
+      descripcion: 'Cancelación fuera del período de gracia. Se aplicó la penalización.',
+      implica_pago_activo: false,
+    },
+  ];
+
+  for (const estado of estadosReservacion) {
+    await prisma.ct_estado_reservacion.upsert({
+      where: { clave: estado.clave },
+      update: { nombre: estado.nombre, descripcion: estado.descripcion },
+      create: { ...estado, estado: true },
+    });
+  }
+
   console.log('🎉 Seed completado exitosamente!');
-}
+} // ← cierre de main()
 
 main()
   .catch((e) => {

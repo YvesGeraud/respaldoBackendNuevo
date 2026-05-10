@@ -61,6 +61,20 @@ class EmailService {
     return resultado;
   }
 
+  /**
+   * Método público que permite a otros servicios (como pago.service.ts)
+   * enviar correos usando plantillas de la base de datos sin duplicar la lógica.
+   *
+   * Equivale a enviarConPlantilla pero accesible fuera de la clase.
+   */
+  async enviarConPlantillaPublica(
+    to: string,
+    clave: string,
+    datos: Record<string, string | number>,
+  ) {
+    return this.enviarConPlantilla(to, clave, datos);
+  }
+
   // ── Métodos Específicos ──────────────────────────────────────────────────
 
   /**

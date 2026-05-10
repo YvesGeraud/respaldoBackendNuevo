@@ -15,6 +15,13 @@ import { authRouter } from '@/routes/auth.route'; // Para cuando se implemente l
 import { middlewareAuditoria } from '@/middlewares/auditoria.middleware';
 import { morganStream } from '@/utils/logger.utils';
 
+// ── Stripe webhook router ────────────────────────────────────────────────────────────
+// Se importa aquí (y no en routes/index.ts) porque DEBE montarse ANTES del
+// middleware express.json(). El webhook de Stripe necesita el body como Buffer
+// crudo para verificar la firma HMAC. Si express.json() procesa el body primero,
+// la verificación de Stripe falla con 'No signatures found matching the expected signature'.
+import { webhookRouter } from '@/routes/pago.route';
+
 // ── Swagger ──────────────────────────────────────────────────────────────────
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '@/docs/swagger.docs';
@@ -149,6 +156,12 @@ app.use(middlewareAuditoria);
 const base = config.basePath.endsWith('/') ? config.basePath : `${config.basePath}/`;
 
 // ── Swagger UI ───────────────────────────────────────────────────────────────
+
+// ⚠️ Webhook de Stripe: se monta aquí (después de declarar 'base') con express.raw() en la ruta
+// interna, por lo que aunque express.json() ya esté registrado globalmente arriba,
+// Express aplica el middleware correcto por ruta: el webhook recibe el body como Buffer.
+app.use(`${base}api/webhooks`, webhookRouter);
+
 // Se sirve en /docs (o según configuración)
 app.use(`${base}docs`, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get(`${base}docs-json`, (_req, res) => res.json(swaggerSpec));

@@ -35,11 +35,28 @@ CREATE TABLE `ct_cliente` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `ct_estado_reservacion` (
+    `id_ct_estado_reservacion` INTEGER NOT NULL AUTO_INCREMENT,
+    `clave` VARCHAR(50) NOT NULL,
+    `nombre` VARCHAR(100) NOT NULL,
+    `descripcion` VARCHAR(255) NULL,
+    `implica_pago_activo` BOOLEAN NOT NULL DEFAULT false,
+    `estado` BOOLEAN NOT NULL DEFAULT true,
+    `fecha_reg` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+
+    UNIQUE INDEX `ct_estado_reservacion_clave_key`(`clave`),
+    INDEX `ct_estado_reservacion_clave_idx`(`clave`),
+    INDEX `ct_estado_reservacion_estado_idx`(`estado`),
+    PRIMARY KEY (`id_ct_estado_reservacion`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `ct_mesa` (
     `id_ct_mesa` INTEGER NOT NULL AUTO_INCREMENT,
     `codigo` VARCHAR(50) NOT NULL,
     `capacidad` INTEGER NOT NULL,
-    `estado` VARCHAR(20) NOT NULL DEFAULT 'libre',
+    `status` VARCHAR(20) NOT NULL DEFAULT 'libre',
+    `estado` BOOLEAN NOT NULL DEFAULT true,
     `fecha_reg` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `fecha_mod` DATETIME(0) NULL,
     `id_ct_usuario_reg` INTEGER NOT NULL,
@@ -302,19 +319,24 @@ CREATE TABLE `rl_reservacion` (
     `id_ct_mesa` INTEGER NULL,
     `fecha_reservacion` DATETIME(0) NOT NULL,
     `num_personas` INTEGER NOT NULL,
-    `estado` ENUM('PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA') NOT NULL DEFAULT 'PENDIENTE',
     `notas` VARCHAR(500) NULL,
+    `id_ct_estado_reservacion` INTEGER NOT NULL,
+    `clave_intento_pago` VARCHAR(255) NULL,
+    `estado_pago_stripe` VARCHAR(50) NULL,
+    `monto_deposito_centavos` INTEGER NULL,
+    `horas_gracia_cancelacion` INTEGER NOT NULL DEFAULT 24,
     `fecha_reg` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `fecha_mod` DATETIME(0) NULL,
     `id_ct_usuario_reg` INTEGER NOT NULL,
     `id_ct_usuario_mod` INTEGER NULL,
 
+    UNIQUE INDEX `rl_reservacion_clave_intento_pago_key`(`clave_intento_pago`),
     INDEX `FK_rl_reservacion_ct_usuario_mod`(`id_ct_usuario_mod`),
     INDEX `FK_rl_reservacion_ct_usuario_reg`(`id_ct_usuario_reg`),
-    INDEX `dt_reservacion_estado_idx`(`estado`),
-    INDEX `dt_reservacion_fecha_reservacion_estado_idx`(`fecha_reservacion`, `estado`),
+    INDEX `idx_reservacion_fecha_estado`(`fecha_reservacion`, `id_ct_estado_reservacion`),
     INDEX `dt_reservacion_id_ct_mesa_fkey`(`id_ct_mesa`),
     INDEX `dt_reservacion_id_ct_usuario_fkey`(`id_ct_cliente`),
+    INDEX `idx_reservacion_intento_pago`(`clave_intento_pago`),
     PRIMARY KEY (`id_rl_reservacion`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -349,6 +371,8 @@ CREATE TABLE `ct_configuracion` (
     `horario_cierre` VARCHAR(50) NULL,
     `moneda` VARCHAR(10) NOT NULL DEFAULT '$',
     `impuesto_porcentaje` DECIMAL(5, 2) NOT NULL DEFAULT 0.16,
+    `monto_penalizacion_centavos` INTEGER NOT NULL DEFAULT 20000,
+    `horas_gracia_cancelacion` INTEGER NOT NULL DEFAULT 24,
     `fecha_mod` DATETIME(0) NULL,
     `id_ct_usuario_mod` INTEGER NULL,
 
@@ -457,6 +481,9 @@ ALTER TABLE `rl_reservacion` ADD CONSTRAINT `FK_rl_reservacion_ct_cliente` FOREI
 
 -- AddForeignKey
 ALTER TABLE `rl_reservacion` ADD CONSTRAINT `FK_rl_reservacion_ct_mesa` FOREIGN KEY (`id_ct_mesa`) REFERENCES `ct_mesa`(`id_ct_mesa`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE `rl_reservacion` ADD CONSTRAINT `FK_rl_reservacion_ct_estado` FOREIGN KEY (`id_ct_estado_reservacion`) REFERENCES `ct_estado_reservacion`(`id_ct_estado_reservacion`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE `rl_reservacion` ADD CONSTRAINT `FK_rl_reservacion_ct_usuario_mod` FOREIGN KEY (`id_ct_usuario_mod`) REFERENCES `ct_usuario`(`id_ct_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;

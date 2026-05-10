@@ -18,6 +18,10 @@ import { emailRouter } from './email.route';
 //* reservaciones
 import { reservacionesRouter } from './reservacion.route';
 
+// Las acciones de pago de reservaciones (iniciar pago, cancelar, completar)
+// se montan en el mismo prefijo /reservaciones para mantener la API cohesiva.
+import { pagoRouter } from './pago.route';
+
 //* auth
 import { authRouter } from './auth.route';
 
@@ -58,6 +62,8 @@ router.use('/emails', emailRouter);
 
 //* reservaciones
 router.use('/reservaciones', reservacionesRouter);
+// Rutas de pago montadas bajo /reservaciones (ej: PATCH /reservaciones/:id/completar)
+router.use('/reservaciones', pagoRouter);
 
 //* auth
 router.use('/auth', authRouter);

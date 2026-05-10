@@ -1,12 +1,15 @@
 import { z } from '@/zod-extended';
 import { MSG } from '@/constants';
-import { rl_reservacion_estado as EstadoReservacion } from '@prisma/client';
+// El enum rl_reservacion_estado fue reemplazado por la tabla catálogo ct_estado_reservacion.
+// Las claves de estado se importan como constantes desde pago.schema para evitar magic strings.
+import { ESTADO_RESERVACION } from '@/schemas/pago.schema';
 
 // ── Campos ordenables (whitelist) ─────────────────────────────────────────────
 
 export const CAMPOS_ORDENABLES_RESERVACION = [
   'id_rl_reservacion',
-  'estado',
+  // 'estado' ya no es columna directa — ahora la FK es id_ct_estado_reservacion
+  'id_ct_estado_reservacion',
   'fecha_reservacion',
   'fecha_reg',
 ] as const;
@@ -56,7 +59,9 @@ export const actualizarReservacionSchema = z.object({
     id: z.coerce.number().int().positive(),
   }),
   body: z.object({
-    estado: z.nativeEnum(EstadoReservacion).optional(),
+    // El estado ahora se pasa como la clave string del catálogo (ej: 'CONFIRMADA')
+    // Las transiciones de estado válidas se validan en el service, no aquí.
+    estado: z.enum(Object.values(ESTADO_RESERVACION) as [string, ...string[]]).optional(),
     id_ct_cliente: z.coerce.number().int().positive().optional(),
     id_ct_mesa: z.coerce.number().int().positive().optional(),
     fecha_reservacion: campos.fecha_reservacion.optional(),
@@ -71,7 +76,8 @@ export const filtrosReservacionesSchema = z.object({
     limite: z.coerce.number().int().positive().max(100).optional(),
     id_ct_cliente: z.coerce.number().int().positive().optional(),
     id_ct_mesa: z.coerce.number().int().positive().optional(),
-    estado: z.nativeEnum(EstadoReservacion).optional(),
+    // Filtrar por clave de estado del catálogo (ej: 'CONFIRMADA', 'CANCELADA')
+    clave_estado: z.enum(Object.values(ESTADO_RESERVACION) as [string, ...string[]]).optional(),
     ordenar_por: z.enum(CAMPOS_ORDENABLES_RESERVACION).optional(),
     orden: z.enum(['asc', 'desc']).optional(),
   }),

@@ -16,12 +16,6 @@ import { apiExterna } from '@/config/api-externa.config';
 
 // ── 1. Interfaces (ajusta a la respuesta real de tu API) ──────────────────────
 
-/** Respuesta típica de una API con envelope { data: [...] } */
-interface RespuestaListado<T> {
-  data: T[];
-  total?: number;
-}
-
 /** Ejemplo: tipo de documento que devuelve la API */
 export interface TipoDocumento {
   id: number;
@@ -45,7 +39,7 @@ class ApiExternaService {
     return apiExterna.get<TipoDocumento[]>('/ct_tipo_documento').then((r) => r.data);
 
     // Si la API devuelve un envelope { data: [...] }, usa esto en su lugar:
-    // return apiExterna.get<RespuestaListado<TipoDocumento>>('/ct_tipo_documento')
+    // return apiExterna.get<{ data: TipoDocumento[]; total?: number }>('/ct_tipo_documento')
     //   .then((r) => r.data.data);
   }
 

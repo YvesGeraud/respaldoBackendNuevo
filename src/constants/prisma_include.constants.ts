@@ -43,11 +43,15 @@ export const INCLUDE_USUARIO_ROL = Prisma.validator<Prisma.ct_usuarioInclude>()(
 });
 
 /**
- * Consulta una Reservación con Cliente, Mesa y Usuario.
+ * Consulta una Reservación con Cliente, Mesa, Estado y Usuario de registro.
+ * Se incluye ct_estado_reservacion para exponer la clave y nombre del estado
+ * (reemplazó al enum rl_reservacion_estado que era solo un string).
  */
 export const INCLUDE_RESERVACION_TODO = Prisma.validator<Prisma.rl_reservacionInclude>()({
   ct_cliente: true,
   ct_mesa: true,
+  // El estado ya no es un campo directo — viene de la relación con el catálogo
+  ct_estado_reservacion: true,
   usuario_registro: {
     select: {
       id_ct_usuario: true,

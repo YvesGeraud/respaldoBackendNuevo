@@ -4,6 +4,8 @@ import 'dotenv/config';
 import app from '@/setup';
 import { config } from '@/config/servidor.config';
 import { prisma } from '@/config/database.config';
+import { limpiarTokensExpirados } from '@/jobs/tokens.job';
+import { procesarNoShows } from '@/jobs/noshow.job';
 
 // ── Iniciar servidor ──────────────────────────────────────────────────────────
 
@@ -15,6 +17,21 @@ const servidor = app.listen(config.puerto, () => {
       `\n    ║  🌍 Entorno: ${config.nodeEnv.toUpperCase().padEnd(30)}║` +
       `\n    ╚════════════════════════════════════════════╝\n`,
   );
+
+  // ── Jobs de fondo ─────────────────────────────────────────────────────────
+  // Se registran DESPUÉS de que el servidor arranca para no bloquear el inicio.
+  // Se ejecutan inmediatamente una vez al arrancar (para recuperar trabajo
+  // pendiente de reinicios del servidor) y luego en intervalos periódicos.
+
+  // Limpieza de tokens expirados — cada 24 horas
+  void limpiarTokensExpirados();
+  setInterval(() => void limpiarTokensExpirados(), 24 * 60 * 60 * 1_000);
+
+  // Procesamiento de no-shows — cada hora
+  // Reservaciones CONFIRMADAS cuya fecha ya pasó se marcan como NO_SHOW
+  // y se captura el cargo de penalización en Stripe.
+  void procesarNoShows();
+  setInterval(() => void procesarNoShows(), 60 * 60 * 1_000);
 });
 
 // ── Manejo de errores de red y arranque ────────────────────────────────────────
