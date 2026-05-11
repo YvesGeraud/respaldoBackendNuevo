@@ -13,6 +13,7 @@ import type {
 import { CAMPOS_ORDENABLES_ORDEN } from '@/schemas/orden.schema';
 import { PAGINACION } from '@/constants';
 import { ErrorValidacion } from '@/utils/errores.utils';
+import socketService from './socket.service';
 
 // ── Include preciso para devolver órdenes con sus detalles ────────────────────
 
@@ -33,6 +34,13 @@ const INCLUDE_ORDEN_COMPLETA = {
     select: {
       id_ct_usuario: true,
       nombre_completo: true,
+    },
+  },
+
+  ct_mesa: {
+    select: {
+      id_ct_mesa: true,
+      codigo: true,
     },
   },
 } as const;
@@ -60,6 +68,12 @@ class OrdenService {
     }
     if (filtros.estado !== undefined) {
       where.estado = filtros.estado;
+    }
+
+    if (filtros.fecha_inicio || filtros.fecha_fin) {
+      where.fecha_reg = {};
+      if (filtros.fecha_inicio) where.fecha_reg.gte = new Date(filtros.fecha_inicio);
+      if (filtros.fecha_fin) where.fecha_reg.lte = new Date(filtros.fecha_fin);
     }
 
     return paginar(prisma.rl_orden, where, opciones, INCLUDE_ORDEN_COMPLETA) as Promise<
@@ -157,6 +171,9 @@ class OrdenService {
         include: INCLUDE_ORDEN_COMPLETA,
       });
 
+      // Notificar vía Sockets
+      socketService.notificarNuevaOrden(nuevaOrden);
+
       return nuevaOrden;
     });
   }
@@ -183,6 +200,9 @@ class OrdenService {
       data: { estado: datos.estado, id_ct_usuario_mod, fecha_mod: new Date() },
       include: INCLUDE_ORDEN_COMPLETA,
     });
+
+    // Notificar vía Sockets
+    socketService.notificarCambioEstado(ordenModificada);
 
     return ordenModificada;
   }

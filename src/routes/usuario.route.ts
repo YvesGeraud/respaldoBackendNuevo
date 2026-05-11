@@ -15,8 +15,11 @@ const router = Router();
 // Todas las rutas de usuarios requieren estar autenticado
 router.use(autenticado);
 
-// Gestión de Roles (para llenar selects en el front)
+// Gestión de Roles y Permisos (para llenar selects en el front y administración)
 router.get('/roles', usuarioController.listarRoles);
+router.get('/permisos', tienePermiso('USUARIOS_VER'), usuarioController.listarPermisos);
+router.get('/roles/:id/permisos', tienePermiso('USUARIOS_VER'), usuarioController.obtenerPermisosRol);
+router.put('/roles/:id/permisos', tienePermiso('USUARIOS_EDITAR'), usuarioController.actualizarPermisosRol);
 
 // CRUD de Usuarios
 router.get(

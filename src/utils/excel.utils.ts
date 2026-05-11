@@ -238,10 +238,11 @@ export function agregarPie(
   totalColumnas: number,
   celdas: Array<{
     col: number;
-    texto: string;
+    texto: string | number;
     negrita?: boolean;
     cursiva?: boolean;
     alinear?: 'left' | 'center' | 'right';
+    formato?: string;
   }>,
 ): void {
   // La fila siguiente a la última con datos
@@ -253,9 +254,10 @@ export function agregarPie(
     filaPie.getCell(c).border = { top: { style: 'thin', color: { argb: 'FFaaaaaa' } } };
   }
 
-  celdas.forEach(({ col, texto, negrita, cursiva, alinear }) => {
+  celdas.forEach(({ col, texto, negrita, cursiva, alinear, formato }) => {
     const celda = filaPie.getCell(col);
-    celda.value = texto;
+    celda.value = (typeof texto === 'number' ? Number(texto) : texto) as ExcelJS.CellValue;
+    if (formato) celda.numFmt = formato;
     celda.font = {
       bold: negrita ?? false,
       italic: cursiva ?? false,

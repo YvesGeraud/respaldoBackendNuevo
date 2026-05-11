@@ -311,6 +311,17 @@ async function main() {
     },
   });
 
+  await prisma.ct_usuario.create({
+    data: {
+      usuario: 'cocina1',
+      contrasena: passwordHash,
+      email: 'cocina1@restaurante.com',
+      nombre_completo: 'Chef Principal',
+      id_ct_rol: rolesMap['COCINA'],
+      id_ct_usuario_reg: 1,
+    },
+  });
+
   // 8. Tipos de documento
   console.log('📁 Creando tipos de documento...');
   await prisma.ct_tipo_documento.create({

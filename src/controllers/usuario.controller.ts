@@ -53,6 +53,25 @@ class UsuarioController {
     const roles = await usuarioService.listarRoles();
     responder.ok(res, roles);
   }
+
+  async listarPermisos(req: Request, res: Response): Promise<void> {
+    const permisos = await usuarioService.listarPermisos();
+    responder.ok(res, permisos);
+  }
+
+  async obtenerPermisosRol(req: Request, res: Response): Promise<void> {
+    const permisos = await usuarioService.obtenerPermisosRol(Number(req.params['id']));
+    responder.ok(res, permisos);
+  }
+
+  async actualizarPermisosRol(req: Request, res: Response): Promise<void> {
+    await usuarioService.actualizarPermisosRol(
+      req.usuario!.id_ct_usuario,
+      Number(req.params['id']),
+      req.body.permisosIds as number[],
+    );
+    responder.ok(res, null, 'Permisos actualizados correctamente');
+  }
 }
 
 export default new UsuarioController();

@@ -135,6 +135,41 @@ class UsuarioService {
       },
     });
   }
+
+  async listarPermisos() {
+    return prisma.ct_permiso.findMany({
+      where: { estado: true },
+      orderBy: { nombre: 'asc' },
+    });
+  }
+
+  async obtenerPermisosRol(id_ct_rol: number) {
+    return prisma.rl_rol_permiso.findMany({
+      where: { id_ct_rol, estado: true },
+      select: { id_ct_permiso: true },
+    });
+  }
+
+  async actualizarPermisosRol(id_ct_usuario_mod: number, id_ct_rol: number, permisosIds: number[]) {
+    // Usamos una transacción para limpiar y re-asignar
+    return prisma.$transaction(async (tx) => {
+      // 1. Eliminar permisos actuales del rol
+      await tx.rl_rol_permiso.deleteMany({
+        where: { id_ct_rol },
+      });
+
+      // 2. Crear las nuevas relaciones
+      const data = permisosIds.map((id_ct_permiso) => ({
+        id_ct_rol,
+        id_ct_permiso,
+        id_ct_usuario_reg: id_ct_usuario_mod,
+      }));
+
+      return tx.rl_rol_permiso.createMany({
+        data,
+      });
+    });
+  }
 }
 
 export default new UsuarioService();

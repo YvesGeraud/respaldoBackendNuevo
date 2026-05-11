@@ -59,6 +59,8 @@ export const filtrosOrdenesSchema = z.object({
     // Whitelist explícita
     ordenar_por: z.enum(CAMPOS_ORDENABLES_ORDEN).optional(),
     orden: z.enum(['asc', 'desc']).optional(),
+    fecha_inicio: z.string().datetime().optional(),
+    fecha_fin: z.string().datetime().optional(),
   }),
 });
 

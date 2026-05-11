@@ -8,6 +8,7 @@ import { ordenRouter } from '@/routes/orden.route';
 //* Reportes
 import { pdfRouter } from '@/routes/pdf.route';
 import { excelRouter } from './excel.route';
+import { reporteRouter } from './reporte.route';
 
 //* Archivos
 import { archivoRouter } from '@/routes/archivo.route';
@@ -53,6 +54,7 @@ router.use('/ordenes', ordenRouter);
 //* Reportes
 router.use('/pdf', pdfRouter);
 router.use('/excel', excelRouter);
+router.use('/reportes', reporteRouter);
 
 //* Archivos
 router.use('/archivos', archivoRouter);

@@ -6,6 +6,7 @@ import { config } from '@/config/servidor.config';
 import { prisma } from '@/config/database.config';
 import { limpiarTokensExpirados } from '@/jobs/tokens.job';
 import { procesarNoShows } from '@/jobs/noshow.job';
+import socketService from '@/services/socket.service';
 
 // ── Iniciar servidor ──────────────────────────────────────────────────────────
 
@@ -17,6 +18,10 @@ const servidor = app.listen(config.puerto, () => {
       `\n    ║  🌍 Entorno: ${config.nodeEnv.toUpperCase().padEnd(30)}║` +
       `\n    ╚════════════════════════════════════════════╝\n`,
   );
+
+  // Inicializar Sockets
+  socketService.inicializar(servidor);
+
 
   // ── Jobs de fondo ─────────────────────────────────────────────────────────
   // Se registran DESPUÉS de que el servidor arranca para no bloquear el inicio.
