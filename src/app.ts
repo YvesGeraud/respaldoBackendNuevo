@@ -69,10 +69,28 @@ process.on('uncaughtException', (error) => {
 // para que los tests puedan importar app sin arrancar ni cerrar servidores.
 const shutdown = async (signal: string): Promise<void> => {
   console.log(`\n[${signal}] Cerrando servidor...`);
+
+  // Seguro de vida: forzar salida si tarda demasiado (vital en Linux para liberar puertos)
+  const forceExit = setTimeout(() => {
+    console.error('⚠️ El servidor tardó demasiado en cerrar. Forzando salida para liberar el puerto...');
+    process.exit(1);
+  }, 3000);
+
+  // 1. Cerrar sockets (desconecta clientes inmediatamente)
+  socketService.cerrar();
+
+  // 2. Cerrar servidor HTTP (deja de aceptar nuevas peticiones)
   servidor.close(async () => {
-    await prisma.$disconnect();
-    console.log('Conexiones cerradas. Proceso terminado.');
-    process.exit(0);
+    clearTimeout(forceExit);
+    try {
+      // 3. Desconectar DB
+      await prisma.$disconnect();
+      console.log('✅ Conexiones cerradas. Proceso terminado.');
+      process.exit(0);
+    } catch (error) {
+      console.error('❌ Error al cerrar conexiones:', error);
+      process.exit(1);
+    }
   });
 };
 

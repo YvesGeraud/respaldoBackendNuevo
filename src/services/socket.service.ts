@@ -23,6 +23,14 @@ class SocketService {
     return this.io;
   }
 
+  // Cerrar todas las conexiones
+  cerrar() {
+    if (this.io) {
+      this.io.close();
+      console.log('🔌 Socket.io cerrado.');
+    }
+  }
+
   // Enviar mensaje a todos los conectados
   emitir(evento: string, datos: unknown) {
     if (!this.io) {
