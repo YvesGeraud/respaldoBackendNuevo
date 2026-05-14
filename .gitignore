@@ -1,12 +1,30 @@
 node_modules/
 dist/
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+
+# Logs y temporales
 logs/
 uploads/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Prisma y código generado
 src/generated/
-/src/generated/prisma
-/src/generated/prisma
+prisma/generated/
+
+# Tests
 coverage/
+
+# Otros gestores (para evitar conflictos con pnpm)
+package-lock.json
+yarn.lock
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
