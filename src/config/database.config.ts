@@ -15,6 +15,7 @@ function crearCliente() {
     database: config.db.nombre,
     user: config.db.usuario,
     password: config.db.password,
+    allowPublicKeyRetrieval: true, // Necesario para autenticación segura en algunos entornos de nube
     connectionLimit: config.esProduccion ? 20 : 5,
     acquireTimeout: 8_000,
     idleTimeout: 600_000,
