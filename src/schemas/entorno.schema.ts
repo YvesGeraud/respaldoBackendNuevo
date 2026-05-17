@@ -51,11 +51,11 @@ export const entornoSchema = z
       const url = new URL(data.DATABASE_URL);
       return {
         ...data,
-        DB_HOST: data.DB_HOST || url.hostname,
-        DB_PORT: data.DB_PORT || (url.port ? parseInt(url.port) : 3306),
-        DB_USER: data.DB_USER || url.username,
-        DB_PASSWORD: data.DB_PASSWORD || decodeURIComponent(url.password),
-        DBNAMES: data.DBNAMES || url.pathname.replace('/', ''),
+        DB_HOST: url.hostname,
+        DB_PORT: url.port ? parseInt(url.port) : 3306,
+        DB_USER: url.username,
+        DB_PASSWORD: decodeURIComponent(url.password),
+        DBNAMES: url.pathname.replace('/', ''),
       };
     } catch {
       return data;

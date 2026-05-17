@@ -5,13 +5,9 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
+    seed: 'tsx prisma/seed.ts',
   },
   datasource: {
-    url: process.env.DATABASE_URL,
-  },
-  seed: {
-    // Esto permite que 'prisma bootstrap' o 'prisma db seed'
-    // sepan exactamente qué comando usar sin configuración extra en package.json
-    run: 'tsx prisma/seed.ts',
+    url: process.env.DATABASE_URL || process.env.MYSQL_URL,
   },
 });
