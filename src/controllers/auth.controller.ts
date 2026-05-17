@@ -17,7 +17,7 @@ import type { LoginDTO } from '@/schemas/auth.schema';
 const BASE_COOKIE = {
   httpOnly: true,
   secure: config.esProduccion,
-  sameSite: 'strict' as const,
+  sameSite: config.esProduccion ? ('none' as const) : ('lax' as const),
   path: '/',
 } as const;
 
